@@ -225,7 +225,10 @@ export default function Home() {
       />
 
       <main className="flex-1 px-4 pt-4 pb-32">
-        <h1 className="text-lg font-bold text-slate-800 mb-2">いつから？に答える。 〜家族の体調、タップで記録〜</h1>
+        <div className="mb-2">
+          <h1 className="text-xl font-bold text-slate-800 leading-tight">いつから？に答える。</h1>
+          <p className="text-sm text-slate-600 mt-0.5 leading-tight">〜家族の体調、タップで記録〜</p>
+        </div>
         <LogTimeline logs={logs} />
 
         {archiveMessage && (
