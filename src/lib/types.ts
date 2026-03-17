@@ -89,7 +89,7 @@ export interface SummaryContext {
 
 /** 要約APIに渡すログ行 */
 export interface SummaryLogEntry {
-  time: string;
+  timeRange: string;
   symptom: string;
   severity: string;
 }

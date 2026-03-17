@@ -1,10 +1,5 @@
-import type { SymptomLog, FamilyMember } from './types';
-import { SYMPTOM_LABELS, MOOD_OPTIONS, APPETITE_OPTIONS, SEVERITY_OPTIONS } from './constants';
-
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-}
+import type { SymptomLog, FamilyMember, SummaryLogEntry } from './types';
+import { SYMPTOM_LABELS, MOOD_OPTIONS, APPETITE_OPTIONS, SEVERITY_OPTIONS, TIME_RANGE_OPTIONS } from './constants';
 
 function symptomLabel(log: SymptomLog): string {
   if (log.type === 'fever' && log.value) return `発熱 ${log.value}℃`;
@@ -23,6 +18,10 @@ function severityLabel(s: string): string {
   return SEVERITY_OPTIONS.find((o) => o.id === s)?.label ?? s;
 }
 
+function timeRangeLabel(v: string): string {
+  return TIME_RANGE_OPTIONS.find((o) => o.value === v)?.label ?? v;
+}
+
 /** 主訴：程度が「ひどい」かつ最新のものを1つ。2つ目は任意（ここでは未使用で1つのみ自動） */
 export function getChiefComplaintAuto(logs: SymptomLog[]): string[] {
   const sorted = [...logs].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -33,10 +32,10 @@ export function getChiefComplaintAuto(logs: SymptomLog[]): string[] {
 }
 
 /** API用のログ配列 */
-export function toSummaryLogs(logs: SymptomLog[]): { time: string; symptom: string; severity: string }[] {
+export function toSummaryLogs(logs: SymptomLog[]): SummaryLogEntry[] {
   const sorted = [...logs].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   return sorted.map((l) => ({
-    time: formatTime(l.timestamp),
+    timeRange: timeRangeLabel(l.timeRange),
     symptom: symptomLabel(l),
     severity: severityLabel(l.severity),
   }));

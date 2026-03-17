@@ -35,12 +35,12 @@ export async function POST(req: Request) {
 ■アレルギー: ${patientInfo?.allergies ?? 'なし'}
 ■主訴: 1. ${chief1} / 2. ${chief2 || 'なし'}
 ■経過ログ:
-${Array.isArray(logs) ? logs.map((l: { time: string; symptom: string; severity: string }) => `- ${l.symptom} (${l.severity})`).join('\n') : ''}
+${Array.isArray(logs) ? logs.map((l: { timeRange: string; symptom: string; severity: string }) => `- ${l.timeRange}: ${l.symptom} (${l.severity})`).join('\n') : ''}
 
 ### 出力フォーマット
 【経過の要約】
 - 最優先: 症状を羅列せず、経過が分かるように「出現→悪化/改善→現在」を短くまとめる。
-- 形式: 箇条書き。時刻・時間帯（◯◯時、朝/昼/夕/夜 など）は一切書かない。
+- 形式: 箇条書き。「昨日から」「3日前から」「1週間前から」などの時間経過（いつから）は必ず含める。時刻（23:34など）は一切書かない。
 - 行数: 最大5行の箇条書き（短いほど良い）。重要度は「主訴に関係するもの」「程度がひどい」「新しく出現/悪化/改善」を優先。
 - 表現: 医療用語に言い換えず、患者の言葉を維持（例: 水様便、咳）。
 - 禁止: 診断・助言・推測（〜の可能性、〜だと思う 等）をしない。
