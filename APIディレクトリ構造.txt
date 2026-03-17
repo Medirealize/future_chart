@@ -1,0 +1,77 @@
+1. APIディレクトリ構造 (Next.js App Router)
+src/app/api/summarize/route.ts に、フロントエンドから送られた症状データを医師向け要約に変換するエンドポイントを作成します。
+
+2. 実装コード： APIルート (route.ts)
+Cursorのチャットに以下を貼り付けて、実装を依頼してください。
+
+TypeScript
+import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export async function POST(req: Request) {
+  try {
+    const { patientInfo, logs, context, chiefComplaints } = await req.json();
+
+    // システムプロンプトの定義
+    const systemPrompt = `
+あなたは優秀な医療通訳兼編集者です。
+患者がアプリで入力したバラバラの症状ログを、診察室で医師が10秒で理解できる「報告書」に変換してください。
+
+### 厳守事項
+1. 診断や医療アドバイスは絶対に行わない。
+2. 専門用語（咳嗽、心窩部痛など）への変換はせず、患者の言葉（咳、みぞおちの痛み）を維持する。
+3. 箇条書きで、一目でわかる構造にする。
+4. 主訴（もっともしんどい症状）は最大2個。2個目が「なし」の場合は1個目を強調する。
+    `;
+
+    // ユーザーデータの構造化
+    const userPrompt = `
+以下のデータを要約してください：
+
+■患者情報: ${patientInfo.name} (${patientInfo.age} / ${patientInfo.gender})
+■アレルギー: ${patientInfo.allergies || 'なし'}
+■主訴: 1.${chiefComplaints[0]} / 2.${chiefComplaints[1] || 'なし'}
+■周辺情報: 食欲:${context.appetite}, 機嫌:${context.mood}, 周囲の流行:${context.epidemic}
+■経過ログ:
+${logs.map((l: any) => `- ${l.time}: ${l.symptom} (${l.severity})`).join('\n')}
+
+### 出力フォーマット
+【アレルギー】〇〇
+【主訴】1.〇〇 / 2.〇〇
+【経過の要約】
+・いつから、どう変化したか3行以内で。
+【周辺情報】
+・食欲、機嫌、流行状況。
+    `;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-2024-08-06", // または gpt-4o-mini
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.3, // 揺らぎを抑えて事実に基づかせる
+    });
+
+    return NextResponse.json({ summary: response.choices[0].message.content });
+  } catch (error) {
+    return NextResponse.json({ error: '要約の生成に失敗しました' }, { status: 500 });
+  }
+}
+3. Cursorへの具体的なプロンプト指示
+Cursorの Composer (Cmd+I) または Chat に以下の指示を投げてください。
+
+指示内容：
+Next.jsのApp Routerで、症状要約アプリ「ポケレポ」を作成します。
+
+src/app/api/summarize/route.ts にOpenAI APIを使用した要約エンドポイントを作成して。
+
+patientInfo（名前、年齢、性別、アレルギー）、logs（時間、症状、程度の配列）、context（食欲、機嫌、流行）をJSONで受け取る仕様にして。
+
+主訴（chiefComplaints）は配列で2つ受け取り、2つ目が「なし」の場合は1つ目を最優先するロジックにして。
+
+env.local に OPENAI_API_KEY を設定する前提で書いて。

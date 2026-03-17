@@ -1,0 +1,83 @@
+1. 医師提示画面のCSS・デザイン仕様
+医師は、数秒で「状況」を読み取ります。以下の仕様でコンポーネントを作成してください。
+
+TypeScript
+"use client";
+
+export default function DoctorView({ summary, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-white z-50 overflow-y-auto p-6 flex flex-col">
+      {/* 閉じるボタン：誤操作を防ぐため上部に配置 */}
+      <button onClick={onClose} className="text-right text-blue-500 font-bold mb-4">
+        ✕ 閉じる
+      </button>
+
+      {/* ヘッダー：患者の属性とアレルギー */}
+      <header className="border-b-4 border-black pb-4 mb-6">
+        <h2 className="text-3xl font-black mb-1">診察メモ</h2>
+        <div className="flex gap-4 text-xl font-bold">
+          <span>次女（12歳）</span>
+          <span className="text-red-600 bg-red-50 px-2 rounded">⚠️卵・ペニシリン</span>
+        </div>
+      </header>
+
+      {/* 主訴：最も目立たせる */}
+      <section className="mb-8">
+        <h3 className="text-lg bg-black text-white px-2 py-1 inline-block mb-2">主訴</h3>
+        <div className="text-4xl font-black leading-tight">
+          1. 激しい腹痛 <br />
+          <span className="text-2xl text-gray-500">2. （なし）</span>
+        </div>
+      </section>
+
+      {/* 経過の要約：AIが生成したテキストを流し込む */}
+      <section className="mb-8 bg-gray-50 p-4 rounded-xl">
+        <h3 className="text-lg font-bold border-b border-gray-300 mb-2">経過の要約</h3>
+        <div className="text-2xl leading-relaxed whitespace-pre-wrap">
+          {summary}
+        </div>
+      </section>
+
+      {/* 周辺情報：事実のみを並べる */}
+      <section className="mb-10">
+        <h3 className="text-lg font-bold border-b border-gray-300 mb-2">周辺情報</h3>
+        <ul className="text-xl space-y-2">
+          <li>・食欲：水分のみ</li>
+          <li>・機嫌：ぐったりしている</li>
+          <li>・周囲：胃腸炎が流行中</li>
+        </ul>
+      </section>
+
+      <footer className="mt-auto pt-10 text-center text-gray-400 text-sm">
+        ※このメモは患者本人の記録をAIが整理したものです。
+      </footer>
+    </div>
+  );
+}
+2. 実装の「こだわり」仕上げプロンプト（Cursor用）
+Cursorにさらに以下の「隠し味」を実装させてください。
+
+追加指示（UXの向上）：
+
+スリープ防止: DoctorView が表示されている間だけ、nosleep.js 等を使って画面が消えないようにして。
+
+輝度最大化: （ブラウザの制約はありますが）背景を真っ白にすることで、医師が読みやすい「最大コントラスト」を確保して。
+
+アーカイブ機能: メイン画面に「ログをアーカイブして新しく始める」ボタンを追加。アーカイブされたデータはローカルストレージに日付ごとに1つ（要約文のみ）残す仕様にして。
+
+PWA設定: next-pwa を導入し、manifest.json とアイコンを設定して「ホーム画面に追加」できるように構成して。
+
+3. マーケッターとしての最終評価
+辛口チェック
+UIの単調さへの懸念： 入力がタップばかりだと、後で「いつ入力したっけ？」と迷う可能性があります。入力完了時に「保存しました」と小さなトースト通知（または触覚フィードバック）が出るようにしてください。
+
+フォントサイズの重要性： 「大きすぎるかな？」と思うくらいが、診察室ではちょうど良いです。医師がモニターとスマホを往復して見る際、一瞬で焦点が合うサイズ（24px以上）を基準にしてください。
+
+4. 完成後の運用イメージ
+これで、**「書かせない入力UI」から「医師が汲み取りやすい要約出力」**までが繋がりました。
+
+家で： お子さんの状態をタップで記録。
+
+待合室で： 「先生に伝える」ボタンを押し、主訴を「腹痛」に確定。
+
+診察室で： 医師提示画面を開き、輝度MAXのスマホを医師に「これ見てください」と渡す。

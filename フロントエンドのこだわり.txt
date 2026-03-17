@@ -1,0 +1,98 @@
+1. フロントエンド実装のこだわり（UX/UI）
+「キーボードを出さない」： 入力はすべてタップ、スライダー、ドラムロールで完結させます。
+
+「触覚フィードバック」： ボタンを押した際やドラムロールを回した際に、スマホのバイブレーションを微弱に鳴らすことで「入力した実感」を持たせます。
+
+「色による状況把握」： 程度（3段階）に合わせて、画面の色調が直感的に変わるようにします。
+
+2. 実装コード案（Next.js + Tailwind CSS）
+まずは、ドラムロール（ピッカー）を含むメインの入力コンポーネントの骨格です。
+
+症状入力・ドラムロール UI (components/SymptomInput.tsx)
+TypeScript
+"use client";
+import React, { useState } from 'react';
+
+// 体温ドラムロール用の数値生成 (35.0 - 41.0)
+const temperatures = Array.from({ length: 61 }, (_, i) => (35 + i * 0.1).toFixed(1));
+
+export default function SymptomInput({ onAddLog }) {
+  const [selectedTemp, setSelectedTemp] = useState("36.5");
+  const [severity, setSeverity] = useState("mid");
+
+  return (
+    <div className="p-4 bg-white rounded-t-3xl shadow-2xl border-t border-gray-200 fixed bottom-0 left-0 right-0">
+      <h3 className="text-lg font-bold mb-4 text-center">いまの状態を記録</h3>
+      
+      {/* 体温選択ドラムロール（簡易実装：横スクロールピッカー） */}
+      <div className="flex flex-col items-center mb-6">
+        <span className="text-sm text-gray-500 mb-2">体温を選択</span>
+        <div className="flex overflow-x-auto w-full snap-x snap-mandatory scrollbar-hide py-4 border-y border-gray-100">
+          {temperatures.map((temp) => (
+            <div
+              key={temp}
+              onClick={() => setSelectedTemp(temp)}
+              className={`flex-shrink-0 w-20 h-12 flex items-center justify-center snap-center text-xl font-mono cursor-pointer transition-all ${
+                selectedTemp === temp ? 'text-red-500 font-bold text-2xl scale-125' : 'text-gray-400'
+              }`}
+            >
+              {temp}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 程度選択：3段階ボタン */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        {[
+          { id: 'low', label: 'すこし', color: 'bg-blue-100 text-blue-600', active: 'ring-2 ring-blue-500 bg-blue-500 text-white' },
+          { id: 'mid', label: 'そこそこ', color: 'bg-yellow-100 text-yellow-600', active: 'ring-2 ring-yellow-500 bg-yellow-500 text-white' },
+          { id: 'high', label: 'ひどい', color: 'bg-red-100 text-red-600', active: 'ring-2 ring-red-500 bg-red-500 text-white' }
+        ].map((s) => (
+          <button
+            key={s.id}
+            onClick={() => setSeverity(s.id)}
+            className={`py-4 rounded-2xl font-bold transition-all ${severity === s.id ? s.active : s.color}`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      <button 
+        className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold text-lg shadow-lg active:scale-95 transition-transform"
+        onClick={() => onAddLog({ temp: selectedTemp, severity })}
+      >
+        この内容で記録する
+      </button>
+    </div>
+  );
+}
+3. Cursorへの指示（フロントエンド一括作成用）
+Cursorのチャットに以下の指示を投げ、全体の画面を構成させてください。
+
+指示内容：
+Next.js (App Router) を使い、症状記録アプリのフロントエンドを作成して。
+
+components/FamilyTabs.tsx: 画面最上部に家族の顔アイコンを並べ、1タップで切り替えるタブを作成して。
+
+components/LogTimeline.tsx: 記録された症状ブロックを、新しい順に「時・症状・程度」のカード形式で表示して。程度が「ひどい」のものは背景を薄い赤にして。
+
+components/SymptomPicker.tsx:
+
+体温計のような「ドラムロール式」の数値選択UIを実装して。キーボードは絶対に出さないこと。
+
+「水様便」「軟便」を分けた症状選択ボタンを設置して。
+
+程度は「ひどい・そこそこ・すこし」の3段階ボタンにして。
+
+app/page.tsx: これらを統合し、右下に「先生に見せる（要約）」ボタンを配置して。
+
+要約ロジック: 前に作成したAPI (/api/summarize) を叩き、結果をモーダルまたは全画面で「医師提示用デザイン（白背景・大文字・箇条書き）」で表示して。
+
+4. マーケッターからの「仕上げ」のアドバイス
+PWA化の推奨：
+Next.jsで作るなら、PWA（Progressive Web App）に対応させてください。スマホのホーム画面に「アプリ」としてアイコンが置けるようになると、お子さんの急な発熱時に検索する手間なく一瞬で立ち上げられます。
+
+「1つ目の主訴」自動判定：
+app/page.tsx 内のロジックで、「最新の記録の中で、程度が『ひどい』もの」を自動的に initialChiefComplaint としてAPIに渡すようにすると、ユーザーの手間がさらに減ります。
