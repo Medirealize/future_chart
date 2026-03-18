@@ -210,12 +210,11 @@ export default function Home() {
     } catch (e) {
       // 失敗しても最低限の診察メモ画面は開く
       setDoctorView({
-        summary: '要約の生成に失敗しました。電波状況などを確認し、必要であれば口頭で補足してください。',
+        summary: 'AI要約の生成に失敗しました。この画面の主訴と経過をもとに、口頭で補足してください。',
         chief1: chief1 || '（なし）',
         chief2: chief2 || null,
       });
-      setToast('要約の取得に失敗しました。通信状況を確認して、必要に応じて再試行してください。');
-      setTimeout(() => setToast(null), 3000);
+      // トーストは鳴らさず、診察メモ画面内の文言だけで伝える
     }
   }, [activeMember, logs]);
 
