@@ -31,9 +31,57 @@ export function getChiefComplaintAuto(logs: SymptomLog[]): string[] {
   return [first || '（なし）', second || ''];
 }
 
-/** API用のログ配列 */
+function timeRangeOrder(v: string): number {
+  // 古い順（値が小さいほど古い）
+  switch (v) {
+    case 'month_6_plus':
+      return 0;
+    case 'month_5':
+      return 1;
+    case 'month_4':
+      return 2;
+    case 'month_3':
+      return 3;
+    case 'month_2':
+      return 4;
+    case 'month_1':
+      return 5;
+    case 'week_3':
+      return 6;
+    case 'week_2':
+      return 7;
+    case 'week_1':
+      return 8;
+    case 'day_6':
+      return 9;
+    case 'day_5':
+      return 10;
+    case 'day_4':
+      return 11;
+    case 'day_3':
+      return 12;
+    case 'day_2':
+      return 13;
+    case 'yesterday':
+      return 14;
+    case 'today':
+      return 15;
+    case 'just_now':
+      return 16;
+    default:
+      return 100;
+  }
+}
+
+/** API用のログ配列（上が古く、下ほど新しい順） */
 export function toSummaryLogs(logs: SymptomLog[]): SummaryLogEntry[] {
-  const sorted = [...logs].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  const sorted = [...logs].sort((a, b) => {
+    const oa = timeRangeOrder(a.timeRange);
+    const ob = timeRangeOrder(b.timeRange);
+    if (oa !== ob) return oa - ob;
+    // 同じ「いつから」の中では記録時間順（古い→新しい）
+    return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+  });
   return sorted.map((l) => ({
     timeRange: timeRangeLabel(l.timeRange),
     symptom: symptomLabel(l),
