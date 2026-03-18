@@ -1,4 +1,4 @@
-import type { SymptomLog, FamilyMember, SummaryLogEntry } from './types';
+import type { SymptomLog, FamilyMember, SummaryLogEntry, TimeRange } from './types';
 import { SYMPTOM_LABELS, MOOD_OPTIONS, APPETITE_OPTIONS, SEVERITY_OPTIONS, TIME_RANGE_OPTIONS } from './constants';
 
 function symptomLabel(log: SymptomLog): string {
@@ -31,11 +31,56 @@ export function getChiefComplaintAuto(logs: SymptomLog[]): string[] {
   return [first || '（なし）', second || ''];
 }
 
-/** API用のログ配列（上が古く、下ほど新しい順） */
+/** 発症時期（いつから）が古いほど小さい番号＝一覧の上に来る */
+const ONSET_ORDER: Record<TimeRange, number> = {
+  month_6_plus: 0,
+  month_5: 1,
+  month_4: 2,
+  month_3: 3,
+  month_2: 4,
+  month_1: 5,
+  week_3: 6,
+  week_2: 7,
+  week_1: 8,
+  day_6: 9,
+  day_5: 10,
+  day_4: 11,
+  day_3: 12,
+  day_2: 13,
+  yesterday: 14,
+  today: 15,
+  just_now: 16,
+};
+
+function onsetOrder(tr: string): number {
+  return ONSET_ORDER[tr as TimeRange] ?? 99;
+}
+
+/** 診察メモ用：発症時期が古い順（同じ時期は記録時刻の古い順） */
+export function sortLogsByOnsetOldestFirst(logs: SymptomLog[]): SymptomLog[] {
+  return [...logs].sort((a, b) => {
+    const oa = onsetOrder(a.timeRange);
+    const ob = onsetOrder(b.timeRange);
+    if (oa !== ob) return oa - ob;
+    return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+  });
+}
+
+/** 診察メモ「経過の要約」用テキスト（発症時期の古い順・改行区切り） */
+export function buildDoctorSummaryFromLogs(logs: SymptomLog[]): string {
+  const sorted = sortLogsByOnsetOldestFirst(logs);
+  if (sorted.length === 0) return '記録がありません。';
+  return sorted
+    .map(
+      (l) =>
+        `・${timeRangeLabel(l.timeRange)}：${symptomLabel(l)}（${severityLabel(l.severity)}）`
+    )
+    .join('\n');
+}
+
+/** API用のログ配列（発症時期の古い順＝要約入力も同じ並び） */
 export function toSummaryLogs(logs: SymptomLog[]): SummaryLogEntry[] {
-  const sorted = [...logs].sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  );
+  const sorted = sortLogsByOnsetOldestFirst(logs);
   return sorted.map((l) => ({
     timeRange: timeRangeLabel(l.timeRange),
     symptom: symptomLabel(l),

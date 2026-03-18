@@ -17,8 +17,8 @@ import {
   getChiefComplaintAuto,
   toSummaryLogs,
   getContextFromLogs,
-  getContextLines,
   getPatientInfo,
+  buildDoctorSummaryFromLogs,
 } from '@/lib/summary';
 import FamilyTabs from '@/components/FamilyTabs';
 import LogTimeline from '@/components/LogTimeline';
@@ -202,15 +202,18 @@ export default function Home() {
         throw new Error(msg);
       }
 
+      // 経過はログの発症時期（いつから）＋記録時刻でソートした箇条書きを必ず表示（AIの並びに依存しない）
       setDoctorView({
-        summary: (data && typeof data === 'object' && 'summary' in data ? (data as any).summary : '') ?? '',
+        summary: buildDoctorSummaryFromLogs(logs),
         chief1: chief1 || '（なし）',
         chief2: chief2 || null,
       });
     } catch (e) {
-      // 失敗しても最低限の診察メモ画面は開く
       setDoctorView({
-        summary: 'AI要約の生成に失敗しました。この画面の主訴と経過をもとに、口頭で補足してください。',
+        summary:
+          logs.length > 0
+            ? buildDoctorSummaryFromLogs(logs)
+            : '記録がありません。症状を入力してから再度お試しください。',
         chief1: chief1 || '（なし）',
         chief2: chief2 || null,
       });
