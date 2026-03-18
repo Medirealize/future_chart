@@ -2,17 +2,10 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 export async function POST(req: Request) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: 'OPENAI_API_KEY が設定されていません' },
-      { status: 500 }
-    );
-  }
-  const openai = new OpenAI({ apiKey });
-
   try {
     const { patientInfo, logs, chiefComplaints } = await req.json();
+    const apiKey = process.env.OPENAI_API_KEY;
+    const openai = apiKey ? new OpenAI({ apiKey }) : null;
 
     const systemPrompt = `
 あなたは優秀な医療通訳兼編集者です。
@@ -46,22 +39,45 @@ ${Array.isArray(logs) ? logs.map((l: { timeRange: string; symptom: string; sever
 - 禁止: 診断・助言・推測（〜の可能性、〜だと思う 等）をしない。
 `;
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.3,
-    });
+    // フォールバック用のシンプルな要約（AIが使えない場合でも最低限返す）
+    const fallbackSummary =
+      Array.isArray(logs) && logs.length > 0
+        ? logs
+            .slice(0, 5)
+            .map(
+              (l: { timeRange: string; symptom: string; severity: string }) =>
+                `・${l.timeRange} ${l.symptom}（${l.severity}）`
+            )
+            .join('\n')
+        : '記録から要約を生成できませんでした。症状ログを確認してください。';
 
-    const content = response.choices[0]?.message?.content ?? '';
-    return NextResponse.json({ summary: content });
+    if (!openai) {
+      // APIキーが無い場合はAIを使わずフォールバックを返す（HTTP 200）
+      return NextResponse.json({ summary: fallbackSummary });
+    }
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.3,
+      });
+
+      const content = response.choices[0]?.message?.content ?? '';
+      return NextResponse.json({ summary: content || fallbackSummary });
+    } catch (e) {
+      console.error('openai summarize error', e);
+      // OpenAI側が落ちてもフォールバックでHTTP 200を返す
+      return NextResponse.json({ summary: fallbackSummary });
+    }
   } catch (error) {
     console.error('summarize error', error);
     return NextResponse.json(
-      { error: '要約の生成に失敗しました' },
-      { status: 500 }
+      { summary: '記録の読み込み時にエラーが発生しました。症状ログをご確認ください。' },
+      { status: 200 }
     );
   }
 }
