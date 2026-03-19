@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Noto_Sans_JP } from "next/font/google";
+import ThemeGuard from "./ThemeGuard";
 
 const notoSansJp = Noto_Sans_JP({
   display: "swap",
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           "dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 dark:text-slate-50",
         ].join(" ")}
       >
+        <ThemeGuard />
         {children}
       </body>
     </html>
