@@ -35,6 +35,33 @@ export default function WriteEntryClient({
   ];
   const [diaryMode, setDiaryMode] = React.useState<DiaryMode>("禅");
 
+  const coreValueMeanings: Record<string, string> = {
+    初志貫徹: "最初に決めた志を最後まで突き通すこと",
+    着眼大局: "目先ではなく大きな目的を見て判断すること",
+    一期一会: "一生に一度しかない出会いを大切にすること",
+    虚心坦懐: "心を開いて素直に向き合うこと",
+    不撓不屈: "くじけず最後まで努力し続けること",
+    明朗快活: "明るく前向きで元気に振る舞うこと",
+    自他共栄: "自分も相手も、ともに栄えること",
+    迅速果断: "素早く決断し行動すること",
+    質実剛健: "飾らずに堅実で、心身を強く保つこと",
+    温故知新: "古い知識を学び、そこから新しい知恵を得ること",
+  };
+
+  function enrichFourCharIdioms(text: string) {
+    let out = text;
+    for (const [idiom, meaning] of Object.entries(coreValueMeanings)) {
+      const re = new RegExp(`${idiom}(?!（)`);
+      out = out.replace(re, `${idiom}（${meaning}）`);
+    }
+    return out;
+  }
+
+  const coreValueEnriched = React.useMemo(() => {
+    if (!coreValue) return "";
+    return enrichFourCharIdioms(coreValue);
+  }, [coreValue]);
+
   React.useEffect(() => {
     let cancelled = false;
 
@@ -138,7 +165,7 @@ export default function WriteEntryClient({
           </p>
           {coreValue ? (
             <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-              合言葉：{coreValue}
+              合言葉：{coreValueEnriched}
             </p>
           ) : null}
         </div>
@@ -158,6 +185,13 @@ export default function WriteEntryClient({
             />
             <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
               現在のモード: {diaryMode}
+            </div>
+            <div className="mt-2 text-xs text-slate-600 dark:text-slate-300">
+              {diaryMode === "禅"
+                ? "（静かに自分と向き合い、未来を俯瞰するスタイル）"
+                : diaryMode === "ライバル"
+                  ? "（切磋琢磨し、互いを高め合う熱いスタイル）"
+                  : "（緻密な計画とサポートで、着実に未来を支えるスタイル）"}
             </div>
           </div>
         </div>

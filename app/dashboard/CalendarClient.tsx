@@ -1,7 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { format, isBefore, addYears, differenceInCalendarDays, startOfDay, parseISO } from "date-fns";
+import {
+  format,
+  isBefore,
+  addYears,
+  addMonths,
+  differenceInCalendarDays,
+  differenceInMonths,
+  differenceInYears,
+  startOfDay,
+  parseISO,
+} from "date-fns";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,10 +68,15 @@ export default function CalendarClient({
     () => (today ? addYears(today, targetYears) : null),
     [today, targetYears]
   );
-  const daysLeft = React.useMemo(() => {
-    if (!futureDate || !today) return 0;
-    const diff = differenceInCalendarDays(futureDate, today);
-    return diff >= 0 ? diff : 0;
+  const timeLeft = React.useMemo(() => {
+    if (!futureDate || !today) return null;
+    // 月単位・日単位がズレないよう、段階的に差分を積み上げて計算する
+    const years = Math.max(0, differenceInYears(futureDate, today));
+    const afterYears = addYears(today, years);
+    const months = Math.max(0, differenceInMonths(futureDate, afterYears));
+    const afterMonths = addMonths(afterYears, months);
+    const days = Math.max(0, differenceInCalendarDays(futureDate, afterMonths));
+    return { years, months, days };
   }, [futureDate, today]);
 
   const diaryModeOptions: ToggleGroupOption[] = [
@@ -92,6 +107,34 @@ export default function CalendarClient({
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [infoMsg, setInfoMsg] = React.useState<string | null>(null);
+
+  const coreValueMeanings: Record<string, string> = {
+    初志貫徹: "最初に決めた志を最後まで突き通すこと",
+    着眼大局: "目先ではなく大きな目的を見て判断すること",
+    一期一会: "一生に一度しかない出会いを大切にすること",
+    虚心坦懐: "心を開いて素直に向き合うこと",
+    不撓不屈: "くじけず最後まで努力し続けること",
+    明朗快活: "明るく前向きで元気に振る舞うこと",
+    自他共栄: "自分も相手も、ともに栄えること",
+    迅速果断: "素早く決断し行動すること",
+    質実剛健: "飾らずに堅実で、心身を強く保つこと",
+    温故知新: "古い知識を学び、そこから新しい知恵を得ること",
+  };
+
+  function enrichFourCharIdioms(text: string) {
+    let out = text;
+    for (const [idiom, meaning] of Object.entries(coreValueMeanings)) {
+      // すでに「（意味）」が付いている場合は二重付与しない
+      const re = new RegExp(`${idiom}(?!（)`);
+      out = out.replace(re, `${idiom}（${meaning}）`);
+    }
+    return out;
+  }
+
+  const coreValueEnriched = React.useMemo(() => {
+    if (!coreValue) return "";
+    return enrichFourCharIdioms(coreValue);
+  }, [coreValue]);
 
   const timelineYearBlocks = React.useMemo(() => {
     const START_YEAR = 2026;
@@ -157,7 +200,7 @@ export default function CalendarClient({
     return (
       <div className="mx-auto max-w-5xl px-4 py-8">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <p className="text-sm text-slate-600 dark:text-slate-300">読み込み中...</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">準備中...</p>
         </div>
       </div>
     );
@@ -170,11 +213,13 @@ export default function CalendarClient({
           <div>
             <h1 className="text-2xl font-semibold">カレンダー</h1>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              未来の自分（{futureTitle}）まで、あと{daysLeft}日
+              未来の自分（{futureTitle}）まで、
+              あと
+              {timeLeft ? `${timeLeft.years}年${timeLeft.months}ヶ月${timeLeft.days}日` : "準備中..."}
             </p>
             {coreValue ? (
               <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                合言葉：{coreValue}
+                合言葉：{coreValueEnriched}
               </p>
             ) : null}
           </div>
@@ -225,7 +270,7 @@ export default function CalendarClient({
 
           {timelineYearBlocks.length === 0 ? (
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-              まだ年表がありません。日記を書いて、未来の軌跡を残しましょう。
+              まだ年表がありません。日々の気持ちを、そっと書き留めていきましょう。
             </p>
           ) : (
             <div className="relative mt-5">
@@ -273,7 +318,7 @@ export default function CalendarClient({
                             </div>
 
                             <div className="mt-2 text-sm leading-relaxed text-slate-900 dark:text-slate-50">
-                              {preview}
+                              {enrichFourCharIdioms(preview)}
                             </div>
 
                             {e.sync_score != null ? (
@@ -334,6 +379,13 @@ export default function CalendarClient({
               <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                 現在のモード: {diaryMode}
               </div>
+              <div className="mt-2 text-xs text-slate-600 dark:text-slate-300">
+                {diaryMode === "禅"
+                  ? "（静かに自分と向き合い、未来を俯瞰するスタイル）"
+                  : diaryMode === "ライバル"
+                    ? "（切磋琢磨し、互いを高め合う熱いスタイル）"
+                    : "（緻密な計画とサポートで、着実に未来を支えるスタイル）"}
+              </div>
             </div>
           </div>
 
@@ -352,7 +404,7 @@ export default function CalendarClient({
 
           <div className="mt-3 flex items-center justify-between gap-3">
             <div className="text-xs text-slate-500 dark:text-slate-400">
-              {coreValue ? `合言葉: ${coreValue}` : "合言葉が設定されていません"}
+              {coreValue ? `合言葉: ${coreValueEnriched}` : "合言葉がまだ設定されていません"}
             </div>
             <div className="flex items-center gap-2">
               {selectedEntry?.ai_response ? (
