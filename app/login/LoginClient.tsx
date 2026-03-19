@@ -80,15 +80,22 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-10">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <h1 className="text-xl font-semibold">{mode === "signin" ? "Sign in" : "Sign up"}</h1>
+    <div className="min-h-screen px-4 py-10 flex items-center justify-center bg-gradient-to-br from-[#3B82F6]/15 via-white to-[#F97316]/10">
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-950">
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
+            家族の未来を描こう
+          </h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+            今日の一歩が、未来のあなたを支えます。
+          </p>
+        </div>
 
-        <div className="mt-4 flex gap-2">
+        <div className="mt-6 flex gap-2">
           <Button
             variant={mode === "signin" ? "secondary" : "outline"}
             onClick={() => setMode("signin")}
-            className="flex-1"
+            className="flex-1 rounded-full"
             disabled={isLoading}
           >
             Sign in
@@ -96,19 +103,24 @@ export default function LoginClient() {
           <Button
             variant={mode === "signup" ? "secondary" : "outline"}
             onClick={() => setMode("signup")}
-            className="flex-1"
+            className="flex-1 rounded-full"
             disabled={isLoading}
           >
             Sign up
           </Button>
         </div>
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-6 space-y-3">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
               Email
             </label>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+            <Input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              className="rounded-full border-[#3B82F6]/30 focus-visible:ring-[#3B82F6]"
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
@@ -118,12 +130,17 @@ export default function LoginClient() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               type="password"
+              className="rounded-full border-[#3B82F6]/30 focus-visible:ring-[#3B82F6]"
             />
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-end">
-          <Button onClick={handleAuth} disabled={isLoading}>
+        <div className="mt-7 flex items-center justify-center">
+          <Button
+            onClick={handleAuth}
+            disabled={isLoading}
+            className="rounded-full bg-[#3B82F6] text-white hover:bg-[#3B82F6]/90 dark:bg-[#3B82F6] dark:hover:bg-[#3B82F6]/90"
+          >
             {mode === "signin" ? "ログイン" : "登録"}
           </Button>
         </div>

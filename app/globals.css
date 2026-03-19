@@ -6,11 +6,3 @@
   color-scheme: light;
 }
 
-body {
-  background: #f8fafc; /* slate-50 */
-}
-
-.dark body {
-  background: #020617; /* slate-950 */
-}
-

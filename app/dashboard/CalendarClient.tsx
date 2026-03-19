@@ -93,6 +93,16 @@ export default function CalendarClient({
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [infoMsg, setInfoMsg] = React.useState<string | null>(null);
 
+  const timelineEntries = React.useMemo(() => {
+    const items = entriesState
+      .filter((e) => typeof e.content === "string" && e.content.trim().length > 0)
+      .slice()
+      .sort((a, b) => a.created_at.localeCompare(b.created_at));
+
+    // 直近のまとまりとして最大8件まで
+    return items.slice(Math.max(0, items.length - 8));
+  }, [entriesState]);
+
   React.useEffect(() => {
     if (!selectedDateISO) return;
     // 日付が切り替わったら、まず下書きを優先してロード
@@ -140,7 +150,7 @@ export default function CalendarClient({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl dark:border-slate-800 dark:bg-slate-950/70">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold">カレンダー</h1>
@@ -191,8 +201,62 @@ export default function CalendarClient({
           />
         </div>
 
+        {/* 年表（タイムライン） */}
+        <div className="mt-6 rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950/40">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">タイムライン</h2>
+            <span className="text-xs text-slate-500 dark:text-slate-400">最近の記録</span>
+          </div>
+
+          {timelineEntries.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+              まだ記録がありません。日記を書いてみましょう。
+            </p>
+          ) : (
+            <div className="mt-4 relative pl-6">
+              <div className="absolute left-2 top-0 bottom-0 w-px bg-slate-200 dark:bg-slate-800" />
+
+              {timelineEntries.map((e) => {
+                const mode = e.mode ?? "禅";
+                const isZen = mode === "禅";
+                const dotClass = isZen ? "bg-[#3B82F6]" : "bg-[#F97316]";
+                const pillClass = isZen
+                  ? "bg-[#3B82F6]/10 text-[#1D4ED8]"
+                  : "bg-[#F97316]/10 text-[#C2410C]";
+                const content = (e.content ?? "").trim();
+                const preview =
+                  content.length > 90 ? `${content.slice(0, 90)}...` : content;
+
+                return (
+                  <div key={`${e.created_at}:${mode}`} className="relative mb-5 last:mb-0">
+                    <div className={`absolute left-1.5 top-2 h-3 w-3 rounded-full ${dotClass}`} />
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                          {e.created_at}
+                        </span>
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${pillClass}`}>
+                          {mode}
+                        </span>
+                      </div>
+                      <div className="mt-2 text-sm text-slate-900 dark:text-slate-50">
+                        {preview}
+                      </div>
+                      {e.sync_score != null ? (
+                        <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                          シンクロ率: <span className="font-semibold text-slate-700 dark:text-slate-200">{e.sync_score}%</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {/* 日記入力フォーム（要件: /dashboard に配置） */}
-        <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/40">
+        <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/40">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold">日記入力</h2>
