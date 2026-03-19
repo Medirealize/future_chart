@@ -45,3 +45,7 @@ npm run dev
 
 - `.env.local` は `.gitignore` で除外済みです。
 - APIキーやシークレットはGitHubにコミットしないでください。
+
+## リリースチェックリスト
+
+- `CHECKLIST_RELEASE_v1.0.2.md`: v1.0.2 のリリース前確認項目
