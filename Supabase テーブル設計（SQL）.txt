@@ -1,0 +1,31 @@
+-- 1. ユーザー属性：性格タイプと未来のビジョンを保存
+create table profiles (
+  id uuid references auth.users not null primary key,
+  updated_at timestamp with time zone default now(),
+  
+  -- 性格診断結果 (A: Logical, B: Vision, C: Peace) 
+  user_type text check (user_type in ('A', 'B', 'C')),
+  
+  -- 未来設定
+  target_years int default 20,      -- 何年後の自分か
+  future_title text,                -- 肩書き（例：会長、専門家）
+  core_value text,                  -- 合言葉（10択から選択）
+  
+  -- 任意：追加の背景情報（家族、現在の悩みなど）
+  context_note text                 
+);
+
+-- 2. 日記・対話履歴：カレンダーと連動
+create table entries (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references auth.users not null,
+  created_at date default current_date not null, -- 日付単位で管理
+  
+  content text,                     -- ユーザーの日記
+  mode text check (mode in ('禅', 'ライバル', '秘書')), -- 選択モード 
+  
+  ai_response text,                 -- Geminiの回答
+  sync_score int check (sync_score between 0 and 100), -- シンクロ率 
+  
+  unique(user_id, created_at)       -- 1日1件の制約
+);
