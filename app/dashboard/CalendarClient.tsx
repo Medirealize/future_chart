@@ -12,6 +12,7 @@ import {
   startOfDay,
   parseISO,
 } from "date-fns";
+import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +41,7 @@ export default function CalendarClient({
   coreValue: string | null;
   entries: EntryRow[];
 }) {
+  const router = useRouter();
   type DiaryMode = "禅" | "ライバル" | "秘書";
   const isDiaryMode = (value: string): value is DiaryMode =>
     value === "禅" || value === "ライバル" || value === "秘書";
@@ -218,9 +220,18 @@ export default function CalendarClient({
               {timeLeft ? `${timeLeft.years}年${timeLeft.months}ヶ月${timeLeft.days}日` : "準備中..."}
             </p>
             {coreValue ? (
-              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                合言葉：{coreValueEnriched}
-              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  合言葉：{coreValueEnriched}
+                </p>
+                <Button
+                  variant="ghost"
+                  className="rounded-full px-4 py-1.5"
+                  onClick={() => router.push("/onboarding/core?edit=1")}
+                >
+                  合言葉を変更
+                </Button>
+              </div>
             ) : null}
           </div>
         </div>
@@ -402,10 +413,19 @@ export default function CalendarClient({
             />
           </div>
 
-          <div className="mt-3 flex items-center justify-between gap-3">
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
             <div className="text-xs text-slate-500 dark:text-slate-400">
               {coreValue ? `合言葉: ${coreValueEnriched}` : "合言葉がまだ設定されていません"}
             </div>
+            {coreValue ? (
+              <Button
+                variant="ghost"
+                className="rounded-full px-4 py-1.5 sm:self-center"
+                onClick={() => router.push("/onboarding/core?edit=1")}
+              >
+                合言葉を変更
+              </Button>
+            ) : null}
             <div className="flex items-center gap-2">
               {selectedEntry?.ai_response ? (
                 <Button

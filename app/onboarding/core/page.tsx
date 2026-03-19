@@ -4,7 +4,11 @@ import CoreValueClient from "./CoreValueClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function CoreValuePage() {
+export default async function CoreValuePage({
+  searchParams,
+}: {
+  searchParams?: { edit?: string };
+}) {
   const supabase = createSupabaseServerClient();
   const {
     data: { user },
@@ -20,7 +24,8 @@ export default async function CoreValuePage() {
     .single();
 
   if (!profile?.user_type) redirect("/onboarding/diagnosis");
-  if (profile.core_value != null) redirect("/dashboard");
+  // core_value がすでに設定済みでも、明示的に編集したい場合（?edit=1）は入れる
+  if (profile.core_value != null && searchParams?.edit !== "1") redirect("/dashboard");
   if (profile.target_years == null || profile.future_title == null) redirect("/onboarding/future");
 
   return (
