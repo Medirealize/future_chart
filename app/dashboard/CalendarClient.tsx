@@ -93,14 +93,29 @@ export default function CalendarClient({
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [infoMsg, setInfoMsg] = React.useState<string | null>(null);
 
-  const timelineEntries = React.useMemo(() => {
+  const timelineYearBlocks = React.useMemo(() => {
+    const START_YEAR = 2026;
+
     const items = entriesState
       .filter((e) => typeof e.content === "string" && e.content.trim().length > 0)
       .slice()
+      .filter((e) => typeof e.created_at === "string" && e.created_at.length >= 4)
+      .map((e) => ({
+        ...e,
+        year: Number(e.created_at.slice(0, 4)),
+      }))
+      .filter((e) => Number.isFinite(e.year) && e.year >= START_YEAR)
       .sort((a, b) => a.created_at.localeCompare(b.created_at));
 
-    // 直近のまとまりとして最大8件まで
-    return items.slice(Math.max(0, items.length - 8));
+    const byYear = new Map<number, typeof items>();
+    for (const item of items) {
+      const list = byYear.get(item.year) ?? [];
+      list.push(item);
+      byYear.set(item.year, list);
+    }
+
+    const years = Array.from(byYear.keys()).sort((a, b) => a - b);
+    return years.map((year) => ({ year, events: byYear.get(year) ?? [] }));
   }, [entriesState]);
 
   React.useEffect(() => {
@@ -201,56 +216,81 @@ export default function CalendarClient({
           />
         </div>
 
-        {/* 年表（タイムライン） */}
-        <div className="mt-6 rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950/40">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">タイムライン</h2>
-            <span className="text-xs text-slate-500 dark:text-slate-400">最近の記録</span>
+        {/* 年表（バーティカル・タイムライン） */}
+        <div className="mt-6 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/40">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">年表（タイムライン）</h2>
+            <span className="text-xs text-slate-500 dark:text-slate-400">2026年〜の記録</span>
           </div>
 
-          {timelineEntries.length === 0 ? (
+          {timelineYearBlocks.length === 0 ? (
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-              まだ記録がありません。日記を書いてみましょう。
+              まだ年表がありません。日記を書いて、未来の軌跡を残しましょう。
             </p>
           ) : (
-            <div className="mt-4 relative pl-6">
+            <div className="relative mt-5">
+              {/* 左側のタイムラインライン */}
               <div className="absolute left-2 top-0 bottom-0 w-px bg-slate-200 dark:bg-slate-800" />
 
-              {timelineEntries.map((e) => {
-                const mode = e.mode ?? "禅";
-                const isZen = mode === "禅";
-                const dotClass = isZen ? "bg-[#3B82F6]" : "bg-[#F97316]";
-                const pillClass = isZen
-                  ? "bg-[#3B82F6]/10 text-[#1D4ED8]"
-                  : "bg-[#F97316]/10 text-[#C2410C]";
-                const content = (e.content ?? "").trim();
-                const preview =
-                  content.length > 90 ? `${content.slice(0, 90)}...` : content;
+              <div className="space-y-8">
+                {timelineYearBlocks.map((block, idx) => (
+                  <div key={block.year} className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-8">
+                    {/* 年のドット + 年ラベル */}
+                    <div className="relative pl-7 sm:pl-0 sm:w-28">
+                      <div className="absolute left-0 top-2 h-3 w-3 rounded-full bg-[#3B82F6]" />
+                      <div className="text-sm font-bold text-slate-900 dark:text-slate-50">
+                        {block.year}年
+                      </div>
+                      <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        {idx === 0 ? "はじまり" : "つづき"}
+                      </div>
+                    </div>
 
-                return (
-                  <div key={`${e.created_at}:${mode}`} className="relative mb-5 last:mb-0">
-                    <div className={`absolute left-1.5 top-2 h-3 w-3 rounded-full ${dotClass}`} />
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                          {e.created_at}
-                        </span>
-                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${pillClass}`}>
-                          {mode}
-                        </span>
-                      </div>
-                      <div className="mt-2 text-sm text-slate-900 dark:text-slate-50">
-                        {preview}
-                      </div>
-                      {e.sync_score != null ? (
-                        <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                          シンクロ率: <span className="font-semibold text-slate-700 dark:text-slate-200">{e.sync_score}%</span>
-                        </div>
-                      ) : null}
+                    {/* イベント（カード） */}
+                    <div className="flex-1 space-y-3">
+                      {block.events.map((e) => {
+                        const mode = e.mode ?? "禅";
+                        const isZen = mode === "禅";
+                        const pillClass = isZen
+                          ? "bg-[#3B82F6]/10 text-[#1D4ED8]"
+                          : "bg-[#F97316]/10 text-[#C2410C]";
+                        const content = (e.content ?? "").trim();
+                        const preview =
+                          content.length > 160 ? `${content.slice(0, 160)}...` : content;
+
+                        return (
+                          <div
+                            key={`${e.created_at}:${mode}`}
+                            className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950"
+                          >
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                {e.created_at}
+                              </span>
+                              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${pillClass}`}>
+                                {mode}
+                              </span>
+                            </div>
+
+                            <div className="mt-2 text-sm leading-relaxed text-slate-900 dark:text-slate-50">
+                              {preview}
+                            </div>
+
+                            {e.sync_score != null ? (
+                              <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                                シンクロ率:{" "}
+                                <span className="font-semibold text-slate-700 dark:text-slate-200">
+                                  {e.sync_score}%
+                                </span>
+                              </div>
+                            ) : null}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           )}
         </div>
