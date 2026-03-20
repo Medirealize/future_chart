@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
+import { broadcastCoreValueUpdate } from "@/utils/core-value-sync";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, type ToggleGroupOption } from "@/components/ui/toggle-group";
 
@@ -118,10 +119,13 @@ export default function CoreValueClient({
         return;
       }
 
+      broadcastCoreValueUpdate(selected);
+
       // 後続で不要な状態を消す
       localStorage.removeItem("onboarding_diagnosis");
       localStorage.removeItem("onboarding_future");
 
+      await router.refresh();
       router.push("/dashboard");
     } finally {
       setIsSaving(false);

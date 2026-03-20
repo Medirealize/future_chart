@@ -14,6 +14,14 @@ import {
 } from "date-fns";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
+import {
+  CORE_VALUE_STORAGE_KEY,
+  CORE_VALUE_UPDATED_EVENT,
+  clearCachedCoreValue,
+  readCachedCoreValue,
+  writeCachedCoreValue,
+  type CoreValueUpdatedDetail,
+} from "@/utils/core-value-sync";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup } from "@/components/ui/toggle-group";
@@ -120,6 +128,8 @@ export default function CalendarClient({
 
   const [diaryMode, setDiaryMode] = React.useState<DiaryMode>("禅");
   const [content, setContent] = React.useState<string>("");
+  const [currentCoreValue, setCurrentCoreValue] = React.useState<string | null>(coreValue);
+  const skipNextCoreValuePropSyncRef = React.useRef(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [isSigningOut, setIsSigningOut] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
@@ -148,14 +158,81 @@ export default function CalendarClient({
     return out;
   }
 
+  React.useLayoutEffect(() => {
+    const cached = readCachedCoreValue();
+    if (cached) {
+      setCurrentCoreValue(cached);
+      skipNextCoreValuePropSyncRef.current = true;
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (skipNextCoreValuePropSyncRef.current) {
+      skipNextCoreValuePropSyncRef.current = false;
+      return;
+    }
+    setCurrentCoreValue(coreValue);
+  }, [coreValue]);
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function refreshCoreValue() {
+      try {
+        const { data: authData, error: authError } = await supabase.auth.getUser();
+        if (authError || !authData.user || cancelled) return;
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("core_value")
+          .eq("id", authData.user.id)
+          .maybeSingle();
+        if (!cancelled) {
+          const next = profile?.core_value ?? null;
+          setCurrentCoreValue(next);
+          if (next) writeCachedCoreValue(next);
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    void refreshCoreValue();
+    const onFocus = () => {
+      void refreshCoreValue();
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void refreshCoreValue();
+    };
+    const onCoreValueUpdated = (e: Event) => {
+      const detail = (e as CustomEvent<CoreValueUpdatedDetail>).detail;
+      if (detail?.coreValue) setCurrentCoreValue(detail.coreValue);
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== CORE_VALUE_STORAGE_KEY) return;
+      if (e.newValue) setCurrentCoreValue(e.newValue);
+      else void refreshCoreValue();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener(CORE_VALUE_UPDATED_EVENT, onCoreValueUpdated);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener(CORE_VALUE_UPDATED_EVENT, onCoreValueUpdated);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [supabase]);
+
   const selectedCoreValue = React.useMemo(() => {
-    if (!selectedEntry?.content?.trim()) return null;
+    if (!selectedEntry?.content?.trim()) return currentCoreValue ?? null;
     const sourceText = `${selectedEntry.content ?? ""}\n${selectedEntry.ai_response ?? ""}`;
     for (const idiom of Object.keys(coreValueMeanings)) {
       if (sourceText.includes(idiom)) return idiom;
     }
-    return coreValue ?? null;
-  }, [selectedEntry, coreValue]);
+    return currentCoreValue ?? null;
+  }, [selectedEntry, currentCoreValue]);
   const selectedCoreValueEnriched = React.useMemo(() => {
     if (!selectedCoreValue) return "";
     return enrichFourCharIdioms(selectedCoreValue);
@@ -275,6 +352,25 @@ export default function CalendarClient({
       cancelled = true;
     };
   }, [selectedDateISO, supabase]); // selectedDate 変更時に再読込
+
+  React.useEffect(() => {
+    if (!selectedDateISO) return;
+    const timer = window.setTimeout(() => {
+      try {
+        localStorage.setItem(
+          `entry_draft_${selectedDateISO}`,
+          JSON.stringify({
+            content,
+            mode: diaryMode,
+            savedAt: new Date().toISOString(),
+          })
+        );
+      } catch {
+        // ignore
+      }
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [content, diaryMode, selectedDateISO]);
 
   if (!isMounted || !today || !selectedDateISO) {
     return (
@@ -599,7 +695,7 @@ export default function CalendarClient({
       setErrorMsg("未来の日付には日記を保存できません。今日以前の日付を選択してください。");
       return;
     }
-    if (!coreValue) {
+    if (!currentCoreValue) {
       setErrorMsg("合言葉（core_value）が未設定です。オンボーディングを完了してください。");
       return;
     }
@@ -618,7 +714,7 @@ export default function CalendarClient({
           selectedMode: diaryMode,
           targetYears,
           futureTitle,
-          coreValue,
+          coreValue: currentCoreValue,
           context: isReflectionContext ? "reflection" : "edit",
         }),
       });
@@ -650,6 +746,12 @@ export default function CalendarClient({
         { onConflict: "user_id,created_at" }
       );
       if (upsertError) throw new Error(upsertError.message);
+
+      try {
+        localStorage.removeItem(`entry_draft_${selectedDateISO}`);
+      } catch {
+        // ignore
+      }
 
       // UI更新（すでにentriesStateにある前提で上書き）
       setEntriesState((prev) => {
@@ -686,6 +788,7 @@ export default function CalendarClient({
         for (const key of draftKeys) localStorage.removeItem(key);
         localStorage.removeItem("onboarding_diagnosis");
         localStorage.removeItem("onboarding_future");
+        clearCachedCoreValue();
       } catch {
         // ignore
       }
