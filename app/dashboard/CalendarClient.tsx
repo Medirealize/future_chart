@@ -70,16 +70,6 @@ export default function CalendarClient({
     () => (today ? addYears(today, targetYears) : null),
     [today, targetYears]
   );
-  const timeLeft = React.useMemo(() => {
-    if (!futureDate || !today) return null;
-    // 月単位・日単位がズレないよう、段階的に差分を積み上げて計算する
-    const years = Math.max(0, differenceInYears(futureDate, today));
-    const afterYears = addYears(today, years);
-    const months = Math.max(0, differenceInMonths(futureDate, afterYears));
-    const afterMonths = addMonths(afterYears, months);
-    const days = Math.max(0, differenceInCalendarDays(futureDate, afterMonths));
-    return { years, months, days };
-  }, [futureDate, today]);
 
   const diaryModeOptions: ToggleGroupOption[] = [
     { value: "禅", label: "禅" },
@@ -94,10 +84,34 @@ export default function CalendarClient({
   }, [today]);
 
   const selectedEntry = entriesByDate.get(selectedDateISO) ?? null;
+  const selectedDate = React.useMemo(() => {
+    if (!selectedDateISO) return null;
+    return startOfDay(parseISO(selectedDateISO));
+  }, [selectedDateISO]);
+  const selectedDateLabel = React.useMemo(() => {
+    if (!selectedDate) return "";
+    return format(selectedDate, "yyyy年M月d日");
+  }, [selectedDate]);
+  const timeLeft = React.useMemo(() => {
+    if (!futureDate || !selectedDate) return null;
+    if (isBefore(futureDate, selectedDate)) return { years: 0, months: 0, days: 0 };
+    // 月単位・日単位がズレないよう、段階的に差分を積み上げて計算する
+    const years = Math.max(0, differenceInYears(futureDate, selectedDate));
+    const afterYears = addYears(selectedDate, years);
+    const months = Math.max(0, differenceInMonths(futureDate, afterYears));
+    const afterMonths = addMonths(afterYears, months);
+    const days = Math.max(0, differenceInCalendarDays(futureDate, afterMonths));
+    return { years, months, days };
+  }, [futureDate, selectedDate]);
   const selectedIsPast = React.useMemo(() => {
     if (!today || !selectedDateISO) return false;
     const d = startOfDay(parseISO(selectedDateISO));
     return isBefore(d, today);
+  }, [selectedDateISO, today]);
+  const selectedIsFuture = React.useMemo(() => {
+    if (!today || !selectedDateISO) return false;
+    const d = startOfDay(parseISO(selectedDateISO));
+    return isBefore(today, d);
   }, [selectedDateISO, today]);
 
   const isReflectionContext = React.useMemo(() => {
@@ -107,6 +121,7 @@ export default function CalendarClient({
   const [diaryMode, setDiaryMode] = React.useState<DiaryMode>("禅");
   const [content, setContent] = React.useState<string>("");
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [isSigningOut, setIsSigningOut] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [infoMsg, setInfoMsg] = React.useState<string | null>(null);
 
@@ -133,10 +148,18 @@ export default function CalendarClient({
     return out;
   }
 
-  const coreValueEnriched = React.useMemo(() => {
-    if (!coreValue) return "";
-    return enrichFourCharIdioms(coreValue);
-  }, [coreValue]);
+  const selectedCoreValue = React.useMemo(() => {
+    if (!selectedEntry?.content?.trim()) return null;
+    const sourceText = `${selectedEntry.content ?? ""}\n${selectedEntry.ai_response ?? ""}`;
+    for (const idiom of Object.keys(coreValueMeanings)) {
+      if (sourceText.includes(idiom)) return idiom;
+    }
+    return coreValue ?? null;
+  }, [selectedEntry, coreValue]);
+  const selectedCoreValueEnriched = React.useMemo(() => {
+    if (!selectedCoreValue) return "";
+    return enrichFourCharIdioms(selectedCoreValue);
+  }, [selectedCoreValue]);
 
   const timelineYearBlocks = React.useMemo(() => {
     const START_YEAR = 2026;
@@ -165,13 +188,18 @@ export default function CalendarClient({
 
   React.useEffect(() => {
     if (!selectedDateISO) return;
+    let cancelled = false;
+    const targetDateISO = selectedDateISO;
+
+    async function loadEntryForSelectedDate() {
     // 日付が切り替わったら、まず下書きを優先してロード
     let loadedFromDraft = false;
     try {
-      const raw = localStorage.getItem(`entry_draft_${selectedDateISO}`);
+        const raw = localStorage.getItem(`entry_draft_${targetDateISO}`);
       if (raw) {
         const parsed = JSON.parse(raw) as { content?: string; mode?: string };
-        setContent(typeof parsed.content === "string" ? parsed.content : "");
+          if (cancelled) return;
+          setContent(typeof parsed.content === "string" ? parsed.content : "");
           const draftMode = parsed.mode;
           if (draftMode && isDiaryMode(draftMode)) setDiaryMode(draftMode);
           else setDiaryMode("禅");
@@ -181,22 +209,72 @@ export default function CalendarClient({
       // ignore
     }
 
-    // 下書きがなければ、既存日記をロード
+      // 下書きがなければ、DBの既存日記をロード
     if (!loadedFromDraft) {
-      if (selectedEntry?.content) setContent(selectedEntry.content);
-      else setContent("");
+        try {
+          const { data: authData, error: authError } = await supabase.auth.getUser();
+          if (!authError && authData.user) {
+            const { data: row } = await supabase
+              .from("entries")
+              .select("created_at, content, mode, ai_response, sync_score")
+              .eq("user_id", authData.user.id)
+              .eq("created_at", targetDateISO)
+              .maybeSingle();
 
-      const existingMode = selectedEntry?.mode;
-      if (existingMode && isDiaryMode(existingMode)) {
-        setDiaryMode(existingMode);
-      } else {
-        setDiaryMode("禅");
+            if (cancelled) return;
+            if (row) {
+              const dbEntry: EntryRow = {
+                created_at: row.created_at,
+                content: row.content,
+                mode: row.mode,
+                ai_response: row.ai_response,
+                sync_score: row.sync_score,
+              };
+              setEntriesState((prev) => {
+                const next = [...prev];
+                const idx = next.findIndex((e) => e.created_at === targetDateISO);
+                if (idx >= 0) next[idx] = { ...next[idx], ...dbEntry };
+                else next.push(dbEntry);
+                return next;
+              });
+              setContent(row.content ?? "");
+              if (row.mode && isDiaryMode(row.mode)) setDiaryMode(row.mode);
+              else setDiaryMode("禅");
+            } else {
+              setContent("");
+              setDiaryMode("禅");
+            }
+            setErrorMsg(null);
+            setInfoMsg(null);
+            return;
+          }
+        } catch {
+          // fallback to local state
+        }
+
+        if (cancelled) return;
+        if (selectedEntry?.content) setContent(selectedEntry.content);
+        else setContent("");
+
+        const existingMode = selectedEntry?.mode;
+        if (existingMode && isDiaryMode(existingMode)) {
+          setDiaryMode(existingMode);
+        } else {
+          setDiaryMode("禅");
+        }
+      }
+
+      if (!cancelled) {
+        setErrorMsg(null);
+        setInfoMsg(null);
       }
     }
 
-    setErrorMsg(null);
-    setInfoMsg(null);
-  }, [selectedDateISO]); // selectedEntry は参照用のみ
+    void loadEntryForSelectedDate();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDateISO, supabase]); // selectedDate 変更時に再読込
 
   if (!isMounted || !today || !selectedDateISO) {
     return (
@@ -211,7 +289,19 @@ export default function CalendarClient({
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl dark:border-slate-800 dark:bg-slate-950/70">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex items-start justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-full border-[#F97316]/40 text-[#C2410C] hover:bg-[#F97316]/10 dark:text-[#FDBA74]"
+            disabled={isSigningOut}
+            onClick={() => handleSignOut()}
+          >
+            {isSigningOut ? "ログアウト中..." : "🚪 ログアウト"}
+          </Button>
+        </div>
+
+        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold">カレンダー</h1>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -219,10 +309,10 @@ export default function CalendarClient({
               あと
               {timeLeft ? `${timeLeft.years}年${timeLeft.months}ヶ月${timeLeft.days}日` : "準備中..."}
             </p>
-            {coreValue ? (
+            {selectedCoreValue ? (
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  合言葉：{coreValueEnriched}
+                  合言葉：{selectedCoreValueEnriched}
                 </p>
                 <Button
                   variant="ghost"
@@ -355,11 +445,19 @@ export default function CalendarClient({
         <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/40">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold">日記入力</h2>
+              <h2 className="text-lg font-semibold">
+                {selectedDateLabel}の日記を{selectedEntry?.content ? "編集" : "記入"}
+              </h2>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                 対象日: <span className="font-medium text-slate-900 dark:text-slate-50">{selectedDateISO}</span>
                 {" "}
-                {isReflectionContext ? "（過去の自分を振り返る）" : selectedEntry?.content ? "（編集）" : ""}
+                {selectedIsFuture
+                  ? "（未来日は入力できません）"
+                  : isReflectionContext
+                    ? "（過去の自分を振り返る）"
+                    : selectedEntry?.content
+                      ? "（編集）"
+                      : ""}
               </p>
             </div>
             <div className="text-right">
@@ -409,23 +507,23 @@ export default function CalendarClient({
                   ? "当時の自分は、何を感じ、何を選びましたか？ 今の自分はそれをどう解釈しますか？"
                   : "ここに日記を書いてください。"
               }
-              disabled={isGenerating}
+              disabled={isGenerating || selectedIsFuture}
             />
           </div>
 
           <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
             <div className="text-xs text-slate-500 dark:text-slate-400">
-              {coreValue ? `合言葉: ${coreValueEnriched}` : "合言葉がまだ設定されていません"}
+              {selectedCoreValue
+                ? `合言葉: ${selectedCoreValueEnriched}`
+                : "合言葉: 未来の自分を待機中..."}
             </div>
-            {coreValue ? (
-              <Button
-                variant="ghost"
-                className="rounded-full px-4 py-1.5 sm:self-center"
-                onClick={() => router.push("/onboarding/core?edit=1")}
-              >
-                合言葉を変更
-              </Button>
-            ) : null}
+            <Button
+              variant="ghost"
+              className="rounded-full px-4 py-1.5 sm:self-center"
+              onClick={() => router.push("/onboarding/core?edit=1")}
+            >
+              合言葉を変更
+            </Button>
             <div className="flex items-center gap-2">
               {selectedEntry?.ai_response ? (
                 <Button
@@ -441,7 +539,7 @@ export default function CalendarClient({
               <Button
                 variant="secondary"
                 type="button"
-                disabled={isGenerating}
+                disabled={isGenerating || selectedIsFuture}
                 onClick={() => {
                   try {
                     localStorage.setItem(
@@ -462,11 +560,19 @@ export default function CalendarClient({
               >
                 一時保存
               </Button>
-              <Button onClick={async () => handleGenerate()} disabled={isGenerating || !content.trim()}>
-                {isGenerating ? "生成中..." : "送信（Gemini）"}
+              <Button
+                onClick={async () => handleGenerate()}
+                disabled={isGenerating || !content.trim() || selectedIsFuture}
+              >
+                {isGenerating ? "生成中..." : `${selectedDateLabel}を保存してフィードバック生成`}
               </Button>
             </div>
           </div>
+          {selectedIsFuture ? (
+            <div className="mt-3 text-sm text-amber-700 dark:text-amber-400">
+              今日以降の未来日には日記を保存できません。今日以前の日付を選択してください。
+            </div>
+          ) : null}
 
           {selectedEntry?.ai_response ? (
             <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 text-sm dark:border-slate-800 dark:bg-slate-950">
@@ -489,6 +595,10 @@ export default function CalendarClient({
   );
 
   async function handleGenerate() {
+    if (selectedIsFuture) {
+      setErrorMsg("未来の日付には日記を保存できません。今日以前の日付を選択してください。");
+      return;
+    }
     if (!coreValue) {
       setErrorMsg("合言葉（core_value）が未設定です。オンボーディングを完了してください。");
       return;
@@ -560,6 +670,37 @@ export default function CalendarClient({
       setErrorMsg(e?.message ?? "不明なエラーが発生しました。");
     } finally {
       setIsGenerating(false);
+    }
+  }
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    setErrorMsg(null);
+    setInfoMsg(null);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      try {
+        const draftKeys = Object.keys(localStorage).filter((k) => k.startsWith("entry_draft_"));
+        for (const key of draftKeys) localStorage.removeItem(key);
+        localStorage.removeItem("onboarding_diagnosis");
+        localStorage.removeItem("onboarding_future");
+      } catch {
+        // ignore
+      }
+      try {
+        sessionStorage.clear();
+      } catch {
+        // ignore
+      }
+
+      router.replace("/login");
+      router.refresh();
+    } catch (e: any) {
+      setErrorMsg(e?.message ?? "ログアウトに失敗しました。");
+    } finally {
+      setIsSigningOut(false);
     }
   }
 }

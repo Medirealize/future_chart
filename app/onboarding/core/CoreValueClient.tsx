@@ -19,6 +19,19 @@ const CORE_VALUES = [
   "温故知新",
 ] as const;
 
+const CORE_VALUE_MEANINGS: Record<(typeof CORE_VALUES)[number], string> = {
+  初志貫徹: "最初に決めた志を最後まで突き通すこと",
+  着眼大局: "目先ではなく大きな目的を見て判断すること",
+  一期一会: "一生に一度しかない出会いを大切にすること",
+  虚心坦懐: "心を開いて素直に向き合うこと",
+  不撓不屈: "くじけず最後まで努力し続けること",
+  明朗快活: "明るく前向きで元気に振る舞うこと",
+  自他共栄: "自分も相手も、ともに栄えること",
+  迅速果断: "素早く決断し行動すること",
+  質実剛健: "飾らずに堅実で、心身を強く保つこと",
+  温故知新: "古い知識を学び、そこから新しい知恵を得ること",
+};
+
 type Props = {
   userType: string;
   targetYears: number | null;
@@ -115,7 +128,10 @@ export default function CoreValueClient({
     }
   }
 
-  const options: ToggleGroupOption[] = CORE_VALUES.map((v) => ({ value: v, label: v }));
+  const options: ToggleGroupOption[] = CORE_VALUES.map((v) => ({
+    value: v,
+    label: `${v}（${CORE_VALUE_MEANINGS[v]}）`,
+  }));
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">

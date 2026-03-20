@@ -7,8 +7,9 @@ export const dynamic = "force-dynamic";
 export default async function CoreValuePage({
   searchParams,
 }: {
-  searchParams?: { edit?: string };
+  searchParams?: Promise<{ edit?: string }>;
 }) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const supabase = createSupabaseServerClient();
   const {
     data: { user },
@@ -25,7 +26,7 @@ export default async function CoreValuePage({
 
   if (!profile?.user_type) redirect("/onboarding/diagnosis");
   // core_value がすでに設定済みでも、明示的に編集したい場合（?edit=1）は入れる
-  if (profile.core_value != null && searchParams?.edit !== "1") redirect("/dashboard");
+  if (profile.core_value != null && resolvedSearchParams?.edit !== "1") redirect("/dashboard");
   if (profile.target_years == null || profile.future_title == null) redirect("/onboarding/future");
 
   return (
