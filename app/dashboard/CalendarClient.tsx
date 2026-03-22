@@ -27,6 +27,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import type { ToggleGroupOption } from "@/components/ui/toggle-group";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  BookOpen,
+  CalendarDays,
+  ChevronDown,
+  ChevronUp,
+  Heart,
+  LogOut,
+  Sparkles,
+  Timer,
+} from "lucide-react";
 
 type EntryRow = {
   created_at: string; // YYYY-MM-DD
@@ -238,7 +248,8 @@ export default function CalendarClient({
     return enrichFourCharIdioms(selectedCoreValue);
   }, [selectedCoreValue]);
 
-  const timelineYearBlocks = React.useMemo(() => {
+  /** 日付単位（1日1件想定）のタイムライン用リスト（古い順） */
+  const timelineDayBlocks = React.useMemo(() => {
     const START_YEAR = 2026;
 
     const items = entriesState
@@ -252,16 +263,36 @@ export default function CalendarClient({
       .filter((e) => Number.isFinite(e.year) && e.year >= START_YEAR)
       .sort((a, b) => a.created_at.localeCompare(b.created_at));
 
-    const byYear = new Map<number, typeof items>();
-    for (const item of items) {
-      const list = byYear.get(item.year) ?? [];
-      list.push(item);
-      byYear.set(item.year, list);
-    }
-
-    const years = Array.from(byYear.keys()).sort((a, b) => a - b);
-    return years.map((year) => ({ year, events: byYear.get(year) ?? [] }));
+    return items.map((entry) => ({ dateISO: entry.created_at, entry }));
   }, [entriesState]);
+
+  const [timelineOpenByDate, setTimelineOpenByDate] = React.useState<Record<string, boolean>>({});
+  const timelineDefaultAppliedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (timelineDayBlocks.length === 0) {
+      timelineDefaultAppliedRef.current = false;
+      return;
+    }
+    if (timelineDefaultAppliedRef.current) return;
+    timelineDefaultAppliedRef.current = true;
+
+    const todayISO = today ? format(today, "yyyy-MM-dd") : "";
+    const hasToday =
+      Boolean(todayISO) && timelineDayBlocks.some((b) => b.dateISO === todayISO);
+    const defaultKey = hasToday
+      ? todayISO
+      : timelineDayBlocks[timelineDayBlocks.length - 1]!.dateISO;
+
+    setTimelineOpenByDate((prev) => ({ ...prev, [defaultKey]: true }));
+  }, [timelineDayBlocks, today]);
+
+  function toggleTimelineDay(dateISO: string) {
+    setTimelineOpenByDate((prev) => ({
+      ...prev,
+      [dateISO]: !prev[dateISO],
+    }));
+  }
 
   React.useEffect(() => {
     if (!selectedDateISO) return;
@@ -374,45 +405,70 @@ export default function CalendarClient({
 
   if (!isMounted || !today || !selectedDateISO) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-8">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <p className="text-sm text-slate-600 dark:text-slate-300">準備中...</p>
+      <div className="min-h-screen bg-gradient-to-b from-[#FDF8F3] via-[#FAF6EF] to-[#F3EBE2] px-5 py-10 md:px-10">
+        <div className="mx-auto max-w-5xl">
+          <div className="rounded-3xl border border-amber-200/50 bg-[#FFFCF8] p-8 shadow-[0_8px_40px_-12px_rgba(160,110,70,0.12)]">
+            <p className="text-sm font-medium text-stone-500">準備中...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl dark:border-slate-800 dark:bg-slate-950/70">
+    <div className="min-h-screen bg-gradient-to-b from-[#FDF8F3] via-[#FAF6EF] to-[#F3EBE2] px-5 py-10 md:px-10">
+      <div className="mx-auto max-w-5xl">
+        <div className="rounded-[2rem] border border-amber-200/50 bg-[#FFFCF8] p-8 shadow-[0_8px_40px_-12px_rgba(160,110,70,0.12)] md:p-10">
         <div className="flex items-start justify-end">
           <Button
             type="button"
             variant="outline"
-            className="rounded-full border-[#F97316]/40 text-[#C2410C] hover:bg-[#F97316]/10 dark:text-[#FDBA74]"
+            className="gap-2 rounded-2xl border-rose-200/80 bg-white/80 px-5 py-2.5 text-rose-800 shadow-sm transition-all hover:border-rose-300 hover:bg-rose-50/90 hover:shadow"
             disabled={isSigningOut}
             onClick={() => handleSignOut()}
           >
-            {isSigningOut ? "ログアウト中..." : "🚪 ログアウト"}
+            <LogOut className="h-4 w-4 text-rose-500" aria-hidden />
+            {isSigningOut ? "ログアウト中..." : "ログアウト"}
           </Button>
         </div>
 
-        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold">カレンダー</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              未来の自分（{futureTitle}）まで、
-              あと
-              {timeLeft ? `${timeLeft.years}年${timeLeft.months}ヶ月${timeLeft.days}日` : "準備中..."}
+        <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100/90 text-sky-600 shadow-sm ring-1 ring-sky-200/40">
+                <CalendarDays className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+              </span>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-amber-700/80">
+                  家族の記録
+                </p>
+                <h1 className="text-3xl font-bold tracking-tight text-stone-800 md:text-4xl">
+                  カレンダー
+                </h1>
+              </div>
+            </div>
+            <p className="flex flex-wrap items-center gap-2 text-base leading-relaxed text-stone-600">
+              <Timer className="h-4 w-4 shrink-0 text-sky-500" aria-hidden />
+              <span>
+                未来の自分
+                <span className="font-semibold text-sky-700">（{futureTitle}）</span>
+                まで、あと
+                <span className="mx-1 font-semibold tabular-nums text-stone-800">
+                  {timeLeft ? `${timeLeft.years}年${timeLeft.months}ヶ月${timeLeft.days}日` : "準備中..."}
+                </span>
+              </span>
             </p>
             {selectedCoreValue ? (
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  合言葉：{selectedCoreValueEnriched}
+              <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-amber-200/60 bg-amber-50/40 px-4 py-3 shadow-sm">
+                <Heart className="h-4 w-4 shrink-0 fill-rose-200 text-rose-400" aria-hidden />
+                <p className="text-sm text-stone-600">
+                  <span className="font-medium text-stone-500">合言葉</span>
+                  <span className="mx-1.5 text-stone-400">·</span>
+                  <span className="font-medium text-stone-800">{selectedCoreValueEnriched}</span>
                 </p>
                 <Button
                   variant="ghost"
-                  className="rounded-full px-4 py-1.5"
+                  className="ml-auto rounded-xl px-4 py-2 text-sm font-medium text-sky-700 hover:bg-sky-100/60"
                   onClick={() => router.push("/onboarding/core?edit=1")}
                 >
                   合言葉を変更
@@ -422,7 +478,7 @@ export default function CalendarClient({
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-10 rounded-3xl border border-amber-100/90 bg-gradient-to-b from-white/90 to-[#FFF9F3]/90 p-6 shadow-[0_4px_24px_-8px_rgba(140,100,60,0.1)] ring-1 ring-amber-100/50 md:p-8">
           <Calendar
             mode="single"
             onDayClick={(day) => {
@@ -445,8 +501,8 @@ export default function CalendarClient({
                         <span
                           className={
                             synced
-                              ? "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-indigo-600"
-                              : "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-slate-400"
+                              ? "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-sky-500 shadow-[0_0_0_2px_rgba(255,251,247,0.9)]"
+                              : "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-amber-300/90"
                           }
                         />
                       ) : null}
@@ -459,120 +515,155 @@ export default function CalendarClient({
         </div>
 
         {/* 年表（バーティカル・タイムライン） */}
-        <div className="mt-6 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/40">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">年表（タイムライン）</h2>
-            <span className="text-xs text-slate-500 dark:text-slate-400">2026年〜の記録</span>
+        <div className="mt-10 rounded-[2rem] border border-amber-100/90 bg-gradient-to-br from-white/95 via-[#FFFAF5] to-amber-50/30 p-8 shadow-[0_4px_28px_-10px_rgba(130,90,50,0.12)] ring-1 ring-amber-100/40 md:p-9">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-100/90 text-violet-600 shadow-sm ring-1 ring-violet-200/40">
+                <BookOpen className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+              </span>
+              <div>
+                <h2 className="text-xl font-bold tracking-tight text-stone-800 md:text-2xl">年表（タイムライン）</h2>
+                <p className="mt-0.5 text-sm text-stone-500">大切な日々を、手帳のように残していきましょう</p>
+              </div>
+            </div>
+            <span className="inline-flex items-center rounded-full border border-amber-200/70 bg-white/80 px-3 py-1 text-xs font-medium text-amber-800/90 shadow-sm">
+              2026年〜の記録
+            </span>
           </div>
 
-          {timelineYearBlocks.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+          {timelineDayBlocks.length === 0 ? (
+            <p className="mt-6 text-base leading-relaxed text-stone-600">
               まだ年表がありません。日々の気持ちを、そっと書き留めていきましょう。
             </p>
           ) : (
-            <div className="relative mt-5">
-              {/* 左側のタイムラインライン */}
-              <div className="absolute left-2 top-0 bottom-0 w-px bg-slate-200 dark:bg-slate-800" />
+            <div className="relative mt-8">
+              <div className="absolute left-2 top-3 bottom-3 w-px bg-gradient-to-b from-sky-200/80 via-amber-200/60 to-rose-200/50" />
 
-              <div className="space-y-8">
-                {timelineYearBlocks.map((block, idx) => (
-                  <div key={block.year} className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-8">
-                    {/* 年のドット + 年ラベル */}
-                    <div className="relative pl-7 sm:pl-0 sm:w-28">
-                      <div className="absolute left-0 top-2 h-3 w-3 rounded-full bg-[#3B82F6]" />
-                      <div className="text-sm font-bold text-slate-900 dark:text-slate-50">
-                        {block.year}年
-                      </div>
-                      <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                        {idx === 0 ? "はじまり" : "つづき"}
-                      </div>
-                    </div>
+              <div className="space-y-3 pl-8">
+                {timelineDayBlocks.map(({ dateISO, entry: e }) => {
+                  const open = Boolean(timelineOpenByDate[dateISO]);
+                  const mode = e.mode ?? "禅";
+                  const isZen = mode === "禅";
+                  const pillClass = isZen
+                    ? "border border-sky-200/80 bg-sky-50 text-sky-800"
+                    : "border border-orange-200/80 bg-orange-50/90 text-orange-900";
+                  const diaryText = (e.content ?? "").trim();
+                  const preview =
+                    diaryText.length > 160 ? `${diaryText.slice(0, 160)}...` : diaryText;
+                  const labelDate = format(parseISO(dateISO), "yyyy年M月d日");
 
-                    {/* イベント（カード） */}
-                    <div className="flex-1 space-y-3">
-                      {block.events.map((e) => {
-                        const mode = e.mode ?? "禅";
-                        const isZen = mode === "禅";
-                        const pillClass = isZen
-                          ? "bg-[#3B82F6]/10 text-[#1D4ED8]"
-                          : "bg-[#F97316]/10 text-[#C2410C]";
-                        const content = (e.content ?? "").trim();
-                        const preview =
-                          content.length > 160 ? `${content.slice(0, 160)}...` : content;
+                  return (
+                    <div
+                      key={dateISO}
+                      className="relative overflow-hidden rounded-2xl border border-amber-100/90 bg-white/95 shadow-[0_2px_16px_-4px_rgba(120,80,40,0.08)] ring-1 ring-white/80 transition-shadow hover:shadow-[0_6px_24px_-6px_rgba(120,80,40,0.12)]"
+                    >
+                      <div className="absolute -left-[1.35rem] top-[1.35rem] h-3 w-3 rounded-full border-[3px] border-[#FFFCF8] bg-gradient-to-br from-sky-400 to-sky-500 shadow-sm" />
+                      <button
+                        type="button"
+                        onClick={() => toggleTimelineDay(dateISO)}
+                        aria-expanded={open}
+                        className="flex w-full items-center gap-4 rounded-2xl px-5 py-4 text-left transition-colors hover:bg-amber-50/40"
+                      >
+                        <span className="min-w-0 flex-1 text-base font-semibold text-stone-800">
+                          {open ? `${labelDate}の記録` : `${labelDate}の記録を表示`}
+                        </span>
+                        {open ? (
+                          <ChevronUp
+                            className="h-5 w-5 shrink-0 text-sky-500 transition-opacity duration-200"
+                            aria-hidden
+                          />
+                        ) : (
+                          <ChevronDown
+                            className="h-5 w-5 shrink-0 text-amber-500 transition-opacity duration-200"
+                            aria-hidden
+                          />
+                        )}
+                      </button>
 
-                        return (
-                          <div
-                            key={`${e.created_at}:${mode}`}
-                            className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950"
-                          >
+                      <div
+                        className="grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none"
+                        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+                      >
+                        <div className="min-h-0">
+                          <div className="border-t border-amber-100/70 bg-[#FFFCF9]/80 px-5 pb-5 pt-4">
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                              <span className="text-xs font-semibold uppercase tracking-wide text-stone-400">
                                 {e.created_at}
                               </span>
-                              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${pillClass}`}>
+                              <span className={`w-fit rounded-full px-3.5 py-1 text-xs font-bold shadow-sm ${pillClass}`}>
                                 {mode}
                               </span>
                             </div>
 
-                            <div className="mt-2 text-sm leading-relaxed text-slate-900 dark:text-slate-50">
+                            <div className="mt-3 text-[0.9375rem] leading-relaxed text-stone-800">
                               {enrichFourCharIdioms(preview)}
                             </div>
 
                             {e.sync_score != null ? (
-                              <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                                シンクロ率:{" "}
-                                <span className="font-semibold text-slate-700 dark:text-slate-200">
-                                  {e.sync_score}%
+                              <div className="mt-4 flex items-center gap-2 text-sm text-stone-500">
+                                <Sparkles className="h-4 w-4 text-amber-500" aria-hidden />
+                                <span>
+                                  シンクロ率:{" "}
+                                  <span className="font-bold text-sky-700">{e.sync_score}%</span>
                                 </span>
                               </div>
                             ) : null}
                           </div>
-                        );
-                      })}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
         </div>
 
         {/* 日記入力フォーム（要件: /dashboard に配置） */}
-        <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/40">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold">
-                {selectedDateLabel}の日記を{selectedEntry?.content ? "編集" : "記入"}
-              </h2>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                対象日: <span className="font-medium text-slate-900 dark:text-slate-50">{selectedDateISO}</span>
+        <div className="mt-10 rounded-[2rem] border border-rose-100/80 bg-gradient-to-br from-white via-[#FFFBF8] to-sky-50/25 p-8 shadow-[0_6px_32px_-12px_rgba(150,100,90,0.14)] ring-1 ring-rose-100/30 md:p-9">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-sky-500" aria-hidden />
+                <h2 className="text-xl font-bold tracking-tight text-stone-800 md:text-2xl">
+                  {selectedDateLabel}の日記を{selectedEntry?.content ? "編集" : "記入"}
+                </h2>
+              </div>
+              <p className="text-sm leading-relaxed text-stone-600 md:text-base">
+                対象日:{" "}
+                <span className="rounded-lg bg-white/80 px-2 py-0.5 font-semibold text-stone-800 shadow-sm ring-1 ring-amber-100/80">
+                  {selectedDateISO}
+                </span>
                 {" "}
-                {selectedIsFuture
-                  ? "（未来日は入力できません）"
-                  : isReflectionContext
-                    ? "（過去の自分を振り返る）"
-                    : selectedEntry?.content
-                      ? "（編集）"
-                      : ""}
+                <span className="text-stone-500">
+                  {selectedIsFuture
+                    ? "（未来日は入力できません）"
+                    : isReflectionContext
+                      ? "（過去の自分を振り返る）"
+                      : selectedEntry?.content
+                        ? "（編集）"
+                        : ""}
+                </span>
               </p>
             </div>
-            <div className="text-right">
+            <div className="rounded-2xl border border-sky-100/90 bg-sky-50/50 px-4 py-3 text-right shadow-sm">
               {selectedEntry?.sync_score != null ? (
-                <p className="text-xs text-slate-600 dark:text-slate-300">
-                  シンクロ率:{" "}
-                  <span className="font-medium text-slate-900 dark:text-slate-50">
+                <p className="text-sm text-stone-600">
+                  <span className="font-medium text-stone-500">シンクロ率</span>
+                  <span className="ml-2 text-lg font-bold tabular-nums text-sky-700">
                     {selectedEntry.sync_score}%
                   </span>
                 </p>
               ) : (
-                <p className="text-xs text-slate-500 dark:text-slate-400">未生成</p>
+                <p className="text-sm font-medium text-stone-400">未生成</p>
               )}
             </div>
           </div>
 
-          <div className="mt-4">
-            <div className="text-sm font-medium text-slate-700 dark:text-slate-200">モード（禅/ライバル/秘書）</div>
-            <div className="mt-2">
+          <div className="mt-8">
+            <div className="text-sm font-semibold text-stone-700">モード（禅 / ライバル / 秘書）</div>
+            <p className="mt-1 text-xs text-stone-500">今日の気分に合わせて、未来の自分との対話のトーンを選べます</p>
+            <div className="mt-4">
               <ToggleGroup
                 type="single"
                 value={diaryMode}
@@ -580,21 +671,22 @@ export default function CalendarClient({
                   if (isDiaryMode(v)) setDiaryMode(v);
                 }}
                 options={diaryModeOptions}
+                className="gap-3 sm:grid-cols-3"
               />
-              <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                現在のモード: {diaryMode}
+              <div className="mt-3 text-sm font-medium text-sky-800/90">
+                現在のモード: <span className="font-bold">{diaryMode}</span>
               </div>
-              <div className="mt-2 text-xs text-slate-600 dark:text-slate-300">
+              <div className="mt-2 text-sm leading-relaxed text-stone-600">
                 {diaryMode === "禅"
-                  ? "（静かに自分と向き合い、未来を俯瞰するスタイル）"
+                  ? "静かに自分と向き合い、未来を俯瞰するスタイル"
                   : diaryMode === "ライバル"
-                    ? "（切磋琢磨し、互いを高め合う熱いスタイル）"
-                    : "（緻密な計画とサポートで、着実に未来を支えるスタイル）"}
+                    ? "切磋琢磨し、互いを高め合う熱いスタイル"
+                    : "緻密な計画とサポートで、着実に未来を支えるスタイル"}
               </div>
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-8">
             <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -604,29 +696,33 @@ export default function CalendarClient({
                   : "ここに日記を書いてください。"
               }
               disabled={isGenerating || selectedIsFuture}
+              className="min-h-[160px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-base leading-relaxed text-stone-800 shadow-inner placeholder:text-stone-400 focus-visible:border-sky-300 focus-visible:ring-sky-200/60"
             />
           </div>
 
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-            <div className="text-xs text-slate-500 dark:text-slate-400">
-              {selectedCoreValue
-                ? `合言葉: ${selectedCoreValueEnriched}`
-                : "合言葉: 未来の自分を待機中..."}
+          <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+            <div className="flex flex-1 flex-wrap items-center gap-3 rounded-2xl border border-amber-200/50 bg-amber-50/30 px-4 py-3 text-sm text-stone-600 shadow-sm">
+              <Heart className="h-4 w-4 shrink-0 text-rose-400" aria-hidden />
+              <span>
+                {selectedCoreValue
+                  ? `合言葉: ${selectedCoreValueEnriched}`
+                  : "合言葉: 未来の自分を待機中..."}
+              </span>
+              <Button
+                variant="ghost"
+                className="ml-auto rounded-xl text-sky-700 hover:bg-sky-100/70"
+                onClick={() => router.push("/onboarding/core?edit=1")}
+              >
+                合言葉を変更
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              className="rounded-full px-4 py-1.5 sm:self-center"
-              onClick={() => router.push("/onboarding/core?edit=1")}
-            >
-              合言葉を変更
-            </Button>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-3">
               {selectedEntry?.ai_response ? (
                 <Button
                   variant="secondary"
                   type="button"
                   disabled
-                  className="hidden sm:inline-flex"
+                  className="hidden rounded-2xl border border-stone-200/80 bg-white/90 sm:inline-flex"
                   title="AI回答は下に表示します"
                 >
                   生成済み
@@ -636,6 +732,7 @@ export default function CalendarClient({
                 variant="secondary"
                 type="button"
                 disabled={isGenerating || selectedIsFuture}
+                className="rounded-2xl border border-amber-200/80 bg-white px-5 py-2.5 font-medium text-stone-700 shadow-sm hover:bg-amber-50/80"
                 onClick={() => {
                   try {
                     localStorage.setItem(
@@ -659,32 +756,41 @@ export default function CalendarClient({
               <Button
                 onClick={async () => handleGenerate()}
                 disabled={isGenerating || !content.trim() || selectedIsFuture}
+                className="rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-2.5 font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50"
               >
                 {isGenerating ? "生成中..." : `${selectedDateLabel}を保存してフィードバック生成`}
               </Button>
             </div>
           </div>
           {selectedIsFuture ? (
-            <div className="mt-3 text-sm text-amber-700 dark:text-amber-400">
+            <div className="mt-4 rounded-2xl border border-amber-200/80 bg-amber-50/50 px-4 py-3 text-sm font-medium text-amber-900">
               今日以降の未来日には日記を保存できません。今日以前の日付を選択してください。
             </div>
           ) : null}
 
           {selectedEntry?.ai_response ? (
-            <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 text-sm dark:border-slate-800 dark:bg-slate-950">
-              <div className="text-xs font-medium text-slate-600 dark:text-slate-300">AIフィードバック</div>
-              <pre className="mt-2 whitespace-pre-wrap text-slate-900 dark:text-slate-50">
+            <div className="mt-6 rounded-2xl border border-sky-100/90 bg-white/90 p-5 text-sm shadow-[0_4px_20px_-8px_rgba(60,120,160,0.12)] ring-1 ring-sky-50">
+              <div className="flex items-center gap-2 text-sm font-bold text-sky-800">
+                <Sparkles className="h-4 w-4 text-amber-500" aria-hidden />
+                AIフィードバック
+              </div>
+              <pre className="mt-3 whitespace-pre-wrap text-[0.9375rem] leading-relaxed text-stone-800">
                 {selectedEntry.ai_response}
               </pre>
             </div>
           ) : null}
 
           {errorMsg ? (
-            <div className="mt-3 text-sm text-red-600 dark:text-red-400">{errorMsg}</div>
+            <div className="mt-4 rounded-2xl border border-red-200/80 bg-red-50/80 px-4 py-3 text-sm font-medium text-red-800">
+              {errorMsg}
+            </div>
           ) : null}
           {infoMsg ? (
-            <div className="mt-2 text-sm text-emerald-700 dark:text-emerald-400">{infoMsg}</div>
+            <div className="mt-3 rounded-2xl border border-emerald-200/80 bg-emerald-50/70 px-4 py-3 text-sm font-medium text-emerald-900">
+              {infoMsg}
+            </div>
           ) : null}
+        </div>
         </div>
       </div>
     </div>
