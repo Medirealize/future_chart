@@ -150,7 +150,7 @@ export default function CoreValueClient({
   }));
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
+    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="text-sm text-slate-600 dark:text-slate-300">合言葉選択</div>
         <h1 className="mt-2 text-xl font-semibold">未来のあなたの「合言葉」を選んでください</h1>
@@ -158,18 +158,30 @@ export default function CoreValueClient({
         <div className="mt-6">
           <ToggleGroup
             type="single"
+            size="large"
             value={selected}
             onValueChange={setSelected}
             options={options}
-            className="grid-cols-1 sm:grid-cols-2"
+            className="grid-cols-1 sm:grid-cols-1"
           />
         </div>
 
-        <div className="mt-8 flex items-center justify-between gap-3">
-          <Button variant="ghost" onClick={() => router.push("/onboarding/future")} disabled={isSaving}>
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <Button
+            variant="ghost"
+            size="lg"
+            className="min-h-12 w-full justify-center text-base sm:w-auto"
+            onClick={() => router.push("/onboarding/future")}
+            disabled={isSaving}
+          >
             戻る
           </Button>
-          <Button onClick={handleSave} disabled={!selected || isSaving}>
+          <Button
+            size="lg"
+            className="min-h-12 w-full justify-center text-base sm:w-auto"
+            onClick={handleSave}
+            disabled={!selected || isSaving}
+          >
             {isSaving ? "保存中..." : "未来の自分と繋がる"}
           </Button>
         </div>

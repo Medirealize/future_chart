@@ -367,11 +367,12 @@ export default function CalendarClient({
           <Button
             type="button"
             variant="outline"
-            className="gap-2 rounded-2xl border-rose-200/80 bg-white/80 px-5 py-2.5 text-rose-800 shadow-sm transition-all hover:border-rose-300 hover:bg-rose-50/90 hover:shadow"
+            size="lg"
+            className="min-h-12 gap-2 rounded-2xl border-rose-200/80 bg-white/80 px-6 py-3 text-base text-rose-800 shadow-sm transition-all hover:border-rose-300 hover:bg-rose-50/90 hover:shadow"
             disabled={isSigningOut}
             onClick={() => handleSignOut()}
           >
-            <LogOut className="h-4 w-4 text-rose-500" aria-hidden />
+            <LogOut className="h-5 w-5 text-rose-500" aria-hidden />
             {isSigningOut ? "ログアウト中..." : "ログアウト"}
           </Button>
         </div>
@@ -399,7 +400,7 @@ export default function CalendarClient({
               </span>
             </p>
             {selectedCoreValue ? (
-              <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-amber-200/60 bg-amber-50/40 px-4 py-3 shadow-sm">
+              <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-amber-200/60 bg-amber-50/40 px-5 py-4 shadow-sm">
                 <Heart className="h-4 w-4 shrink-0 fill-rose-200 text-rose-400" aria-hidden />
                 <p className="text-sm text-stone-600">
                   <span className="font-medium text-stone-500">合言葉</span>
@@ -408,7 +409,8 @@ export default function CalendarClient({
                 </p>
                 <Button
                   variant="ghost"
-                  className="ml-auto rounded-xl px-4 py-2 text-sm font-medium text-sky-700 hover:bg-sky-100/60"
+                  size="lg"
+                  className="ml-auto min-h-11 shrink-0 rounded-xl px-5 text-base font-medium text-sky-700 hover:bg-sky-100/60"
                   onClick={() => router.push("/onboarding/core?edit=1")}
                 >
                   合言葉を変更
@@ -418,7 +420,7 @@ export default function CalendarClient({
           </div>
         </div>
 
-        <div className="mt-10 rounded-3xl border border-amber-100/90 bg-gradient-to-b from-white/90 to-[#FFF9F3]/90 p-6 shadow-[0_4px_24px_-8px_rgba(140,100,60,0.1)] ring-1 ring-amber-100/50 md:p-8">
+        <div className="mt-10 rounded-3xl border border-amber-100/90 bg-gradient-to-b from-white/90 to-[#FFF9F3]/90 p-4 shadow-[0_4px_24px_-8px_rgba(140,100,60,0.1)] ring-1 ring-amber-100/50 sm:p-6 md:p-8">
           <Calendar
             mode="single"
             onDayClick={(day) => {
@@ -458,7 +460,8 @@ export default function CalendarClient({
           <Button
             type="button"
             variant="outline"
-            className="rounded-2xl border-violet-200/90 bg-violet-50/40 px-6 py-3 text-base font-semibold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50"
+            size="lg"
+            className="min-h-12 rounded-2xl border-violet-200/90 bg-violet-50/40 px-8 py-3.5 text-base font-semibold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50"
             onClick={() => router.push("/dashboard/timeline")}
           >
             年表（タイムライン）を見る
@@ -517,7 +520,7 @@ export default function CalendarClient({
                   if (isDiaryMode(v)) setDiaryMode(v);
                 }}
                 options={diaryModeOptions}
-                className="gap-3 sm:grid-cols-3"
+                className="grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-4"
               />
               <div className="mt-3 text-sm font-medium text-sky-800/90">
                 現在のモード: <span className="font-bold">{diaryMode}</span>
@@ -547,7 +550,7 @@ export default function CalendarClient({
           </div>
 
           <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-            <div className="flex flex-1 flex-wrap items-center gap-3 rounded-2xl border border-amber-200/50 bg-amber-50/30 px-4 py-3 text-sm text-stone-600 shadow-sm">
+            <div className="flex flex-1 flex-wrap items-center gap-4 rounded-2xl border border-amber-200/50 bg-amber-50/30 px-5 py-4 text-base text-stone-600 shadow-sm">
               <Heart className="h-4 w-4 shrink-0 text-rose-400" aria-hidden />
               <span>
                 {selectedCoreValue
@@ -556,19 +559,21 @@ export default function CalendarClient({
               </span>
               <Button
                 variant="ghost"
-                className="ml-auto rounded-xl text-sky-700 hover:bg-sky-100/70"
+                size="lg"
+                className="ml-auto min-h-11 shrink-0 rounded-xl px-5 text-base text-sky-700 hover:bg-sky-100/70"
                 onClick={() => router.push("/onboarding/core?edit=1")}
               >
                 合言葉を変更
               </Button>
             </div>
-            <div className="flex flex-wrap items-center justify-end gap-3">
+            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-4">
               {selectedEntry?.ai_response ? (
                 <Button
                   variant="secondary"
                   type="button"
+                  size="lg"
                   disabled
-                  className="hidden rounded-2xl border border-stone-200/80 bg-white/90 sm:inline-flex"
+                  className="hidden min-h-12 rounded-2xl border border-stone-200/80 bg-white/90 text-base sm:inline-flex"
                   title="AI回答は下に表示します"
                 >
                   生成済み
@@ -577,8 +582,9 @@ export default function CalendarClient({
               <Button
                 variant="secondary"
                 type="button"
+                size="lg"
                 disabled={isGenerating || selectedIsFuture}
-                className="rounded-2xl border border-amber-200/80 bg-white px-5 py-2.5 font-medium text-stone-700 shadow-sm hover:bg-amber-50/80"
+                className="min-h-12 w-full rounded-2xl border border-amber-200/80 bg-white px-6 font-medium text-stone-700 shadow-sm hover:bg-amber-50/80 sm:w-auto"
                 onClick={() => {
                   try {
                     localStorage.setItem(
@@ -600,9 +606,10 @@ export default function CalendarClient({
                 一時保存
               </Button>
               <Button
+                size="lg"
                 onClick={async () => handleGenerate()}
                 disabled={isGenerating || !content.trim() || selectedIsFuture}
-                className="rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-2.5 font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50"
+                className="min-h-12 w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto"
               >
                 {isGenerating ? "生成中..." : `${selectedDateLabel}を保存してフィードバック生成`}
               </Button>

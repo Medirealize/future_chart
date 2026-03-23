@@ -21,17 +21,17 @@ export function Calendar({ className, ...props }: CalendarProps) {
           caption: "flex justify-center pt-1 relative items-center",
           caption_label:
             "text-base font-semibold tracking-tight text-stone-800",
-          nav: "space-x-1 flex items-center",
+          nav: "gap-2 flex items-center",
           nav_button:
-            "h-9 w-9 rounded-xl border border-amber-200/60 bg-white/80 text-stone-600 shadow-sm transition-all hover:bg-amber-50/80 hover:text-sky-700 hover:shadow",
+            "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-200/60 bg-white/80 text-base text-stone-600 shadow-sm transition-all hover:bg-amber-50/80 hover:text-sky-700 hover:shadow",
           table: "w-full border-collapse space-y-1",
           head_row: "flex",
           head_cell:
-            "text-stone-500 font-medium text-[0.75rem] w-[14.28%] rounded-lg uppercase tracking-wide",
-          row: "flex w-full mt-2",
-          cell: "w-[14.28%] h-9 relative",
+            "text-stone-500 font-medium text-xs w-[14.28%] rounded-lg py-2 uppercase tracking-wide",
+          row: "flex w-full mt-3",
+          cell: "relative flex w-[14.28%] min-h-[3.25rem] items-center justify-center p-1",
           day: cn(
-            "h-9 w-9 p-0 font-normal aria-selected:opacity-100 relative",
+            "flex h-11 w-11 items-center justify-center p-0 text-sm font-medium aria-selected:opacity-100",
             "rounded-full text-stone-700 transition-colors",
             "hover:bg-amber-100/70 hover:text-stone-900"
           ),
