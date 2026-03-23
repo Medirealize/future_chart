@@ -205,6 +205,7 @@ export default function WriteEntryClient({
                 ? "当時の自分は、何を感じ、何を選びましたか？ 今の自分はそれをどう解釈しますか？"
                 : "ここに日記を書いてください。"
             }
+            className="min-h-[200px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-lg leading-[1.65] text-stone-800 shadow-inner placeholder:text-stone-400 placeholder:text-base md:min-h-[220px] md:text-xl md:leading-[1.7] md:placeholder:text-lg focus-visible:border-sky-300 focus-visible:ring-sky-200/60"
           />
           <div className="flex items-center justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => router.push("/dashboard")} disabled={isSaving}>

@@ -6,6 +6,39 @@ import { createSupabaseClient, getSupabaseEnvDebugInfo } from "@/utils/supabase/
 
 type AuthMode = "signin" | "signup";
 
+const LOGIN_PREFS_KEY = "futurechart_login_prefs";
+
+function readStoredLoginPrefs(): { remember: boolean; email: string } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(LOGIN_PREFS_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as { remember?: boolean; email?: string };
+    if (p.remember === true && typeof p.email === "string" && p.email.trim()) {
+      return { remember: true, email: p.email.trim() };
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+function persistLoginPrefs(remember: boolean, emailValue: string) {
+  if (typeof window === "undefined") return;
+  try {
+    if (remember && emailValue.trim()) {
+      localStorage.setItem(
+        LOGIN_PREFS_KEY,
+        JSON.stringify({ remember: true, email: emailValue.trim() }),
+      );
+    } else {
+      localStorage.removeItem(LOGIN_PREFS_KEY);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 export default function LoginClient() {
   const router = useRouter();
   const supabase = React.useMemo(() => createSupabaseClient(), []);
@@ -13,7 +46,16 @@ export default function LoginClient() {
   const [mode, setMode] = React.useState<AuthMode>("signin");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [rememberLogin, setRememberLogin] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    const prefs = readStoredLoginPrefs();
+    if (prefs) {
+      setEmail(prefs.email);
+      setRememberLogin(true);
+    }
+  }, []);
 
   async function handleAuth() {
     console.debug("[UI] auth button clicked", { mode });
@@ -58,6 +100,7 @@ export default function LoginClient() {
           alert(error.message);
           return;
         }
+        persistLoginPrefs(rememberLogin, email);
       } else {
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
@@ -69,6 +112,7 @@ export default function LoginClient() {
           return;
         }
         alert("初回登録が完了しました。メール認証が必要な場合は、メールをご確認ください。");
+        persistLoginPrefs(rememberLogin, email);
       }
 
       router.push("/onboarding/diagnosis");
@@ -166,6 +210,26 @@ export default function LoginClient() {
                 autoComplete="current-password"
                 className="h-[clamp(30px,6.4vw,52px)] w-full rounded-full border-2 border-[#b4ccdf] bg-[rgba(248,251,255,0.9)] px-4 text-[clamp(15px,3.8vw,26px)] outline-none focus:border-[#8db4d2] focus:shadow-[0_0_0_3px_rgba(131,175,205,0.18)]"
               />
+
+              <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-transparent px-1 py-1 text-[clamp(14px,3.6vw,20px)] leading-snug text-[#2b2b2b] transition hover:bg-white/40">
+                <input
+                  type="checkbox"
+                  checked={rememberLogin}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setRememberLogin(next);
+                    if (!next) persistLoginPrefs(false, "");
+                  }}
+                  className="mt-0.5 h-[clamp(18px,4.5vw,22px)] w-[clamp(18px,4.5vw,22px)] shrink-0 rounded border-[#7fb0d1] text-[#3e7fa8] accent-[#5a9fd4]"
+                  disabled={isLoading}
+                />
+                <span>
+                  <span className="font-medium text-[#111]">ログイン条件を保持する</span>
+                  <span className="mt-0.5 block text-[clamp(12px,3.2vw,16px)] text-[#555]">
+                    （メールアドレスのみこの端末に保存します。パスワードは保存しません）
+                  </span>
+                </span>
+              </label>
 
               <button
                 type="submit"

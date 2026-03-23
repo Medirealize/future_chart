@@ -582,7 +582,7 @@ export default function CalendarClient({
                   : "ここに日記を書いてください。"
               }
               disabled={isGenerating || selectedIsFuture}
-              className="min-h-[160px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-base leading-relaxed text-stone-800 shadow-inner placeholder:text-stone-400 focus-visible:border-sky-300 focus-visible:ring-sky-200/60"
+              className="min-h-[200px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-lg leading-[1.65] text-stone-800 shadow-inner placeholder:text-stone-400 placeholder:text-base md:min-h-[220px] md:text-xl md:leading-[1.7] md:placeholder:text-lg focus-visible:border-sky-300 focus-visible:ring-sky-200/60"
             />
           </div>
 
