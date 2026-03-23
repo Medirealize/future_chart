@@ -1,17 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  format,
-  isBefore,
-  addYears,
-  addMonths,
-  differenceInCalendarDays,
-  differenceInMonths,
-  differenceInYears,
-  startOfDay,
-  parseISO,
-} from "date-fns";
+import { format, isBefore, addYears, startOfDay, parseISO } from "date-fns";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import {
@@ -27,16 +17,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import type { ToggleGroupOption } from "@/components/ui/toggle-group";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  BookOpen,
-  CalendarDays,
-  ChevronDown,
-  ChevronUp,
-  Heart,
-  LogOut,
-  Sparkles,
-  Timer,
-} from "lucide-react";
+import { CalendarDays, Heart, LogOut, Sparkles, Timer } from "lucide-react";
+import { computeTimeLeftYearsMonthsDays } from "@/lib/dashboard/countdown";
+import { CORE_VALUE_MEANINGS, enrichFourCharIdioms } from "@/lib/dashboard/enrich-idioms";
 
 type EntryRow = {
   created_at: string; // YYYY-MM-DD
@@ -78,16 +61,31 @@ export default function CalendarClient({
   }, [entriesState]);
 
   const [isMounted, setIsMounted] = React.useState(false);
-  const [today, setToday] = React.useState<Date | null>(null);
+  /** 画面表示・カウントダウン用の「今日」（日付が変わると更新） */
+  const [calendarNow, setCalendarNow] = React.useState<Date | null>(null);
   React.useEffect(() => {
-    setToday(startOfDay(new Date()));
+    const sync = () => {
+      const n = startOfDay(new Date());
+      setCalendarNow((prev) => {
+        if (!prev) return n;
+        return prev.getTime() === n.getTime() ? prev : n;
+      });
+    };
+    sync();
     setIsMounted(true);
+    const id = window.setInterval(sync, 60_000);
+    const onFocus = () => sync();
+    const onVis = () => {
+      if (document.visibilityState === "visible") sync();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, []);
-
-  const futureDate = React.useMemo(
-    () => (today ? addYears(today, targetYears) : null),
-    [today, targetYears]
-  );
 
   const diaryModeOptions: ToggleGroupOption[] = [
     { value: "禅", label: "禅" },
@@ -97,9 +95,9 @@ export default function CalendarClient({
 
   const [selectedDateISO, setSelectedDateISO] = React.useState<string>("");
   React.useEffect(() => {
-    if (!today) return;
-    setSelectedDateISO((prev) => (prev ? prev : format(today, "yyyy-MM-dd")));
-  }, [today]);
+    if (!calendarNow) return;
+    setSelectedDateISO((prev) => (prev ? prev : format(calendarNow, "yyyy-MM-dd")));
+  }, [calendarNow]);
 
   const selectedEntry = entriesByDate.get(selectedDateISO) ?? null;
   const selectedDate = React.useMemo(() => {
@@ -110,27 +108,28 @@ export default function CalendarClient({
     if (!selectedDate) return "";
     return format(selectedDate, "yyyy年M月d日");
   }, [selectedDate]);
+  /** カレンダーで選んだ日を起点に targetYears 年後の「目標日」 */
+  const goalDate = React.useMemo(
+    () => (selectedDate ? addYears(selectedDate, targetYears) : null),
+    [selectedDate, targetYears]
+  );
+
+  /** 実際の今日から目標日までの残り（日付が進むと年・月・日が減る） */
   const timeLeft = React.useMemo(() => {
-    if (!futureDate || !selectedDate) return null;
-    if (isBefore(futureDate, selectedDate)) return { years: 0, months: 0, days: 0 };
-    // 月単位・日単位がズレないよう、段階的に差分を積み上げて計算する
-    const years = Math.max(0, differenceInYears(futureDate, selectedDate));
-    const afterYears = addYears(selectedDate, years);
-    const months = Math.max(0, differenceInMonths(futureDate, afterYears));
-    const afterMonths = addMonths(afterYears, months);
-    const days = Math.max(0, differenceInCalendarDays(futureDate, afterMonths));
-    return { years, months, days };
-  }, [futureDate, selectedDate]);
+    if (!goalDate || !calendarNow) return null;
+    return computeTimeLeftYearsMonthsDays(calendarNow, goalDate);
+  }, [goalDate, calendarNow]);
+
   const selectedIsPast = React.useMemo(() => {
-    if (!today || !selectedDateISO) return false;
+    if (!calendarNow || !selectedDateISO) return false;
     const d = startOfDay(parseISO(selectedDateISO));
-    return isBefore(d, today);
-  }, [selectedDateISO, today]);
+    return isBefore(d, calendarNow);
+  }, [selectedDateISO, calendarNow]);
   const selectedIsFuture = React.useMemo(() => {
-    if (!today || !selectedDateISO) return false;
+    if (!calendarNow || !selectedDateISO) return false;
     const d = startOfDay(parseISO(selectedDateISO));
-    return isBefore(today, d);
-  }, [selectedDateISO, today]);
+    return isBefore(calendarNow, d);
+  }, [selectedDateISO, calendarNow]);
 
   const isReflectionContext = React.useMemo(() => {
     return selectedIsPast && !selectedEntry?.content;
@@ -144,29 +143,6 @@ export default function CalendarClient({
   const [isSigningOut, setIsSigningOut] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [infoMsg, setInfoMsg] = React.useState<string | null>(null);
-
-  const coreValueMeanings: Record<string, string> = {
-    初志貫徹: "最初に決めた志を最後まで突き通すこと",
-    着眼大局: "目先ではなく大きな目的を見て判断すること",
-    一期一会: "一生に一度しかない出会いを大切にすること",
-    虚心坦懐: "心を開いて素直に向き合うこと",
-    不撓不屈: "くじけず最後まで努力し続けること",
-    明朗快活: "明るく前向きで元気に振る舞うこと",
-    自他共栄: "自分も相手も、ともに栄えること",
-    迅速果断: "素早く決断し行動すること",
-    質実剛健: "飾らずに堅実で、心身を強く保つこと",
-    温故知新: "古い知識を学び、そこから新しい知恵を得ること",
-  };
-
-  function enrichFourCharIdioms(text: string) {
-    let out = text;
-    for (const [idiom, meaning] of Object.entries(coreValueMeanings)) {
-      // すでに「（意味）」が付いている場合は二重付与しない
-      const re = new RegExp(`${idiom}(?!（)`);
-      out = out.replace(re, `${idiom}（${meaning}）`);
-    }
-    return out;
-  }
 
   React.useLayoutEffect(() => {
     const cached = readCachedCoreValue();
@@ -238,7 +214,7 @@ export default function CalendarClient({
   const selectedCoreValue = React.useMemo(() => {
     if (!selectedEntry?.content?.trim()) return currentCoreValue ?? null;
     const sourceText = `${selectedEntry.content ?? ""}\n${selectedEntry.ai_response ?? ""}`;
-    for (const idiom of Object.keys(coreValueMeanings)) {
+    for (const idiom of Object.keys(CORE_VALUE_MEANINGS)) {
       if (sourceText.includes(idiom)) return idiom;
     }
     return currentCoreValue ?? null;
@@ -247,52 +223,6 @@ export default function CalendarClient({
     if (!selectedCoreValue) return "";
     return enrichFourCharIdioms(selectedCoreValue);
   }, [selectedCoreValue]);
-
-  /** 日付単位（1日1件想定）のタイムライン用リスト（古い順） */
-  const timelineDayBlocks = React.useMemo(() => {
-    const START_YEAR = 2026;
-
-    const items = entriesState
-      .filter((e) => typeof e.content === "string" && e.content.trim().length > 0)
-      .slice()
-      .filter((e) => typeof e.created_at === "string" && e.created_at.length >= 4)
-      .map((e) => ({
-        ...e,
-        year: Number(e.created_at.slice(0, 4)),
-      }))
-      .filter((e) => Number.isFinite(e.year) && e.year >= START_YEAR)
-      .sort((a, b) => a.created_at.localeCompare(b.created_at));
-
-    return items.map((entry) => ({ dateISO: entry.created_at, entry }));
-  }, [entriesState]);
-
-  const [timelineOpenByDate, setTimelineOpenByDate] = React.useState<Record<string, boolean>>({});
-  const timelineDefaultAppliedRef = React.useRef(false);
-
-  React.useEffect(() => {
-    if (timelineDayBlocks.length === 0) {
-      timelineDefaultAppliedRef.current = false;
-      return;
-    }
-    if (timelineDefaultAppliedRef.current) return;
-    timelineDefaultAppliedRef.current = true;
-
-    const todayISO = today ? format(today, "yyyy-MM-dd") : "";
-    const hasToday =
-      Boolean(todayISO) && timelineDayBlocks.some((b) => b.dateISO === todayISO);
-    const defaultKey = hasToday
-      ? todayISO
-      : timelineDayBlocks[timelineDayBlocks.length - 1]!.dateISO;
-
-    setTimelineOpenByDate((prev) => ({ ...prev, [defaultKey]: true }));
-  }, [timelineDayBlocks, today]);
-
-  function toggleTimelineDay(dateISO: string) {
-    setTimelineOpenByDate((prev) => ({
-      ...prev,
-      [dateISO]: !prev[dateISO],
-    }));
-  }
 
   React.useEffect(() => {
     if (!selectedDateISO) return;
@@ -403,7 +333,7 @@ export default function CalendarClient({
     return () => window.clearTimeout(timer);
   }, [content, diaryMode, selectedDateISO]);
 
-  if (!isMounted || !today || !selectedDateISO) {
+  if (!isMounted || !calendarNow || !selectedDateISO) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#FDF8F3] via-[#FAF6EF] to-[#F3EBE2] px-5 py-10 md:px-10">
         <div className="mx-auto max-w-5xl">
@@ -439,18 +369,12 @@ export default function CalendarClient({
                 <CalendarDays className="h-6 w-6" strokeWidth={1.75} aria-hidden />
               </span>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-amber-700/80">
-                  家族の記録
-                </p>
-                <h1 className="text-3xl font-bold tracking-tight text-stone-800 md:text-4xl">
-                  カレンダー
-                </h1>
+                <h1 className="text-3xl font-bold tracking-tight text-stone-800 md:text-4xl">カレンダー</h1>
               </div>
             </div>
             <p className="flex flex-wrap items-center gap-2 text-base leading-relaxed text-stone-600">
               <Timer className="h-4 w-4 shrink-0 text-sky-500" aria-hidden />
               <span>
-                未来の自分
                 <span className="font-semibold text-sky-700">（{futureTitle}）</span>
                 まで、あと
                 <span className="mx-1 font-semibold tabular-nums text-stone-800">
@@ -514,109 +438,15 @@ export default function CalendarClient({
           />
         </div>
 
-        {/* 年表（バーティカル・タイムライン） */}
-        <div className="mt-10 rounded-[2rem] border border-amber-100/90 bg-gradient-to-br from-white/95 via-[#FFFAF5] to-amber-50/30 p-8 shadow-[0_4px_28px_-10px_rgba(130,90,50,0.12)] ring-1 ring-amber-100/40 md:p-9">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-100/90 text-violet-600 shadow-sm ring-1 ring-violet-200/40">
-                <BookOpen className="h-5 w-5" strokeWidth={1.75} aria-hidden />
-              </span>
-              <div>
-                <h2 className="text-xl font-bold tracking-tight text-stone-800 md:text-2xl">年表（タイムライン）</h2>
-                <p className="mt-0.5 text-sm text-stone-500">大切な日々を、手帳のように残していきましょう</p>
-              </div>
-            </div>
-            <span className="inline-flex items-center rounded-full border border-amber-200/70 bg-white/80 px-3 py-1 text-xs font-medium text-amber-800/90 shadow-sm">
-              2026年〜の記録
-            </span>
-          </div>
-
-          {timelineDayBlocks.length === 0 ? (
-            <p className="mt-6 text-base leading-relaxed text-stone-600">
-              まだ年表がありません。日々の気持ちを、そっと書き留めていきましょう。
-            </p>
-          ) : (
-            <div className="relative mt-8">
-              <div className="absolute left-2 top-3 bottom-3 w-px bg-gradient-to-b from-sky-200/80 via-amber-200/60 to-rose-200/50" />
-
-              <div className="space-y-3 pl-8">
-                {timelineDayBlocks.map(({ dateISO, entry: e }) => {
-                  const open = Boolean(timelineOpenByDate[dateISO]);
-                  const mode = e.mode ?? "禅";
-                  const isZen = mode === "禅";
-                  const pillClass = isZen
-                    ? "border border-sky-200/80 bg-sky-50 text-sky-800"
-                    : "border border-orange-200/80 bg-orange-50/90 text-orange-900";
-                  const diaryText = (e.content ?? "").trim();
-                  const preview =
-                    diaryText.length > 160 ? `${diaryText.slice(0, 160)}...` : diaryText;
-                  const labelDate = format(parseISO(dateISO), "yyyy年M月d日");
-
-                  return (
-                    <div
-                      key={dateISO}
-                      className="relative overflow-hidden rounded-2xl border border-amber-100/90 bg-white/95 shadow-[0_2px_16px_-4px_rgba(120,80,40,0.08)] ring-1 ring-white/80 transition-shadow hover:shadow-[0_6px_24px_-6px_rgba(120,80,40,0.12)]"
-                    >
-                      <div className="absolute -left-[1.35rem] top-[1.35rem] h-3 w-3 rounded-full border-[3px] border-[#FFFCF8] bg-gradient-to-br from-sky-400 to-sky-500 shadow-sm" />
-                      <button
-                        type="button"
-                        onClick={() => toggleTimelineDay(dateISO)}
-                        aria-expanded={open}
-                        className="flex w-full items-center gap-4 rounded-2xl px-5 py-4 text-left transition-colors hover:bg-amber-50/40"
-                      >
-                        <span className="min-w-0 flex-1 text-base font-semibold text-stone-800">
-                          {open ? `${labelDate}の記録` : `${labelDate}の記録を表示`}
-                        </span>
-                        {open ? (
-                          <ChevronUp
-                            className="h-5 w-5 shrink-0 text-sky-500 transition-opacity duration-200"
-                            aria-hidden
-                          />
-                        ) : (
-                          <ChevronDown
-                            className="h-5 w-5 shrink-0 text-amber-500 transition-opacity duration-200"
-                            aria-hidden
-                          />
-                        )}
-                      </button>
-
-                      <div
-                        className="grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none"
-                        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
-                      >
-                        <div className="min-h-0">
-                          <div className="border-t border-amber-100/70 bg-[#FFFCF9]/80 px-5 pb-5 pt-4">
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <span className="text-xs font-semibold uppercase tracking-wide text-stone-400">
-                                {e.created_at}
-                              </span>
-                              <span className={`w-fit rounded-full px-3.5 py-1 text-xs font-bold shadow-sm ${pillClass}`}>
-                                {mode}
-                              </span>
-                            </div>
-
-                            <div className="mt-3 text-[0.9375rem] leading-relaxed text-stone-800">
-                              {enrichFourCharIdioms(preview)}
-                            </div>
-
-                            {e.sync_score != null ? (
-                              <div className="mt-4 flex items-center gap-2 text-sm text-stone-500">
-                                <Sparkles className="h-4 w-4 text-amber-500" aria-hidden />
-                                <span>
-                                  シンクロ率:{" "}
-                                  <span className="font-bold text-sky-700">{e.sync_score}%</span>
-                                </span>
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+        <div className="mt-6 flex justify-center sm:justify-start">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-2xl border-violet-200/90 bg-violet-50/40 px-6 py-3 text-base font-semibold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50"
+            onClick={() => router.push("/dashboard/timeline")}
+          >
+            年表（タイムライン）を見る
+          </Button>
         </div>
 
         {/* 日記入力フォーム（要件: /dashboard に配置） */}
