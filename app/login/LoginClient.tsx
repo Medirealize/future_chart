@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createSupabaseClient, getSupabaseEnvDebugInfo } from "@/utils/supabase/client";
 
@@ -79,45 +78,30 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_85%_95%,rgba(255,230,206,0.55),transparent_36%),linear-gradient(165deg,#c7e1f8_0%,#e4f1fd_48%,#ffffff_100%)] px-3 py-6">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_85%_95%,rgba(255,230,206,0.55),transparent_36%),linear-gradient(165deg,#c7e1f8_0%,#e4f1fd_48%,#ffffff_100%)] px-3 py-2">
       <div className="mx-auto w-full max-w-[430px]">
-        <h1 className="mb-4 text-center text-[clamp(24px,6vw,42px)] font-medium text-[#111]">
-          未来処方 (Future Prescription)
-        </h1>
-
-        <div className="relative mx-auto w-full max-w-[390px] rounded-[52px] border-[4px] border-[#202020] bg-[linear-gradient(160deg,#d6ecff_0%,#fafcfe_62%,#fdf7f2_100%)] px-3 pb-6 pt-[66px] shadow-[0_16px_34px_rgba(16,30,44,0.22),inset_0_0_0_2px_rgba(255,255,255,0.5)]">
-          <div className="absolute left-1/2 top-2 h-9 w-[176px] -translate-x-1/2 rounded-full bg-[#0b0b0c]" />
-
-          <div className="rounded-[28px] border-2 border-[#3a3a3a] bg-[linear-gradient(165deg,rgba(252,253,255,0.58),rgba(245,247,251,0.68))] px-2.5 pb-5 pt-5 shadow-[inset_0_10px_22px_rgba(187,206,225,0.3),0_12px_26px_rgba(133,155,176,0.2)]">
-            <p className="text-center text-[clamp(22px,5.1vw,36px)] font-bold text-[#111]">
-              「未来の君」からのアドバイスが、
-            </p>
-
+        <div className="mx-auto w-full max-w-[390px] rounded-[32px] border-2 border-[#3a3a3a] bg-[linear-gradient(165deg,rgba(252,253,255,0.58),rgba(245,247,251,0.68))] px-2.5 pb-9 pt-5 shadow-[inset_0_10px_22px_rgba(187,206,225,0.3),0_12px_26px_rgba(133,155,176,0.2)]">
             <div className="mx-auto my-3 w-full max-w-[314px] overflow-hidden rounded-xl bg-[linear-gradient(140deg,rgba(229,236,246,0.4),rgba(216,226,238,0.32))]">
-              <Image
+              <img
                 src="/login-hero-icon.svg"
                 alt="光るラインとカルテの代替アイコン"
-                width={360}
-                height={220}
                 className="block h-auto w-full"
-                priority
               />
             </div>
 
-            <p className="text-center text-[clamp(18px,4.5vw,32px)] text-[#111]">
-              その記録が、明日を変える力になる
-            </p>
-
-            <h2 className="mt-3 text-center text-[clamp(36px,8.2vw,62px)] font-bold leading-[1.05] text-[#111]">
-              未来処方、はじめよう
+            <h2 className="mb-0 mt-3 text-center text-[clamp(36px,8.2vw,62px)] font-extrabold leading-[0.94] tracking-[0.03em] text-[#111] [font-family:'Avenir_Next','Hiragino_Kaku_Gothic_ProN','Yu_Gothic_UI','Noto_Sans_JP',sans-serif]">
+              未来処方
             </h2>
-            <p className="text-center text-[clamp(18px,4.5vw,30px)] font-bold leading-[1.05] text-[#111]">
+            <p className="-mt-4.5 text-center text-[clamp(14px,3.6vw,20px)] font-medium tracking-[0.06em] text-[#2b2b2b]">
+              Future Prescription
+            </p>
+            <p className="text-center text-[clamp(16px,3.9vw,24px)] font-bold leading-[1.2] text-[#111]">
               「未来の君」からのアドバイスが、
             </p>
-            <p className="text-center text-[clamp(18px,4.5vw,30px)] font-bold leading-[1.05] text-[#111]">
+            <p className="text-center text-[clamp(16px,3.9vw,24px)] font-bold leading-[1.2] text-[#111]">
               今の君を変える
             </p>
-            <p className="mt-2 text-center text-[clamp(18px,4.5vw,30px)] text-[#111]">
+            <p className="mt-2 whitespace-nowrap text-center text-[clamp(14px,3.6vw,20px)] text-[#111]">
               その記録が、明日を変える力になる
             </p>
 
@@ -186,14 +170,11 @@ export default function LoginClient() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="mt-3 block w-full border-none bg-transparent text-center text-[clamp(20px,4.8vw,30px)] font-semibold text-[#4f8db7] disabled:opacity-50"
+                className="mb-[clamp(42px,8.5vw,56px)] mt-4 block h-[clamp(42px,8.5vw,56px)] w-full rounded-full border-2 border-[#7fb0d1] bg-[linear-gradient(180deg,rgba(226,241,252,0.95),rgba(208,229,245,0.95))] px-5 text-center text-[clamp(18px,4.2vw,24px)] font-semibold text-[#3e7fa8] shadow-[0_6px_14px_rgba(104,149,180,0.2)] transition hover:brightness-[1.02] disabled:opacity-50"
               >
                 {isLoading ? "処理中..." : "未来の君に相談する"}
               </button>
             </form>
-          </div>
-
-          <div className="mx-auto mt-3 h-[5px] w-[126px] rounded-full bg-[#0b0c0e]" />
         </div>
       </div>
     </div>

@@ -1,44 +1,104 @@
-<svg viewBox="0 0 360 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="I‹é¤óh«ëÆnãÿ¢¤³ó">
+<svg viewBox="0 0 360 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="login hero icon">
   <defs>
-    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#f6efe1" stop-opacity="0.85" />
-      <stop offset="100%" stop-color="#d9e5ef" stop-opacity="0.85" />
+    <linearGradient id="panelGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4c3c27" />
+      <stop offset="48%" stop-color="#2f261a" />
+      <stop offset="100%" stop-color="#1f1912" />
     </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="2.8" result="blur" />
+    <linearGradient id="paperGrad" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#f7e9c9" />
+      <stop offset="100%" stop-color="#b39666" />
+    </linearGradient>
+    <linearGradient id="lineCore" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#fff3c4" />
+      <stop offset="55%" stop-color="#f8d57b" />
+      <stop offset="100%" stop-color="#c99834" />
+    </linearGradient>
+    <radialGradient id="auraGrad" cx="58%" cy="40%" r="58%">
+      <stop offset="0%" stop-color="#d7a74a" stop-opacity="0.42" />
+      <stop offset="100%" stop-color="#d7a74a" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="ekgCore" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f6d98d" />
+      <stop offset="100%" stop-color="#c6942e" />
+    </linearGradient>
+    <filter id="paperShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0d0a06" flood-opacity="0.55" />
+    </filter>
+    <filter id="lineGlow" x="-30%" y="-30%" width="160%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.8" result="blur1" />
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6.5" result="blur2" />
       <feMerge>
-        <feMergeNode in="blur" />
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
-    <marker id="arrowHead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#e5f7ff" />
+    <marker id="arrowHead" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#ffe39a" />
     </marker>
   </defs>
 
-  <rect x="96" y="34" width="170" height="130" rx="6" fill="url(#bgGrad)" />
-  <g stroke="#7a899d" stroke-width="1.4" fill="none" opacity="0.55">
-    <path d="M8 120 H352" />
-    <path d="M20 72 H340" />
-    <path d="M20 170 H340" />
-    <path d="M40 40 H332" />
-    <path d="M60 26 V198" />
-    <circle cx="40" cy="72" r="4" />
-    <circle cx="332" cy="40" r="4" />
-    <circle cx="340" cy="170" r="4" />
+  <rect x="8" y="10" width="344" height="200" rx="16" fill="url(#panelGrad)" />
+  <rect x="8" y="10" width="344" height="200" rx="16" fill="url(#auraGrad)" />
+
+  <g opacity="0.45" stroke="#b89457" stroke-width="1.2" fill="none">
+    <path d="M24 108 H336" />
+    <path d="M24 62 H336" />
+    <path d="M24 156 H336" />
+    <path d="M60 30 V194" />
+    <path d="M118 24 V198" />
+    <path d="M176 24 V198" />
+    <path d="M234 24 V198" />
+    <path d="M292 24 V198" />
   </g>
+
+  <g opacity="0.34" stroke="#af8b4e" stroke-width="1.1" fill="none">
+    <circle cx="46" cy="62" r="5" />
+    <circle cx="314" cy="62" r="5" />
+    <circle cx="46" cy="156" r="5" />
+    <circle cx="314" cy="156" r="5" />
+    <path d="M46 62 C120 20, 240 20, 314 62" />
+    <path d="M46 156 C120 198, 240 198, 314 156" />
+    <path d="M46 62 C46 108, 46 108, 46 156" />
+    <path d="M314 62 C314 108, 314 108, 314 156" />
+  </g>
+
+  <g filter="url(#paperShadow)">
+    <rect x="104" y="44" width="158" height="122" rx="8" fill="url(#paperGrad)" />
+    <path d="M230 44 L262 74 L230 74 Z" fill="#f4efe4" />
+    <path d="M230 44 L262 74" stroke="#d6d0c4" stroke-width="1.1" />
+    <g stroke="#d7c6a5" stroke-width="1">
+      <path d="M118 62 H246" />
+      <path d="M118 80 H246" />
+      <path d="M118 98 H246" />
+      <path d="M118 116 H246" />
+      <path d="M118 134 H246" />
+      <path d="M118 152 H238" />
+    </g>
+  </g>
+
+  <g stroke="url(#ekgCore)" stroke-width="2.6" fill="none" opacity="0.88">
+    <path d="M112 142 L128 142 L136 136 L144 156 L156 112 L166 142 L180 142" />
+    <path d="M146 142 L160 142 L168 136 L176 154 L188 118 L198 142 L214 142" />
+    <path d="M178 142 L192 142 L200 136 L208 153 L220 121 L230 142 L244 142" />
+  </g>
+
   <path
-    d="M20 172 C68 184, 88 150, 124 151 C154 154, 167 131, 193 111 C224 87, 246 56, 290 33"
-    stroke="#e9fbff"
-    stroke-width="8"
+    d="M22 176 C64 187, 92 156, 124 154 C152 152, 167 132, 192 113 C220 91, 246 56, 304 31"
+    stroke="url(#lineCore)"
+    stroke-width="7.2"
     fill="none"
     stroke-linecap="round"
-    filter="url(#glow)"
+    filter="url(#lineGlow)"
     marker-end="url(#arrowHead)"
   />
-  <g stroke="#7f8ea0" stroke-width="2.2" fill="none" opacity="0.65">
-    <path d="M108 140 C126 112, 148 118, 167 145" />
-    <path d="M141 140 C159 112, 181 118, 200 145" />
-    <path d="M174 140 C192 112, 214 118, 233 145" />
-  </g>
+  <path
+    d="M24 178 C66 190, 94 160, 126 158 C154 156, 170 136, 194 117 C222 95, 248 60, 304 35"
+    stroke="#ffefc0"
+    stroke-width="2.2"
+    fill="none"
+    stroke-linecap="round"
+    opacity="0.92"
+  />
 </svg>
