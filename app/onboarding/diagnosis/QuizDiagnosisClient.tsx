@@ -66,60 +66,64 @@ export default function QuizDiagnosisClient() {
   const isCompletingRef = React.useRef(false);
 
   const q = QUESTIONS[step];
+  const isLastStep = step === QUESTIONS.length - 1;
+  const lastAnswer = answers[QUESTIONS.length - 1];
+  const canProceedLast = Boolean(lastAnswer);
 
-  async function handleSelect(letter: QuizChoice) {
+  /** 1〜2問目: 選ぶと次の設問へ。3問目: 選ぶだけ（完了は「次へ進む」） */
+  function handleOptionPick(letter: QuizChoice) {
     if (isSaving || isCompletingRef.current) return;
-
-    // 現在の設問 index(step) の回答を「置き換え」する（前へ戻って再選択した場合のため）
     const nextAnswers = [...answers.slice(0, step), letter];
     setAnswers(nextAnswers);
+    if (isLastStep) return;
+    setStep((s) => s + 1);
+  }
 
-    if (step === QUESTIONS.length - 1) {
-      if (isCompletingRef.current) return;
-      isCompletingRef.current = true;
-
-      const userType = computeType(nextAnswers);
-      localStorage.setItem(
-        "onboarding_diagnosis",
-        JSON.stringify({ userType, answers: nextAnswers })
-      );
-      setIsSaving(true);
-      try {
-        const { data: authData, error: authError } = await supabase.auth.getUser();
-        if (authError || !authData.user) {
-          alert("ログイン情報の取得に失敗しました。");
-          isCompletingRef.current = false;
-          router.push("/login");
-          return;
-        }
-
-        const { error: upsertError } = await supabase
-          .from("profiles")
-          .upsert(
-            {
-              id: authData.user.id,
-              user_type: userType,
-            },
-            { onConflict: "id" }
-          );
-
-        if (upsertError) {
-          alert(`診断結果の保存に失敗しました: ${upsertError.message}`);
-          isCompletingRef.current = false;
-          return;
-        }
-
-        // クライアント直後の RSC / プリフェッチで profile が古いままだと
-        // /onboarding/future が user_type なしと判定して診断へ戻すループになる。
-        // フルページ遷移でサーバーが必ず最新 DB を読むようにする。
-        window.location.assign("/onboarding/future");
-      } finally {
-        setIsSaving(false);
-      }
+  async function handleProceedComplete() {
+    if (isSaving || isCompletingRef.current) return;
+    if (!isLastStep) return;
+    if (!canProceedLast || answers.length < QUESTIONS.length) {
+      alert("選択肢を選んでください。");
       return;
     }
 
-    setStep((s) => s + 1);
+    isCompletingRef.current = true;
+
+    const userType = computeType(answers);
+    localStorage.setItem(
+      "onboarding_diagnosis",
+      JSON.stringify({ userType, answers })
+    );
+    setIsSaving(true);
+    try {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError || !authData.user) {
+        alert("ログイン情報の取得に失敗しました。");
+        isCompletingRef.current = false;
+        router.push("/login");
+        return;
+      }
+
+      const { error: upsertError } = await supabase
+        .from("profiles")
+        .upsert(
+          {
+            id: authData.user.id,
+            user_type: userType,
+          },
+          { onConflict: "id" }
+        );
+
+      if (upsertError) {
+        alert(`診断結果の保存に失敗しました: ${upsertError.message}`);
+        isCompletingRef.current = false;
+        return;
+      }
+
+      window.location.assign("/onboarding/future");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -140,7 +144,7 @@ export default function QuizDiagnosisClient() {
           <ToggleGroup
             type="single"
             value={answers[step] ?? null}
-            onValueChange={(value) => handleSelect(value as QuizChoice)}
+            onValueChange={(value) => handleOptionPick(value as QuizChoice)}
             options={[
               { value: "A", label: `A: ${q.options.A}` },
               { value: "B", label: `B: ${q.options.B}` },
@@ -163,9 +167,21 @@ export default function QuizDiagnosisClient() {
           >
             前へ
           </Button>
-          <div className="text-xs text-slate-500 dark:text-slate-400">
-            {isSaving ? "診断結果を保存中..." : "選択すると次に進みます"}
-          </div>
+          {isLastStep ? (
+            <Button
+              type="button"
+              size="lg"
+              className="min-h-12 px-8 text-base font-semibold"
+              disabled={isSaving || !canProceedLast}
+              onClick={() => void handleProceedComplete()}
+            >
+              {isSaving ? "保存中..." : "次へ進む"}
+            </Button>
+          ) : (
+            <div className="text-xs text-slate-500 dark:text-slate-400">
+              選択すると次に進みます
+            </div>
+          )}
         </div>
       </div>
     </div>
