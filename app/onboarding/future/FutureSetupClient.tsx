@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { differenceInYears, isAfter, startOfDay } from "date-fns";
+import { parseDateOnlyLocal } from "@/lib/dashboard/countdown";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +12,7 @@ type Props = {
   userType: string;
   initialTargetYears: number | null;
   initialFutureTitle: string | null;
+  initialBirthDate: string | null;
 };
 
 function parseOnboardingStorage<T>(key: string): T | null {
@@ -26,11 +29,15 @@ export default function FutureSetupClient({
   userType,
   initialTargetYears,
   initialFutureTitle,
+  initialBirthDate,
 }: Props) {
   const router = useRouter();
   const supabase = React.useMemo(() => createSupabaseBrowserClient(), []);
 
-  const [targetYears, setTargetYears] = React.useState<string>(
+  const [birthDate, setBirthDate] = React.useState<string>(
+    initialBirthDate ? String(initialBirthDate).slice(0, 10) : ""
+  );
+  const [targetAge, setTargetAge] = React.useState<string>(
     initialTargetYears != null ? String(initialTargetYears) : ""
   );
   const [futureTitle, setFutureTitle] = React.useState<string>(
@@ -39,7 +46,6 @@ export default function FutureSetupClient({
   const [isSaving, setIsSaving] = React.useState(false);
 
   React.useEffect(() => {
-    // DBにある既存値を優先しつつ、ローカルにも保存して途中リロードに強くします
     try {
       const existingDiagnosis = parseOnboardingStorage<{ userType: string; answers: string[] }>(
         "onboarding_diagnosis"
@@ -54,13 +60,13 @@ export default function FutureSetupClient({
       localStorage.setItem(
         "onboarding_future",
         JSON.stringify({
-          targetYears:
-            initialTargetYears != null ? Number(initialTargetYears) : Number(targetYears || 0),
-          futureTitle: initialFutureTitle ?? futureTitle,
+          birthDate: birthDate || initialBirthDate || undefined,
+          targetYears: Number(targetAge || initialTargetYears || 0) || undefined,
+          futureTitle: futureTitle || initialFutureTitle || "",
         })
       );
     } catch {
-      // localStorageが無効な環境などは無視
+      // ignore
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -68,20 +74,48 @@ export default function FutureSetupClient({
   async function handleNext() {
     if (isSaving) return;
 
-    const years = Number(targetYears);
-    if (!Number.isFinite(years) || years <= 0) {
-      alert("何年後か（target_years）を正しく入力してください。");
+    const birth = birthDate.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(birth)) {
+      alert("生年月日を「YYYY-MM-DD」形式で入力してください（例: 1990-05-12）。");
       return;
     }
+    let birthDay: Date;
+    try {
+      birthDay = parseDateOnlyLocal(birth);
+    } catch {
+      alert("生年月日が正しくありません。");
+      return;
+    }
+    if (isAfter(birthDay, startOfDay(new Date()))) {
+      alert("生年月日は今日以前の日付を入力してください。");
+      return;
+    }
+
+    const age = Number(targetAge);
+    if (!Number.isFinite(age) || age < 1 || age > 120) {
+      alert("目標とする年齢（1〜120歳）を正しく入力してください。");
+      return;
+    }
+
+    const ageNow = differenceInYears(startOfDay(new Date()), birthDay);
+    if (age <= ageNow) {
+      alert(`目標の年齢は、現在の年齢（おおよそ${ageNow}歳）より大きい値にしてください。`);
+      return;
+    }
+
     const title = futureTitle.trim();
     if (!title) {
-      alert("未来の肩書き（future_title）を入力してください。");
+      alert("未来の肩書きを入力してください。");
       return;
     }
 
     localStorage.setItem(
       "onboarding_future",
-      JSON.stringify({ targetYears: years, futureTitle: title })
+      JSON.stringify({
+        birthDate: birth,
+        targetYears: age,
+        futureTitle: title,
+      })
     );
 
     setIsSaving(true);
@@ -99,7 +133,8 @@ export default function FutureSetupClient({
           {
             id: authData.user.id,
             user_type: userType,
-            target_years: years,
+            birth_date: birth,
+            target_years: age,
             future_title: title,
           },
           { onConflict: "id" }
@@ -121,31 +156,50 @@ export default function FutureSetupClient({
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="text-sm text-slate-600 dark:text-slate-300">未来設定</div>
         <h1 className="mt-2 text-xl font-semibold">
-          あなたは何年後の自分からメッセージを受け取りますか？
+          何歳の自分から、メッセージを受け取りますか？
         </h1>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+          生年月日と目標の年齢から、「その誕生日」までの残り日数をカウントダウンします。
+        </p>
 
         <div className="mt-6 space-y-5">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-              target_years
+              生年月日
             </label>
             <Input
-              inputMode="numeric"
-              type="number"
-              min={1}
-              step={1}
-              value={targetYears}
-              onChange={(e) => setTargetYears(e.target.value)}
-              placeholder="例: 20"
+              type="date"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              className="rounded-xl"
             />
             <div className="text-xs text-slate-500 dark:text-slate-400">
-              何年後の自分からメッセージを受け取りますか？
+              カレンダーから選ぶか、YYYY-MM-DD で入力してください。
             </div>
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-              future_title
+              目標とする年齢（○歳の自分）
+            </label>
+            <Input
+              inputMode="numeric"
+              type="number"
+              min={1}
+              max={120}
+              step={1}
+              value={targetAge}
+              onChange={(e) => setTargetAge(e.target.value)}
+              placeholder="例: 60"
+            />
+            <div className="text-xs text-slate-500 dark:text-slate-400">
+              その年齢の誕生日まで、あと何年何ヶ月何日と表示します。
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              そのときの肩書き・姿
             </label>
             <Input
               value={futureTitle}
@@ -153,7 +207,7 @@ export default function FutureSetupClient({
               placeholder="会社の会長 / ベストセラー作家 / 孫に慕われる隠居生活"
             />
             <div className="text-xs text-slate-500 dark:text-slate-400">
-              その時のあなたの肩書きや状態は？
+              未来のあなたの肩書きや状態を短く入力してください。
             </div>
           </div>
         </div>
@@ -174,4 +228,3 @@ export default function FutureSetupClient({
     </div>
   );
 }
-

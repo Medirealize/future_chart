@@ -18,7 +18,10 @@ import { ToggleGroup } from "@/components/ui/toggle-group";
 import type { ToggleGroupOption } from "@/components/ui/toggle-group";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarDays, Heart, LogOut, Sparkles, Timer } from "lucide-react";
-import { computeTimeLeftYearsMonthsDays } from "@/lib/dashboard/countdown";
+import {
+  computeTimeLeftYearsMonthsDays,
+  parseDateOnlyLocal,
+} from "@/lib/dashboard/countdown";
 import { CORE_VALUE_MEANINGS, enrichFourCharIdioms } from "@/lib/dashboard/enrich-idioms";
 
 type EntryRow = {
@@ -32,13 +35,17 @@ type EntryRow = {
 export default function CalendarClient({
   userType,
   futureTitle,
-  targetYears,
+  birthDate,
+  targetAge,
   coreValue,
   entries,
 }: {
   userType: string;
   futureTitle: string;
-  targetYears: number;
+  /** YYYY-MM-DD */
+  birthDate: string;
+  /** 目標とする年齢（DBの target_years カラムと同じ値） */
+  targetAge: number;
   coreValue: string | null;
   entries: EntryRow[];
 }) {
@@ -108,17 +115,24 @@ export default function CalendarClient({
     if (!selectedDate) return "";
     return format(selectedDate, "yyyy年M月d日");
   }, [selectedDate]);
-  /** カレンダーで選んだ日を起点に targetYears 年後の「目標日」 */
-  const goalDate = React.useMemo(
-    () => (selectedDate ? addYears(selectedDate, targetYears) : null),
-    [selectedDate, targetYears]
-  );
+  /**
+   * 「○歳の自分」の誕生日（生年月日 + 目標年齢）。カレンダー選択とは無関係に固定。
+   */
+  const milestoneBirthday = React.useMemo(() => {
+    try {
+      const b = parseDateOnlyLocal(birthDate);
+      if (!Number.isFinite(targetAge) || targetAge < 1) return null;
+      return startOfDay(addYears(b, targetAge));
+    } catch {
+      return null;
+    }
+  }, [birthDate, targetAge]);
 
-  /** 実際の今日から目標日までの残り（日付が進むと年・月・日が減る） */
+  /** 今日（カレンダー日）から、目標の誕生日までの残り年・月・日 */
   const timeLeft = React.useMemo(() => {
-    if (!goalDate || !calendarNow) return null;
-    return computeTimeLeftYearsMonthsDays(calendarNow, goalDate);
-  }, [goalDate, calendarNow]);
+    if (!milestoneBirthday || !calendarNow) return null;
+    return computeTimeLeftYearsMonthsDays(calendarNow, milestoneBirthday);
+  }, [milestoneBirthday, calendarNow]);
 
   const selectedIsPast = React.useMemo(() => {
     if (!calendarNow || !selectedDateISO) return false;
@@ -376,6 +390,8 @@ export default function CalendarClient({
               <Timer className="h-4 w-4 shrink-0 text-sky-500" aria-hidden />
               <span>
                 <span className="font-semibold text-sky-700">（{futureTitle}）</span>
+                <span className="text-stone-600">としての、</span>
+                <span className="font-semibold text-stone-800">{targetAge}歳の誕生日</span>
                 まで、あと
                 <span className="mx-1 font-semibold tabular-nums text-stone-800">
                   {timeLeft ? `${timeLeft.years}年${timeLeft.months}ヶ月${timeLeft.days}日` : "準備中..."}
@@ -648,7 +664,7 @@ export default function CalendarClient({
           diaryContent: diary,
           userType,
           selectedMode: diaryMode,
-          targetYears,
+          targetAge,
           futureTitle,
           coreValue: currentCoreValue,
           context: isReflectionContext ? "reflection" : "edit",

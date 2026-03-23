@@ -14,12 +14,13 @@ export default async function LoginPage() {
   if (!error && user) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("user_type, target_years, future_title, core_value")
+      .select("user_type, target_years, future_title, core_value, birth_date")
       .eq("id", user.id)
       .single();
 
     if (
       profile?.user_type &&
+      profile.birth_date != null &&
       profile.target_years != null &&
       profile.future_title != null &&
       profile.core_value != null

@@ -15,12 +15,18 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("user_type, target_years, future_title, core_value")
+    .select("user_type, target_years, future_title, core_value, birth_date")
     .eq("id", user.id)
     .single();
 
   if (!profile?.user_type) redirect("/onboarding/diagnosis");
-  if (profile.target_years == null || profile.future_title == null) redirect("/onboarding/future");
+  if (
+    profile.target_years == null ||
+    profile.future_title == null ||
+    profile.birth_date == null
+  ) {
+    redirect("/onboarding/future");
+  }
   if (profile.core_value == null) redirect("/onboarding/core");
 
   const { data: entries } = await supabase
@@ -33,7 +39,8 @@ export default async function DashboardPage() {
     <CalendarClient
       userType={profile.user_type}
       futureTitle={profile.future_title}
-      targetYears={profile.target_years}
+      birthDate={profile.birth_date}
+      targetAge={profile.target_years}
       coreValue={profile.core_value}
       entries={(entries ?? []).map((e: any) => ({
         created_at: e.created_at,

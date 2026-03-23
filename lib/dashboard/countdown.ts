@@ -8,6 +8,16 @@ import {
   startOfDay,
 } from "date-fns";
 
+/** YYYY-MM-DD をローカル日付の 0:00 として解釈（タイムゾーンずれ防止） */
+export function parseDateOnlyLocal(iso: string): Date {
+  const parts = iso.split("-").map((x) => Number(x));
+  const y = parts[0];
+  const m = parts[1];
+  const d = parts[2];
+  if (!y || !m || !d) throw new Error("Invalid date string");
+  return startOfDay(new Date(y, m - 1, d));
+}
+
 /**
  * カレンダー日「from」から目標日「goal」までの残りを 年・月・日 で返す（日付境界は startOfDay で揃える）
  */

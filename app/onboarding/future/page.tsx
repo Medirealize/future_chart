@@ -15,19 +15,26 @@ export default async function FutureSetupPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("user_type, target_years, future_title, core_value")
+    .select("user_type, target_years, future_title, core_value, birth_date")
     .eq("id", user.id)
     .single();
 
   if (!profile?.user_type) redirect("/onboarding/diagnosis");
 
-  if (profile.core_value != null) redirect("/dashboard");
+  const onboardingComplete =
+    profile.birth_date != null &&
+    profile.target_years != null &&
+    profile.future_title != null &&
+    profile.core_value != null;
+
+  if (onboardingComplete) redirect("/dashboard");
 
   return (
     <FutureSetupClient
       userType={profile.user_type}
       initialTargetYears={profile.target_years}
       initialFutureTitle={profile.future_title}
+      initialBirthDate={profile.birth_date}
     />
   );
 }

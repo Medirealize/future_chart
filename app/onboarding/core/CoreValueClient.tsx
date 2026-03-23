@@ -37,12 +37,14 @@ type Props = {
   userType: string;
   targetYears: number | null;
   futureTitle: string | null;
+  birthDate: string | null;
 };
 
 export default function CoreValueClient({
   userType,
   targetYears,
   futureTitle,
+  birthDate,
 }: Props) {
   const router = useRouter();
   const supabase = React.useMemo(() => createSupabaseBrowserClient(), []);
@@ -59,6 +61,7 @@ export default function CoreValueClient({
       localStorage.setItem(
         "onboarding_future",
         JSON.stringify({
+          birthDate: birthDate ?? undefined,
           targetYears: targetYears ?? undefined,
           futureTitle: futureTitle ?? undefined,
         })
@@ -66,7 +69,7 @@ export default function CoreValueClient({
     } catch {
       // ignore
     }
-  }, [futureTitle, targetYears, userType]);
+  }, [birthDate, futureTitle, targetYears, userType]);
 
   async function handleSave() {
     if (!selected) return;
@@ -89,6 +92,9 @@ export default function CoreValueClient({
         Number(future?.targetYears ?? targetYears);
       const finalFutureTitle: string =
         String(future?.futureTitle ?? futureTitle ?? "").trim();
+      const finalBirthDate: string = String(
+        future?.birthDate ?? birthDate ?? ""
+      ).trim();
 
       if (!finalUserType || !Number.isFinite(finalTargetYears) || finalTargetYears <= 0) {
         alert("未来設定のデータが不足しています。もう一度最初から行ってください。");
@@ -100,6 +106,11 @@ export default function CoreValueClient({
         router.push("/onboarding/future");
         return;
       }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(finalBirthDate)) {
+        alert("生年月日のデータが不足しています。未来設定からやり直してください。");
+        router.push("/onboarding/future");
+        return;
+      }
 
       const { error: upsertError } = await supabase
         .from("profiles")
@@ -107,6 +118,7 @@ export default function CoreValueClient({
           {
             id: authData.user.id,
             user_type: finalUserType,
+            birth_date: finalBirthDate,
             target_years: finalTargetYears,
             future_title: finalFutureTitle,
             core_value: selected,

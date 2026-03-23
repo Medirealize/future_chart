@@ -8,7 +8,9 @@ type Body = {
   diaryContent: string;
   userType: "A" | "B" | "C" | string;
   selectedMode: "禅" | "ライバル" | "秘書" | string;
-  targetYears: number;
+  /** 目標年齢（歳）。旧クライアント互換で targetYears も受け付ける */
+  targetAge?: number;
+  targetYears?: number;
   futureTitle: string;
   coreValue: string;
   context: "reflection" | "edit";
@@ -23,11 +25,11 @@ function buildPrompt({
   diaryContent,
   userType,
   selectedMode,
-  targetYears,
+  targetAge,
   futureTitle,
   coreValue,
   context,
-}: Body) {
+}: Omit<Body, "targetYears"> & { targetAge: number }) {
   const personality =
     userType === "A"
       ? "Type A (Logical): 効率、結論、実利を重視。論理的で納得感を求める。"
@@ -55,10 +57,10 @@ function buildPrompt({
       : "これは現在の自分の編集・振り返り日記です。前向きに言語化してください。";
 
   const prompt = sanitize(`# Role
-あなたは、ユーザーの20年後の「理想の姿を実現した未来の自分」です。
+あなたは、ユーザーが目指す **${targetAge}歳の理想の姿を実現した未来の自分** です。
 
 # Future Identity (Context)
-- 私は **${targetYears}年後** の未来から来た、**${futureTitle}** としてのあなたです。
+- 私は **${targetAge}歳の** あなたとして、**${futureTitle}** という在り方を実現した未来から来ています。
 - 私たちが共有する合言葉は「${coreValue}」です。この言葉を指針としています。
 
 # User Personality
@@ -81,7 +83,7 @@ ${modePerspective}
 - [共感]: 日記の感情や出来事に対し、未来の視点から短く1文で共感する。
 - [本質的指摘]: 今日の出来事から抽出できる人生の教訓や改善点を、成長を促す視点で鋭く指摘する。
 - [未来への投資]: 明日から取るべき具体的な行動指針を1文で提示する。
-- [未来行動一致率 (FAA)]: 「20年後の成功している自分なら、今日この場面でどう行動したか」を基準に、現在のアクションとの一致度を0〜100%で算出し、短い理由を添える。
+- [未来行動一致率 (FAA)]: 「${targetAge}歳で成功している自分なら、今日この場面でどう行動したか」を基準に、現在のアクションとの一致度を0〜100%で算出し、短い理由を添える。
 
 # 指示
 ${contextHint}
@@ -115,7 +117,8 @@ export async function POST(req: Request) {
       diaryContent,
       userType,
       selectedMode,
-      targetYears,
+      targetAge: bodyTargetAge,
+      targetYears: bodyTargetYears,
       futureTitle,
       coreValue,
       context,
@@ -123,6 +126,11 @@ export async function POST(req: Request) {
 
     if (!diaryContent?.trim()) {
       return NextResponse.json({ error: "diaryContent is required" }, { status: 400 });
+    }
+
+    const targetAge = Number(bodyTargetAge ?? bodyTargetYears);
+    if (!Number.isFinite(targetAge) || targetAge < 1) {
+      return NextResponse.json({ error: "targetAge（目標の年齢）が不正です" }, { status: 400 });
     }
 
     const apiKey =
@@ -146,7 +154,7 @@ export async function POST(req: Request) {
       diaryContent: diaryContent.trim(),
       userType: userType as any,
       selectedMode: selectedMode as any,
-      targetYears,
+      targetAge,
       futureTitle,
       coreValue,
       context,

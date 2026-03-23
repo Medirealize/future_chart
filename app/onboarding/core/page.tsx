@@ -20,20 +20,27 @@ export default async function CoreValuePage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("user_type, target_years, future_title, core_value")
+    .select("user_type, target_years, future_title, core_value, birth_date")
     .eq("id", user.id)
     .single();
 
   if (!profile?.user_type) redirect("/onboarding/diagnosis");
   // core_value がすでに設定済みでも、明示的に編集したい場合（?edit=1）は入れる
   if (profile.core_value != null && resolvedSearchParams?.edit !== "1") redirect("/dashboard");
-  if (profile.target_years == null || profile.future_title == null) redirect("/onboarding/future");
+  if (
+    profile.target_years == null ||
+    profile.future_title == null ||
+    profile.birth_date == null
+  ) {
+    redirect("/onboarding/future");
+  }
 
   return (
     <CoreValueClient
       userType={profile.user_type}
       targetYears={profile.target_years}
       futureTitle={profile.future_title}
+      birthDate={profile.birth_date}
     />
   );
 }
