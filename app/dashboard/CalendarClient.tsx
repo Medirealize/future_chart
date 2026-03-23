@@ -29,7 +29,6 @@ type EntryRow = {
   content: string | null;
   mode: string | null;
   ai_response: string | null;
-  sync_score: number | null;
 };
 
 export default function CalendarClient({
@@ -268,7 +267,7 @@ export default function CalendarClient({
           if (!authError && authData.user) {
             const { data: row } = await supabase
               .from("entries")
-              .select("created_at, content, mode, ai_response, sync_score")
+              .select("created_at, content, mode, ai_response")
               .eq("user_id", authData.user.id)
               .eq("created_at", targetDateISO)
               .maybeSingle();
@@ -280,7 +279,6 @@ export default function CalendarClient({
                 content: row.content,
                 mode: row.mode,
                 ai_response: row.ai_response,
-                sync_score: row.sync_score,
               };
               setEntriesState((prev) => {
                 const next = [...prev];
@@ -396,7 +394,7 @@ export default function CalendarClient({
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="ml-auto min-h-11 shrink-0 rounded-xl px-5 text-base font-medium text-sky-700 hover:bg-sky-100/60"
+                  className="ml-auto min-h-14 shrink-0 rounded-2xl px-7 text-lg font-semibold text-sky-700 hover:bg-sky-100/60"
                   onClick={() => router.push("/onboarding/core?edit=1")}
                 >
                   合言葉を変更
@@ -419,7 +417,7 @@ export default function CalendarClient({
                 const dateISO: string = day.isoDate;
                 const entry = entriesByDate.get(dateISO);
                 const hasEntry = Boolean(entry?.content);
-                const synced = entry?.sync_score != null && entry.sync_score >= 80;
+                const hasAiResponse = Boolean(entry?.ai_response);
 
                 return (
                   <button {...buttonProps}>
@@ -428,7 +426,7 @@ export default function CalendarClient({
                       {hasEntry ? (
                         <span
                           className={
-                            synced
+                            hasAiResponse
                               ? "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-sky-500 shadow-[0_0_0_2px_rgba(255,251,247,0.9)]"
                               : "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-amber-300/90"
                           }
@@ -447,7 +445,7 @@ export default function CalendarClient({
             type="button"
             variant="outline"
             size="lg"
-            className="min-h-12 rounded-2xl border-violet-200/90 bg-violet-50/40 px-8 py-3.5 text-base font-semibold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50"
+            className="min-h-14 rounded-2xl border-violet-200/90 bg-violet-50/40 px-10 py-4 text-lg font-semibold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50"
             onClick={() => router.push("/dashboard/timeline")}
           >
             年表（タイムライン）を見る
@@ -482,16 +480,9 @@ export default function CalendarClient({
               </p>
             </div>
             <div className="rounded-2xl border border-sky-100/90 bg-sky-50/50 px-4 py-3 text-right shadow-sm">
-              {selectedEntry?.sync_score != null ? (
-                <p className="text-sm text-stone-600">
-                  <span className="font-medium text-stone-500">シンクロ率</span>
-                  <span className="ml-2 text-lg font-bold tabular-nums text-sky-700">
-                    {selectedEntry.sync_score}%
-                  </span>
-                </p>
-              ) : (
-                <p className="text-sm font-medium text-stone-400">未生成</p>
-              )}
+              <p className="text-sm font-medium text-stone-500">
+                {selectedEntry?.ai_response ? "処方箋生成済み" : "未生成"}
+              </p>
             </div>
           </div>
 
@@ -546,7 +537,7 @@ export default function CalendarClient({
               <Button
                 variant="ghost"
                 size="lg"
-                className="ml-auto min-h-11 shrink-0 rounded-xl px-5 text-base text-sky-700 hover:bg-sky-100/70"
+                className="ml-auto min-h-14 shrink-0 rounded-2xl px-7 text-lg font-semibold text-sky-700 hover:bg-sky-100/70"
                 onClick={() => router.push("/onboarding/core?edit=1")}
               >
                 合言葉を変更
@@ -597,7 +588,7 @@ export default function CalendarClient({
                 disabled={isGenerating || !content.trim() || selectedIsFuture}
                 className="min-h-12 w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto"
               >
-                {isGenerating ? "生成中..." : `${selectedDateLabel}を保存してフィードバック生成`}
+                {isGenerating ? "生成中..." : `${selectedDateLabel}を保存して処方箋を生成`}
               </Button>
             </div>
           </div>
@@ -611,7 +602,7 @@ export default function CalendarClient({
             <div className="mt-6 rounded-2xl border border-sky-100/90 bg-white/90 p-5 text-sm shadow-[0_4px_20px_-8px_rgba(60,120,160,0.12)] ring-1 ring-sky-50">
               <div className="flex items-center gap-2 text-sm font-bold text-sky-800">
                 <Sparkles className="h-4 w-4 text-amber-500" aria-hidden />
-                AIフィードバック
+                未来の君からの処方箋
               </div>
               <pre className="mt-3 whitespace-pre-wrap text-[0.9375rem] leading-relaxed text-stone-800">
                 {selectedEntry.ai_response}
@@ -674,7 +665,7 @@ export default function CalendarClient({
         }
         throw new Error(message);
       }
-      const json: { ai_response: string; sync_score: number | null } = await res.json();
+      const json: { ai_response: string } = await res.json();
 
       const { data: authData, error: authError } = await supabase.auth.getUser();
       if (authError || !authData.user) throw new Error("ログイン情報の取得に失敗しました。");
@@ -686,7 +677,6 @@ export default function CalendarClient({
           content: diary,
           mode: diaryMode,
           ai_response: json.ai_response,
-          sync_score: json.sync_score,
         },
         { onConflict: "user_id,created_at" }
       );
@@ -707,7 +697,6 @@ export default function CalendarClient({
           content: diary,
           mode: diaryMode,
           ai_response: json.ai_response,
-          sync_score: json.sync_score,
         };
         if (idx >= 0) next[idx] = { ...next[idx], ...updated };
         else next.push(updated);

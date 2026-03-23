@@ -5,13 +5,12 @@ import { format, parseISO, startOfDay } from "date-fns";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { enrichFourCharIdioms } from "@/lib/dashboard/enrich-idioms";
-import { BookOpen, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 type EntryRow = {
   created_at: string;
   content: string | null;
   mode: string | null;
   ai_response: string | null;
-  sync_score: number | null;
 };
 
 export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
@@ -183,13 +182,9 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
                                 {enrichFourCharIdioms(preview)}
                               </div>
 
-                              {e.sync_score != null ? (
-                                <div className="mt-4 flex items-center gap-2 text-sm text-stone-500">
-                                  <Sparkles className="h-4 w-4 text-amber-500" aria-hidden />
-                                  <span>
-                                    シンクロ率:{" "}
-                                    <span className="font-bold text-sky-700">{e.sync_score}%</span>
-                                  </span>
+                              {e.ai_response ? (
+                                <div className="mt-4 text-sm font-medium text-stone-500">
+                                  未来の君からの処方箋生成済み
                                 </div>
                               ) : null}
                             </div>

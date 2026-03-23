@@ -49,6 +49,8 @@ function buildPrompt({
     "回想形式で回答すること（当時の自分の気持ちや判断を振り返りとして語る）。",
     "決めつけの禁止。「君は〇〇だ」ではなく「私は〇〇だった」と自分の経験として語ること。",
     "「動物占い」等の占術用語は一切使用しないこと。",
+    "「頑張れ」などの精神論は禁止。",
+    "構造的な気づきを与えることに特化すること。",
   ];
 
   const contextHint =
@@ -74,16 +76,24 @@ ${modePerspective}
 - 冗長な挨拶は禁止。日記の内容をそのまま繰り返すだけの記述を禁止。
 - 四字熟語を用いる場合は、その直後に（ ）で簡単な意味を添えること。
 
-# 出力の厳格ルール（最優先）
-- 回答はMarkdown形式で、箇条書きを活用すること。
-- 全体の文字数を300〜400文字以内に収めること。
-- 400文字を超えた場合、自己評価スコアを強制的にマイナス修正すること。
+# 依頼
+以下の日記（User Diary）を読み、**「なりたい自分」**になりきって、今の自分へ向けた「未来処方箋」を1つだけ生成してください。
 
-# フィードバック構成（この順番）
-- [共感]: 日記の感情や出来事に対し、未来の視点から短く1文で共感する。
-- [本質的指摘]: 今日の出来事から抽出できる人生の教訓や改善点を、成長を促す視点で鋭く指摘する。
-- [未来への投資]: 明日から取るべき具体的な行動指針を1文で提示する。
-- [未来行動一致率 (FAA)]: 「${targetAge}歳で成功している自分なら、今日この場面でどう行動したか」を基準に、現在のアクションとの一致度を0〜100%で算出し、短い理由を添える。
+# ペルソナ（設定した年後の自分）
+- ユーザーが今日書いた悩みを、${targetAge}歳の自分になる前に通過した「懐かしい小さなハードル」として捉えること。
+- 威圧的ではなく、深い共感と、少しの遊び心（ウィット）を持つこと。
+- ユーザーが気づいていない「行動の種」を見つけること。
+
+# 処方箋の構成（出力ルール）
+- 回答はMarkdown形式で、以下3項目をこの順番で必ず出力すること。
+- 余計な前置き・挨拶・注釈は書かないこと。
+
+1. 未来の自分からの一言（20文字以内）
+   - 心に深く刺さる、短く鋭い一言。
+2. 未来の視点からの分析（100文字程度）
+   - 日記から「今の自分」が何に囚われているかを指摘し、未来視点でどう見えるかを語る。
+3. 今日の一錠（具体的なアクション）
+   - 「〇〇を1分だけやる」「あえて〇〇を捨てる」など、今日すぐにできる小さな行動を1つだけ提案する。
 
 # 指示
 ${contextHint}
@@ -94,20 +104,9 @@ ${contextHint}
 ${diaryContent}
 
 # あなたの応答
-上記のルールに従って、未来の私としてフィードバックを返してください。`);
+上記のルールに従って、未来の私として「未来処方箋」を返してください。`);
 
   return prompt;
-}
-
-function parseSyncScore(aiText: string): number | null {
-  // 例: 未来行動一致率 (FAA): 82% / FAA: 82% / シンクロ率: 82%
-  const m = aiText.match(
-    /(?:未来行動一致率(?:\s*\(FAA\))?|FAA|シンクロ率)[:：]\s*([0-9]{1,3})\s*%/i
-  );
-  if (!m) return null;
-  const v = Number(m[1]);
-  if (!Number.isFinite(v)) return null;
-  return Math.max(0, Math.min(100, Math.trunc(v)));
 }
 
 export async function POST(req: Request) {
@@ -195,9 +194,7 @@ export async function POST(req: Request) {
       throw lastError ?? new Error("No available Gemini model for generateContent");
     }
     const ai_response = result.response.text();
-    const sync_score = parseSyncScore(ai_response);
-
-    return NextResponse.json({ ai_response, sync_score });
+    return NextResponse.json({ ai_response });
   } catch (e: any) {
     const message = String(e?.message ?? "Gemini API 呼び出しに失敗しました");
 

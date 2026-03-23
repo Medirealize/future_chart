@@ -28,7 +28,7 @@ export default async function DashboardPage() {
 
   const { data: entries } = await supabase
     .from("entries")
-    .select("created_at, content, mode, ai_response, sync_score")
+    .select("created_at, content, mode, ai_response")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -44,7 +44,6 @@ export default async function DashboardPage() {
         content: e.content,
         mode: e.mode,
         ai_response: e.ai_response,
-        sync_score: e.sync_score,
       }))}
     />
   );

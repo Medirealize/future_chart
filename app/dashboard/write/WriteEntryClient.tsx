@@ -139,7 +139,7 @@ export default function WriteEntryClient({
           created_at: dateISO,
           content: text,
           mode: diaryMode,
-          // ai_response / sync_score は未使用（null想定）
+          // ai_response は生成時に別導線で保存
         },
         { onConflict: "user_id,created_at" }
       );
