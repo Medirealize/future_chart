@@ -62,17 +62,22 @@ export default function QuizDiagnosisClient() {
   const [step, setStep] = React.useState(0);
   const [answers, setAnswers] = React.useState<QuizChoice[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
+  /** 最終設問の保存・遷移を二重実行しない（Strict Mode / 連打対策） */
+  const isCompletingRef = React.useRef(false);
 
   const q = QUESTIONS[step];
 
   async function handleSelect(letter: QuizChoice) {
-    if (isSaving) return;
+    if (isSaving || isCompletingRef.current) return;
 
     // 現在の設問 index(step) の回答を「置き換え」する（前へ戻って再選択した場合のため）
     const nextAnswers = [...answers.slice(0, step), letter];
     setAnswers(nextAnswers);
 
     if (step === QUESTIONS.length - 1) {
+      if (isCompletingRef.current) return;
+      isCompletingRef.current = true;
+
       const userType = computeType(nextAnswers);
       localStorage.setItem(
         "onboarding_diagnosis",
@@ -83,6 +88,7 @@ export default function QuizDiagnosisClient() {
         const { data: authData, error: authError } = await supabase.auth.getUser();
         if (authError || !authData.user) {
           alert("ログイン情報の取得に失敗しました。");
+          isCompletingRef.current = false;
           router.push("/login");
           return;
         }
@@ -99,10 +105,14 @@ export default function QuizDiagnosisClient() {
 
         if (upsertError) {
           alert(`診断結果の保存に失敗しました: ${upsertError.message}`);
+          isCompletingRef.current = false;
           return;
         }
 
-        router.push("/onboarding/future");
+        // クライアント直後の RSC / プリフェッチで profile が古いままだと
+        // /onboarding/future が user_type なしと判定して診断へ戻すループになる。
+        // フルページ遷移でサーバーが必ず最新 DB を読むようにする。
+        window.location.assign("/onboarding/future");
       } finally {
         setIsSaving(false);
       }
@@ -119,8 +129,8 @@ export default function QuizDiagnosisClient() {
           <div className="text-sm text-slate-600 dark:text-slate-300">
             診断 {step + 1}/{QUESTIONS.length}
           </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400">
-            性格統計学ベース（A/B/C）
+          <div className="text-right text-xs text-slate-500 dark:text-slate-400">
+            性格統計学ベースの簡易タイプ診断（A/B/C・全3問）
           </div>
         </div>
 
