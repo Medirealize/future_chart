@@ -137,14 +137,14 @@ export default function LoginClient() {
           </div>
         </div>
 
-        <div className="mt-8 flex items-center justify-center">
+        <div className="mt-8">
           <Button
             variant="ghost"
             onClick={handleAuth}
             disabled={isLoading}
-            className="h-14 min-w-[min(100%,16rem)] rounded-2xl border-2 border-sky-600/80 bg-sky-500/15 px-10 text-base font-bold text-sky-900 shadow-sm backdrop-blur-[2px] transition-colors hover:border-sky-600 hover:bg-sky-500/25 hover:text-sky-950 disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 sm:h-16 sm:text-lg dark:border-sky-400/90 dark:bg-sky-400/20 dark:text-sky-50 dark:hover:border-sky-300 dark:hover:bg-sky-400/30 dark:hover:text-white"
+            className="h-14 min-h-[3.5rem] w-full rounded-2xl border-2 border-sky-600/80 bg-sky-500/15 px-6 text-base font-bold text-sky-900 shadow-sm backdrop-blur-[2px] transition-colors hover:border-sky-600 hover:bg-sky-500/25 hover:text-sky-950 disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 sm:h-16 sm:min-h-16 sm:text-lg dark:border-sky-400/90 dark:bg-sky-400/20 dark:text-sky-50 dark:hover:border-sky-300 dark:hover:bg-sky-400/30 dark:hover:text-white"
           >
-            {mode === "signin" ? "ログイン" : "初回登録"}
+            {mode === "signin" ? "日記を書く" : "初回登録"}
           </Button>
         </div>
       </div>
