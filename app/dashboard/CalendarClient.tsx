@@ -646,7 +646,7 @@ export default function CalendarClient({
                 size="lg"
                 onClick={async () => handleGenerate()}
                 disabled={isGenerating || !content.trim() || selectedIsFuture}
-                className="min-h-[4.25rem] w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-8 py-5 text-xl font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto md:min-h-[4.5rem] md:text-2xl"
+                className="h-auto min-h-[5.75rem] w-full whitespace-normal rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-6 text-center !text-2xl !leading-snug font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto sm:px-8 md:min-h-[6.75rem] md:py-7 md:!text-3xl"
               >
                 {isGenerating ? "生成中..." : `${selectedDateLabel}を保存して処方箋を生成`}
               </Button>

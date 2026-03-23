@@ -234,7 +234,7 @@ export default function LoginClient() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="mb-[clamp(42px,8.5vw,56px)] mt-4 block h-[clamp(42px,8.5vw,56px)] w-full rounded-full border-2 border-[#7fb0d1] bg-[linear-gradient(180deg,rgba(226,241,252,0.95),rgba(208,229,245,0.95))] px-5 text-center text-[clamp(18px,4.2vw,24px)] font-semibold text-[#3e7fa8] shadow-[0_6px_14px_rgba(104,149,180,0.2)] transition hover:brightness-[1.02] disabled:opacity-50"
+                className="mb-[clamp(42px,8.5vw,56px)] mt-4 block min-h-[clamp(3.75rem,14vw,5.5rem)] w-full rounded-full border-2 border-[#7fb0d1] bg-[linear-gradient(180deg,rgba(226,241,252,0.95),rgba(208,229,245,0.95))] px-5 py-4 text-center !text-2xl font-semibold !leading-snug text-[#3e7fa8] shadow-[0_6px_14px_rgba(104,149,180,0.2)] transition hover:brightness-[1.02] disabled:opacity-50 sm:min-h-[5.25rem] sm:py-5 sm:!text-3xl"
               >
                 {isLoading ? "処理中..." : "未来の君に相談する"}
               </button>
