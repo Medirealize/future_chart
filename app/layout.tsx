@@ -28,8 +28,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         ].join(" ")}
       >
         <ThemeGuard />
-        <GlobalLogoutButton />
         {children}
+        {/* 最後に描画して全ページで確実に右上に重ねる */}
+        <GlobalLogoutButton />
       </body>
     </html>
   );
