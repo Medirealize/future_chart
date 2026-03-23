@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>未来処方 ログイン画面プロトタイプ</title>
+    <link rel="stylesheet" href="./prototype-login.css" />
+  </head>
+  <body>
+    <main class="screen">
+      <h1 class="app-title">未来処方 (Future Prescription)</h1>
+
+      <section class="phone-frame" aria-label="スマホモックアップ">
+        <div class="dynamic-island"></div>
+        <div class="side-btn side-btn-left"></div>
+        <div class="side-btn side-btn-right"></div>
+
+        <div class="card">
+          <p class="lead">「未来の君」からのアドバイスが、</p>
+
+          <div class="icon-box" aria-label="後で差し替え可能な仮アイコン">
+            <svg
+              class="line-icon"
+              viewBox="0 0 360 220"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="光るラインとカルテの代替アイコン"
+            >
+              <defs>
+                <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#f6efe1" stop-opacity="0.85" />
+                  <stop offset="100%" stop-color="#d9e5ef" stop-opacity="0.85" />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="2.8" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+                <marker
+                  id="arrowHead"
+                  markerWidth="10"
+                  markerHeight="10"
+                  refX="8"
+                  refY="3"
+                  orient="auto"
+                >
+                  <path d="M0,0 L8,3 L0,6 Z" fill="#e5f7ff" />
+                </marker>
+              </defs>
+
+              <rect x="96" y="34" width="170" height="130" rx="6" fill="url(#bgGrad)" />
+              <g stroke="#7a899d" stroke-width="1.4" fill="none" opacity="0.55">
+                <path d="M8 120 H352" />
+                <path d="M20 72 H340" />
+                <path d="M20 170 H340" />
+                <path d="M40 40 H332" />
+                <path d="M60 26 V198" />
+                <circle cx="40" cy="72" r="4" />
+                <circle cx="332" cy="40" r="4" />
+                <circle cx="340" cy="170" r="4" />
+              </g>
+              <path
+                d="M20 172 C68 184, 88 150, 124 151 C154 154, 167 131, 193 111 C224 87, 246 56, 290 33"
+                stroke="#e9fbff"
+                stroke-width="8"
+                fill="none"
+                stroke-linecap="round"
+                filter="url(#glow)"
+                marker-end="url(#arrowHead)"
+              />
+              <g stroke="#7f8ea0" stroke-width="2.2" fill="none" opacity="0.65">
+                <path d="M108 140 C126 112, 148 118, 167 145" />
+                <path d="M141 140 C159 112, 181 118, 200 145" />
+                <path d="M174 140 C192 112, 214 118, 233 145" />
+              </g>
+            </svg>
+          </div>
+
+          <p class="sub-text">その記録が、明日を変える力になる</p>
+
+          <h2 class="hero">未来処方、はじめよう</h2>
+          <p class="hero-sub">「未来の君」からのアドバイスが、</p>
+          <p class="hero-sub">今の君を変える</p>
+          <p class="sub-text lower">その記録が、明日を変える力になる</p>
+
+          <div class="actions" role="group" aria-label="アカウント操作">
+            <button class="btn btn-login" type="button">ログイン</button>
+            <button class="btn btn-register" type="button">初回登録</button>
+          </div>
+
+          <form class="login-form" action="#" method="post" novalidate>
+            <label class="field-label" for="email">メールアドレス</label>
+            <div class="emoji-row"><span aria-hidden="true">📜</span></div>
+            <input class="field" id="email" name="email" type="email" autocomplete="email" />
+
+            <label class="field-label" for="password">パスワード</label>
+            <div class="emoji-row dual">
+              <span aria-hidden="true">🖋️</span>
+              <span aria-hidden="true">🧠</span>
+            </div>
+            <input
+              class="field"
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+            />
+          </form>
+
+          <a href="#" class="consult-link">未来の君に相談する</a>
+        </div>
+
+        <div class="home-indicator"></div>
+      </section>
+    </main>
+  </body>
+</html>

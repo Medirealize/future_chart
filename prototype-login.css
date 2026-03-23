@@ -1,0 +1,249 @@
+:root {
+  --bg-start: #c7e1f8;
+  --bg-mid: #e4f1fd;
+  --bg-end: #ffffff;
+  --text-main: #111111;
+  --border: #202020;
+  --card-border: #3a3a3a;
+  --blue-btn: #b8d7fa;
+  --gray-btn: #e6e7eb;
+  --input-border: #b4ccdf;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+  color: var(--text-main);
+  background:
+    radial-gradient(circle at 85% 95%, rgba(255, 230, 206, 0.55), transparent 36%),
+    linear-gradient(165deg, var(--bg-start) 0%, var(--bg-mid) 48%, var(--bg-end) 100%);
+}
+
+.screen {
+  width: min(100%, 430px);
+  margin: 0 auto;
+  padding: 24px 14px 28px;
+}
+
+.app-title {
+  margin: 0 0 16px;
+  text-align: center;
+  font-size: clamp(26px, 6.2vw, 41px);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.phone-frame {
+  position: relative;
+  margin: 0 auto;
+  width: min(100%, 390px);
+  border: 4px solid var(--border);
+  border-radius: 56px;
+  padding: 70px 14px 26px;
+  background: linear-gradient(160deg, #d6ecff 0%, #fafcfe 62%, #fdf7f2 100%);
+  box-shadow:
+    0 16px 34px rgba(16, 30, 44, 0.22),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.dynamic-island {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 36px;
+  border-radius: 18px;
+  background: #0b0b0c;
+  box-shadow: 0 1px 2px rgba(255, 255, 255, 0.15);
+}
+
+.side-btn {
+  position: absolute;
+  width: 3px;
+  border-radius: 2px;
+  background: rgba(141, 143, 146, 0.7);
+}
+
+.side-btn-left {
+  left: -6px;
+  top: 132px;
+  height: 58px;
+}
+
+.side-btn-right {
+  right: -6px;
+  top: 176px;
+  height: 72px;
+}
+
+.card {
+  border: 2px solid var(--card-border);
+  border-radius: 30px;
+  padding: 20px 12px 22px;
+  background: linear-gradient(165deg, rgba(252, 253, 255, 0.58), rgba(245, 247, 251, 0.68));
+  box-shadow:
+    inset 0 10px 22px rgba(187, 206, 225, 0.3),
+    0 12px 26px rgba(133, 155, 176, 0.2);
+}
+
+.lead {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(20px, 5.1vw, 38px);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.icon-box {
+  margin: 12px auto 12px;
+  width: min(100%, 314px);
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(140deg, rgba(229, 236, 246, 0.4), rgba(216, 226, 238, 0.32));
+}
+
+.line-icon {
+  width: 100%;
+  display: block;
+}
+
+.sub-text {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(18px, 4.5vw, 34px);
+  font-weight: 500;
+}
+
+.hero {
+  margin: 18px 0 2px;
+  text-align: center;
+  font-size: clamp(30px, 8.4vw, 66px);
+  line-height: 1.08;
+  font-weight: 700;
+}
+
+.hero-sub {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(16px, 4.5vw, 30px);
+  line-height: 1.08;
+  font-weight: 700;
+}
+
+.lower {
+  margin-top: 8px;
+}
+
+.actions {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.btn {
+  border: 1px solid #eef1f5;
+  border-radius: 10px;
+  padding: 13px 10px;
+  font-size: clamp(16px, 4vw, 28px);
+  font-weight: 500;
+  color: #1b1c1e;
+  cursor: pointer;
+}
+
+.btn-login {
+  background: var(--blue-btn);
+}
+
+.btn-register {
+  background: var(--gray-btn);
+}
+
+.login-form {
+  margin-top: 8px;
+}
+
+.field-label {
+  display: block;
+  margin-top: 4px;
+  font-size: clamp(14px, 4vw, 30px);
+  font-weight: 500;
+}
+
+.emoji-row {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  margin: 2px 0 3px 8px;
+  font-size: clamp(18px, 4.5vw, 32px);
+}
+
+.emoji-row.dual {
+  justify-content: space-between;
+  margin-right: 50%;
+}
+
+.field {
+  width: 100%;
+  height: clamp(30px, 6.4vw, 52px);
+  border: 2px solid var(--input-border);
+  border-radius: 999px;
+  background: rgba(248, 251, 255, 0.9);
+  padding: 0 14px;
+  font-size: clamp(15px, 3.8vw, 26px);
+  outline: none;
+}
+
+.field:focus {
+  border-color: #8db4d2;
+  box-shadow: 0 0 0 3px rgba(131, 175, 205, 0.18);
+}
+
+.consult-link {
+  display: block;
+  margin-top: 14px;
+  text-align: center;
+  color: #4f8db7;
+  text-decoration: none;
+  font-size: clamp(18px, 4.8vw, 30px);
+  font-weight: 600;
+}
+
+.home-indicator {
+  width: 126px;
+  height: 5px;
+  border-radius: 999px;
+  background: #0b0c0e;
+  margin: 12px auto 0;
+}
+
+@media (max-width: 420px) {
+  .screen {
+    padding-inline: 9px;
+  }
+
+  .phone-frame {
+    border-radius: 48px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .card {
+    border-radius: 24px;
+    padding-inline: 8px;
+  }
+
+  .dynamic-island {
+    width: 160px;
+    height: 32px;
+  }
+}

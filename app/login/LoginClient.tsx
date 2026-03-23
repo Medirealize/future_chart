@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createSupabaseClient, getSupabaseEnvDebugInfo } from "@/utils/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 type AuthMode = "signin" | "signup";
 
@@ -80,72 +79,121 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-10 flex items-center justify-center bg-gradient-to-br from-[#3B82F6]/15 via-white to-[#F97316]/10">
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-950">
-        <div className="text-center">
-          <h1 className="text-[1.65rem] font-black leading-[1.25] tracking-tight text-slate-900 sm:text-4xl sm:leading-tight dark:text-slate-50">
-            未来を、
-            <br className="sm:hidden" />
-            迎えに行こう
-          </h1>
-          <p className="mt-3 max-w-sm mx-auto text-sm font-normal leading-relaxed text-slate-500 sm:mt-4 sm:text-[0.9375rem] dark:text-slate-400">
-            その記録が、明日を変える力になる
-          </p>
-        </div>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_85%_95%,rgba(255,230,206,0.55),transparent_36%),linear-gradient(165deg,#c7e1f8_0%,#e4f1fd_48%,#ffffff_100%)] px-3 py-6">
+      <div className="mx-auto w-full max-w-[430px]">
+        <h1 className="mb-4 text-center text-[clamp(24px,6vw,42px)] font-medium text-[#111]">
+          未来処方 (Future Prescription)
+        </h1>
 
-        <div className="mt-8 flex gap-3">
-          <Button
-            variant={mode === "signin" ? "secondary" : "outline"}
-            onClick={() => setMode("signin")}
-            className="h-14 min-h-[3.5rem] flex-1 rounded-2xl text-base font-semibold sm:h-16 sm:min-h-16 sm:text-lg"
-            disabled={isLoading}
-          >
-            ログイン
-          </Button>
-          <Button
-            variant={mode === "signup" ? "secondary" : "outline"}
-            onClick={() => setMode("signup")}
-            className="h-14 min-h-[3.5rem] flex-1 rounded-2xl text-base font-semibold sm:h-16 sm:min-h-16 sm:text-lg"
-            disabled={isLoading}
-          >
-            初回登録
-          </Button>
-        </div>
+        <div className="relative mx-auto w-full max-w-[390px] rounded-[52px] border-[4px] border-[#202020] bg-[linear-gradient(160deg,#d6ecff_0%,#fafcfe_62%,#fdf7f2_100%)] px-3 pb-6 pt-[66px] shadow-[0_16px_34px_rgba(16,30,44,0.22),inset_0_0_0_2px_rgba(255,255,255,0.5)]">
+          <div className="absolute left-1/2 top-2 h-9 w-[176px] -translate-x-1/2 rounded-full bg-[#0b0b0c]" />
 
-        <div className="mt-6 space-y-3">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-              メールアドレス
-            </label>
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              className="rounded-full border-[#3B82F6]/30 focus-visible:ring-[#3B82F6]"
-            />
+          <div className="rounded-[28px] border-2 border-[#3a3a3a] bg-[linear-gradient(165deg,rgba(252,253,255,0.58),rgba(245,247,251,0.68))] px-2.5 pb-5 pt-5 shadow-[inset_0_10px_22px_rgba(187,206,225,0.3),0_12px_26px_rgba(133,155,176,0.2)]">
+            <p className="text-center text-[clamp(22px,5.1vw,36px)] font-bold text-[#111]">
+              「未来の君」からのアドバイスが、
+            </p>
+
+            <div className="mx-auto my-3 w-full max-w-[314px] overflow-hidden rounded-xl bg-[linear-gradient(140deg,rgba(229,236,246,0.4),rgba(216,226,238,0.32))]">
+              <Image
+                src="/login-hero-icon.svg"
+                alt="光るラインとカルテの代替アイコン"
+                width={360}
+                height={220}
+                className="block h-auto w-full"
+                priority
+              />
+            </div>
+
+            <p className="text-center text-[clamp(18px,4.5vw,32px)] text-[#111]">
+              その記録が、明日を変える力になる
+            </p>
+
+            <h2 className="mt-3 text-center text-[clamp(36px,8.2vw,62px)] font-bold leading-[1.05] text-[#111]">
+              未来処方、はじめよう
+            </h2>
+            <p className="text-center text-[clamp(18px,4.5vw,30px)] font-bold leading-[1.05] text-[#111]">
+              「未来の君」からのアドバイスが、
+            </p>
+            <p className="text-center text-[clamp(18px,4.5vw,30px)] font-bold leading-[1.05] text-[#111]">
+              今の君を変える
+            </p>
+            <p className="mt-2 text-center text-[clamp(18px,4.5vw,30px)] text-[#111]">
+              その記録が、明日を変える力になる
+            </p>
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setMode("signin")}
+                className={`h-[52px] rounded-[10px] border border-[#eef1f5] text-[clamp(16px,4vw,28px)] font-medium text-[#1b1c1e] ${
+                  mode === "signin" ? "bg-[#b8d7fa]" : "bg-[#e6e7eb]"
+                }`}
+                disabled={isLoading}
+              >
+                ログイン
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("signup")}
+                className={`h-[52px] rounded-[10px] border border-[#eef1f5] text-[clamp(16px,4vw,28px)] font-medium text-[#1b1c1e] ${
+                  mode === "signup" ? "bg-[#b8d7fa]" : "bg-[#e6e7eb]"
+                }`}
+                disabled={isLoading}
+              >
+                初回登録
+              </button>
+            </div>
+
+            <form
+              className="mt-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void handleAuth();
+              }}
+            >
+              <label htmlFor="email" className="mt-1 block text-[clamp(14px,4vw,30px)] font-medium text-[#111]">
+                メールアドレス
+              </label>
+              <div className="ml-2 mt-0.5 text-[clamp(18px,4.5vw,32px)]">📜</div>
+              <input
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                autoComplete="email"
+                className="h-[clamp(30px,6.4vw,52px)] w-full rounded-full border-2 border-[#b4ccdf] bg-[rgba(248,251,255,0.9)] px-4 text-[clamp(15px,3.8vw,26px)] outline-none focus:border-[#8db4d2] focus:shadow-[0_0_0_3px_rgba(131,175,205,0.18)]"
+              />
+
+              <label
+                htmlFor="password"
+                className="mt-1 block text-[clamp(14px,4vw,30px)] font-medium text-[#111]"
+              >
+                パスワード
+              </label>
+              <div className="mt-0.5 flex max-w-[52%] items-center justify-between text-[clamp(18px,4.5vw,32px)]">
+                <span>🖋️</span>
+                <span>🧠</span>
+              </div>
+              <input
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                autoComplete="current-password"
+                className="h-[clamp(30px,6.4vw,52px)] w-full rounded-full border-2 border-[#b4ccdf] bg-[rgba(248,251,255,0.9)] px-4 text-[clamp(15px,3.8vw,26px)] outline-none focus:border-[#8db4d2] focus:shadow-[0_0_0_3px_rgba(131,175,205,0.18)]"
+              />
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="mt-3 block w-full border-none bg-transparent text-center text-[clamp(20px,4.8vw,30px)] font-semibold text-[#4f8db7] disabled:opacity-50"
+              >
+                {isLoading ? "処理中..." : "未来の君に相談する"}
+              </button>
+            </form>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-              パスワード
-            </label>
-            <Input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type="password"
-              className="rounded-full border-[#3B82F6]/30 focus-visible:ring-[#3B82F6]"
-            />
-          </div>
-        </div>
 
-        <div className="mt-8">
-          <Button
-            variant="ghost"
-            onClick={handleAuth}
-            disabled={isLoading}
-            className="h-14 min-h-[3.5rem] w-full rounded-2xl border-2 border-sky-600/80 bg-sky-500/15 px-6 text-base font-bold text-sky-900 shadow-sm backdrop-blur-[2px] transition-colors hover:border-sky-600 hover:bg-sky-500/25 hover:text-sky-950 disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 sm:h-16 sm:min-h-16 sm:text-lg dark:border-sky-400/90 dark:bg-sky-400/20 dark:text-sky-50 dark:hover:border-sky-300 dark:hover:bg-sky-400/30 dark:hover:text-white"
-          >
-            {mode === "signin" ? "日記を書く" : "初回登録"}
-          </Button>
+          <div className="mx-auto mt-3 h-[5px] w-[126px] rounded-full bg-[#0b0c0e]" />
         </div>
       </div>
     </div>
