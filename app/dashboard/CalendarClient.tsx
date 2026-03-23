@@ -442,16 +442,16 @@ export default function CalendarClient({
             </p>
             {selectedCoreValue ? (
               <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-amber-200/60 bg-amber-50/40 px-5 py-4 shadow-sm">
-                <Heart className="h-4 w-4 shrink-0 fill-rose-200 text-rose-400" aria-hidden />
-                <p className="text-sm text-stone-600">
-                  <span className="font-medium text-stone-500">合言葉</span>
+                <Heart className="h-5 w-5 shrink-0 fill-rose-200 text-rose-400 sm:h-6 sm:w-6" aria-hidden />
+                <p className="text-base leading-snug text-stone-600 md:text-lg">
+                  <span className="font-semibold text-stone-600">合言葉</span>
                   <span className="mx-1.5 text-stone-400">·</span>
-                  <span className="font-medium text-stone-800">{selectedCoreValueEnriched}</span>
+                  <span className="font-semibold text-stone-800">{selectedCoreValueEnriched}</span>
                 </p>
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="ml-auto min-h-14 shrink-0 rounded-2xl px-7 text-lg font-semibold text-sky-700 hover:bg-sky-100/60"
+                  className="ml-auto min-h-[3.25rem] shrink-0 rounded-2xl px-6 text-lg font-semibold text-sky-700 hover:bg-sky-100/60 md:min-h-14 md:px-8 md:text-xl"
                   onClick={() => router.push("/onboarding/core?edit=1")}
                 >
                   合言葉を変更
@@ -544,8 +544,8 @@ export default function CalendarClient({
           </div>
 
           <div className="mt-8">
-            <div className="text-lg font-semibold text-stone-800 md:text-xl">モード（禅 / ライバル / 秘書）</div>
-            <p className="mt-2 text-base text-stone-600 md:text-lg">
+            <div className="text-xl font-semibold text-stone-800 md:text-2xl">モード（禅 / ライバル / 秘書）</div>
+            <p className="mt-2 text-lg text-stone-600 md:text-xl">
               今日の気分に合わせて、未来の自分との対話のトーンを選べます
             </p>
             <div className="mt-4">
@@ -559,10 +559,10 @@ export default function CalendarClient({
                 size="xlarge"
                 className="grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-4"
               />
-              <div className="mt-4 text-base font-medium text-sky-800/90 md:text-lg">
+              <div className="mt-4 text-lg font-semibold text-sky-800/90 md:text-xl">
                 現在のモード: <span className="font-bold">{diaryMode}</span>
               </div>
-              <div className="mt-2 text-base leading-relaxed text-stone-600 md:text-lg">
+              <div className="mt-2 text-lg leading-relaxed text-stone-600 md:text-xl">
                 {diaryMode === "禅"
                   ? "静かに自分と向き合い、未来を俯瞰するスタイル"
                   : diaryMode === "ライバル"
@@ -582,14 +582,14 @@ export default function CalendarClient({
                   : "ここに日記を書いてください。"
               }
               disabled={isGenerating || selectedIsFuture}
-              className="min-h-[200px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-lg leading-[1.65] text-stone-800 shadow-inner placeholder:text-stone-400 placeholder:text-base md:min-h-[220px] md:text-xl md:leading-[1.7] md:placeholder:text-lg focus-visible:border-sky-300 focus-visible:ring-sky-200/60"
+              className="min-h-[220px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-xl leading-[1.7] text-stone-800 shadow-inner placeholder:text-stone-400 placeholder:text-lg md:min-h-[240px] md:px-5 md:py-5 md:text-2xl md:leading-[1.72] md:placeholder:text-xl focus-visible:border-sky-300 focus-visible:ring-sky-200/60"
             />
           </div>
 
           <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-            <div className="flex flex-1 flex-wrap items-center gap-4 rounded-2xl border border-amber-200/50 bg-amber-50/30 px-5 py-4 text-base text-stone-600 shadow-sm">
-              <Heart className="h-4 w-4 shrink-0 text-rose-400" aria-hidden />
-              <span>
+            <div className="flex flex-1 flex-wrap items-center gap-4 rounded-2xl border border-amber-200/50 bg-amber-50/30 px-5 py-5 text-lg text-stone-600 shadow-sm md:px-6 md:text-xl">
+              <Heart className="h-5 w-5 shrink-0 text-rose-400 sm:h-6 sm:w-6" aria-hidden />
+              <span className="min-w-0 flex-1 font-medium leading-snug">
                 {selectedCoreValue
                   ? `合言葉: ${selectedCoreValueEnriched}`
                   : "合言葉: 未来の自分を待機中..."}
@@ -597,7 +597,7 @@ export default function CalendarClient({
               <Button
                 variant="ghost"
                 size="lg"
-                className="ml-auto min-h-14 shrink-0 rounded-2xl px-7 text-lg font-semibold text-sky-700 hover:bg-sky-100/70"
+                className="ml-auto min-h-[3.25rem] shrink-0 rounded-2xl px-6 text-lg font-semibold text-sky-700 hover:bg-sky-100/70 md:min-h-14 md:px-8 md:text-xl"
                 onClick={() => router.push("/onboarding/core?edit=1")}
               >
                 合言葉を変更
@@ -621,7 +621,7 @@ export default function CalendarClient({
                 type="button"
                 size="lg"
                 disabled={isGenerating || selectedIsFuture}
-                className="min-h-16 w-full rounded-2xl border border-amber-200/80 bg-white px-8 py-5 text-lg font-semibold text-stone-800 shadow-sm hover:bg-amber-50/80 sm:w-auto"
+                className="min-h-[4.25rem] w-full rounded-2xl border border-amber-200/80 bg-white px-8 py-5 text-xl font-semibold text-stone-800 shadow-sm hover:bg-amber-50/80 sm:w-auto md:min-h-[4.5rem] md:text-2xl"
                 onClick={() => {
                   try {
                     localStorage.setItem(
@@ -646,7 +646,7 @@ export default function CalendarClient({
                 size="lg"
                 onClick={async () => handleGenerate()}
                 disabled={isGenerating || !content.trim() || selectedIsFuture}
-                className="min-h-16 w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-8 py-5 text-lg font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto"
+                className="min-h-[4.25rem] w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-8 py-5 text-xl font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto md:min-h-[4.5rem] md:text-2xl"
               >
                 {isGenerating ? "生成中..." : `${selectedDateLabel}を保存して処方箋を生成`}
               </Button>

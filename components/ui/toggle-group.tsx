@@ -46,7 +46,7 @@ export function ToggleGroup({
             className={cn(
               "rounded-2xl border text-left font-medium transition-all shadow-sm",
               isXLarge
-                ? "min-h-[4.25rem] px-6 py-5 text-lg leading-snug active:scale-[0.99] sm:min-h-[4.5rem] sm:text-xl"
+                ? "min-h-[4.75rem] px-6 py-5 text-xl font-semibold leading-snug active:scale-[0.99] sm:min-h-[5.25rem] sm:px-7 sm:py-5 sm:text-2xl"
                 : isLarge
                   ? "min-h-[56px] px-5 py-4 text-base leading-snug active:scale-[0.99]"
                   : "min-h-[48px] px-5 py-3.5 text-base leading-snug active:scale-[0.99]",

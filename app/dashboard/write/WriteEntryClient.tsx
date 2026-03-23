@@ -164,17 +164,19 @@ export default function WriteEntryClient({
             対象日: {dateISO} / 未来の自分（{futureTitle}）へ繋ぐ
           </p>
           {coreValue ? (
-            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-              合言葉：{coreValueEnriched}
+            <p className="mt-3 text-base font-medium text-slate-700 dark:text-slate-200 md:text-lg">
+              <span className="font-semibold text-slate-600 dark:text-slate-300">合言葉</span>
+              <span className="mx-1.5 text-slate-400">·</span>
+              <span>{coreValueEnriched}</span>
             </p>
           ) : null}
         </div>
 
         <div className="mt-5">
-          <div className="text-sm font-medium text-slate-700 dark:text-slate-200">
-            モード（禅/ライバル/秘書）
+          <div className="text-lg font-semibold text-slate-800 dark:text-slate-100 md:text-xl">
+            モード（禅 / ライバル / 秘書）
           </div>
-          <div className="mt-2">
+          <div className="mt-3">
             <ToggleGroup
               type="single"
               value={diaryMode}
@@ -182,11 +184,13 @@ export default function WriteEntryClient({
                 if (isDiaryMode(value)) setDiaryMode(value);
               }}
               options={diaryModeOptions}
+              size="xlarge"
+              className="grid-cols-1 gap-4 sm:grid-cols-3"
             />
-            <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-              現在のモード: {diaryMode}
+            <div className="mt-3 text-base font-medium text-sky-800/90 dark:text-sky-300/90 md:text-lg">
+              現在のモード: <span className="font-bold">{diaryMode}</span>
             </div>
-            <div className="mt-2 text-xs text-slate-600 dark:text-slate-300">
+            <div className="mt-2 text-base leading-relaxed text-slate-600 dark:text-slate-300 md:text-lg">
               {diaryMode === "禅"
                 ? "（静かに自分と向き合い、未来を俯瞰するスタイル）"
                 : diaryMode === "ライバル"
@@ -205,15 +209,23 @@ export default function WriteEntryClient({
                 ? "当時の自分は、何を感じ、何を選びましたか？ 今の自分はそれをどう解釈しますか？"
                 : "ここに日記を書いてください。"
             }
-            className="min-h-[200px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-lg leading-[1.65] text-stone-800 shadow-inner placeholder:text-stone-400 placeholder:text-base md:min-h-[220px] md:text-xl md:leading-[1.7] md:placeholder:text-lg focus-visible:border-sky-300 focus-visible:ring-sky-200/60"
+            className="min-h-[220px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-xl leading-[1.7] text-stone-800 shadow-inner placeholder:text-stone-400 placeholder:text-lg md:min-h-[240px] md:px-5 md:py-5 md:text-2xl md:leading-[1.72] md:placeholder:text-xl focus-visible:border-sky-300 focus-visible:ring-sky-200/60 dark:bg-slate-900/40"
           />
-          <div className="flex items-center justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => router.push("/dashboard")} disabled={isSaving}>
+          <div className="flex flex-wrap items-center justify-end gap-3 pt-3">
+            <Button
+              variant="ghost"
+              size="lg"
+              className="min-h-12 text-lg md:text-xl"
+              onClick={() => router.push("/dashboard")}
+              disabled={isSaving}
+            >
               戻る
             </Button>
             <Button
               variant="secondary"
               type="button"
+              size="lg"
+              className="min-h-[4.25rem] px-6 text-xl font-semibold md:min-h-[4.5rem] md:px-8 md:text-2xl"
               disabled={isSaving}
               onClick={() => {
                 try {
@@ -233,7 +245,12 @@ export default function WriteEntryClient({
             >
               一時保存
             </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
+            <Button
+              size="lg"
+              className="min-h-[4.25rem] px-6 text-xl font-semibold md:min-h-[4.5rem] md:px-8 md:text-2xl"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
               {isSaving ? "保存中..." : "保存"}
             </Button>
           </div>
