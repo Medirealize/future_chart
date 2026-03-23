@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 type Props = {
-  userType: string;
+  userType: string | null;
   initialTargetYears: number | null;
   initialFutureTitle: string | null;
   initialBirthDate: string | null;
@@ -44,6 +44,7 @@ export default function FutureSetupClient({
     initialFutureTitle ?? ""
   );
   const [isSaving, setIsSaving] = React.useState(false);
+  const [resolvedUserType, setResolvedUserType] = React.useState<string>(userType ?? "");
 
   React.useEffect(() => {
     try {
@@ -55,6 +56,10 @@ export default function FutureSetupClient({
           "onboarding_diagnosis",
           JSON.stringify({ userType, answers: [] })
         );
+      }
+      const fallbackUserType = existingDiagnosis?.userType ?? userType ?? "";
+      if (fallbackUserType) {
+        setResolvedUserType(fallbackUserType);
       }
 
       localStorage.setItem(
@@ -68,8 +73,7 @@ export default function FutureSetupClient({
     } catch {
       // ignore
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [birthDate, futureTitle, initialBirthDate, initialFutureTitle, initialTargetYears, targetAge, userType]);
 
   async function handleNext() {
     if (isSaving) return;
@@ -109,6 +113,13 @@ export default function FutureSetupClient({
       return;
     }
 
+    const finalUserType = resolvedUserType.trim();
+    if (!finalUserType) {
+      alert("診断結果が見つかりません。もう一度、簡易タイプ診断から進めてください。");
+      router.push("/onboarding/diagnosis");
+      return;
+    }
+
     localStorage.setItem(
       "onboarding_future",
       JSON.stringify({
@@ -132,7 +143,7 @@ export default function FutureSetupClient({
         .upsert(
           {
             id: authData.user.id,
-            user_type: userType,
+            user_type: finalUserType,
             birth_date: birth,
             target_years: age,
             future_title: title,

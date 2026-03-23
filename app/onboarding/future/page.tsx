@@ -19,22 +19,20 @@ export default async function FutureSetupPage() {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.user_type) redirect("/onboarding/diagnosis");
-
   const onboardingComplete =
-    profile.birth_date != null &&
-    profile.target_years != null &&
-    profile.future_title != null &&
-    profile.core_value != null;
+    profile?.birth_date != null &&
+    profile?.target_years != null &&
+    profile?.future_title != null &&
+    profile?.core_value != null;
 
   if (onboardingComplete) redirect("/dashboard");
 
   return (
     <FutureSetupClient
-      userType={profile.user_type}
-      initialTargetYears={profile.target_years}
-      initialFutureTitle={profile.future_title}
-      initialBirthDate={profile.birth_date}
+      userType={profile?.user_type ?? null}
+      initialTargetYears={profile?.target_years ?? null}
+      initialFutureTitle={profile?.future_title ?? null}
+      initialBirthDate={profile?.birth_date ?? null}
     />
   );
 }
