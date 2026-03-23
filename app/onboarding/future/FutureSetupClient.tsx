@@ -46,6 +46,23 @@ export default function FutureSetupClient({
   const [isSaving, setIsSaving] = React.useState(false);
   const [resolvedUserType, setResolvedUserType] = React.useState<string>(userType ?? "");
 
+  async function upsertProfileFuture(payload: {
+    id: string;
+    user_type: string;
+    birth_date: string;
+    target_years: number;
+    future_title: string;
+  }) {
+    const withBirthDate = await supabase.from("profiles").upsert(payload, { onConflict: "id" });
+    if (!withBirthDate.error || !withBirthDate.error.message?.includes("birth_date")) {
+      return withBirthDate.error;
+    }
+
+    const { birth_date: _omit, ...legacyPayload } = payload;
+    const fallback = await supabase.from("profiles").upsert(legacyPayload, { onConflict: "id" });
+    return fallback.error;
+  }
+
   React.useEffect(() => {
     try {
       const existingDiagnosis = parseOnboardingStorage<{ userType: string; answers: string[] }>(
@@ -138,18 +155,13 @@ export default function FutureSetupClient({
         return;
       }
 
-      const { error: upsertError } = await supabase
-        .from("profiles")
-        .upsert(
-          {
-            id: authData.user.id,
-            user_type: finalUserType,
-            birth_date: birth,
-            target_years: age,
-            future_title: title,
-          },
-          { onConflict: "id" }
-        );
+      const upsertError = await upsertProfileFuture({
+        id: authData.user.id,
+        user_type: finalUserType,
+        birth_date: birth,
+        target_years: age,
+        future_title: title,
+      });
 
       if (upsertError) {
         alert(`未来設定の保存に失敗しました: ${upsertError.message}`);

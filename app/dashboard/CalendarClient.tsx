@@ -43,7 +43,7 @@ export default function CalendarClient({
   userType: string;
   futureTitle: string;
   /** YYYY-MM-DD */
-  birthDate: string;
+  birthDate: string | null;
   /** 目標とする年齢（DBの target_years カラムと同じ値） */
   targetAge: number;
   coreValue: string | null;
@@ -120,6 +120,7 @@ export default function CalendarClient({
    */
   const milestoneBirthday = React.useMemo(() => {
     try {
+      if (!birthDate) return null;
       const b = parseDateOnlyLocal(birthDate);
       if (!Number.isFinite(targetAge) || targetAge < 1) return null;
       return startOfDay(addYears(b, targetAge));

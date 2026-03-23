@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import FutureSetupClient from "./FutureSetupClient";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
+import { fetchProfileWithSchemaFallback } from "@/lib/profiles/fetchProfileWithSchemaFallback";
 
 export const dynamic = "force-dynamic";
 
@@ -13,17 +14,13 @@ export default async function FutureSetupPage() {
 
   if (error || !user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("user_type, target_years, future_title, core_value, birth_date")
-    .eq("id", user.id)
-    .single();
+  const { profile, hasBirthDateColumn } = await fetchProfileWithSchemaFallback(supabase, user.id);
 
   const onboardingComplete =
-    profile?.birth_date != null &&
     profile?.target_years != null &&
     profile?.future_title != null &&
-    profile?.core_value != null;
+    profile?.core_value != null &&
+    (!hasBirthDateColumn || profile?.birth_date != null);
 
   if (onboardingComplete) redirect("/dashboard");
 

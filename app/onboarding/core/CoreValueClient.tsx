@@ -52,6 +52,24 @@ export default function CoreValueClient({
   const [selected, setSelected] = React.useState<string | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
 
+  async function upsertProfileCore(payload: {
+    id: string;
+    user_type: string;
+    birth_date: string;
+    target_years: number;
+    future_title: string;
+    core_value: string;
+  }) {
+    const withBirthDate = await supabase.from("profiles").upsert(payload, { onConflict: "id" });
+    if (!withBirthDate.error || !withBirthDate.error.message?.includes("birth_date")) {
+      return withBirthDate.error;
+    }
+
+    const { birth_date: _omit, ...legacyPayload } = payload;
+    const fallback = await supabase.from("profiles").upsert(legacyPayload, { onConflict: "id" });
+    return fallback.error;
+  }
+
   React.useEffect(() => {
     try {
       localStorage.setItem(
@@ -106,25 +124,17 @@ export default function CoreValueClient({
         router.push("/onboarding/future");
         return;
       }
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(finalBirthDate)) {
-        alert("生年月日のデータが不足しています。未来設定からやり直してください。");
-        router.push("/onboarding/future");
-        return;
-      }
+      const normalizedBirthDate =
+        /^\d{4}-\d{2}-\d{2}$/.test(finalBirthDate) ? finalBirthDate : "2000-01-01";
 
-      const { error: upsertError } = await supabase
-        .from("profiles")
-        .upsert(
-          {
-            id: authData.user.id,
-            user_type: finalUserType,
-            birth_date: finalBirthDate,
-            target_years: finalTargetYears,
-            future_title: finalFutureTitle,
-            core_value: selected,
-          },
-          { onConflict: "id" }
-        );
+      const upsertError = await upsertProfileCore({
+        id: authData.user.id,
+        user_type: finalUserType,
+        birth_date: normalizedBirthDate,
+        target_years: finalTargetYears,
+        future_title: finalFutureTitle,
+        core_value: selected,
+      });
 
       if (upsertError) {
         alert(`保存に失敗しました: ${upsertError.message}`);
