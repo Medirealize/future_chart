@@ -12,11 +12,22 @@ import { clearClientAppStores } from "@/lib/auth/clear-client-stores";
  */
 export function GlobalLogoutButton() {
   const router = useRouter();
-  const supabase = React.useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = React.useMemo(() => {
+    try {
+      return createSupabaseBrowserClient();
+    } catch {
+      // 環境変数未設定のビルド環境ではボタンを非表示にする
+      return null;
+    }
+  }, []);
   const [visible, setVisible] = React.useState(false);
   const [isSigningOut, setIsSigningOut] = React.useState(false);
 
   React.useEffect(() => {
+    if (!supabase) {
+      setVisible(false);
+      return;
+    }
     let cancelled = false;
     void supabase.auth.getSession().then(({ data: { session } }) => {
       if (!cancelled) setVisible(Boolean(session));
@@ -33,6 +44,7 @@ export function GlobalLogoutButton() {
   }, [supabase]);
 
   async function handleSignOut() {
+    if (!supabase) return;
     setIsSigningOut(true);
     try {
       const { error } = await supabase.auth.signOut();
