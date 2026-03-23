@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import type { ToggleGroupOption } from "@/components/ui/toggle-group";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarDays, Heart, LogOut, Sparkles, Timer } from "lucide-react";
+import { CalendarDays, Heart, Sparkles, Timer } from "lucide-react";
 import {
   computeTimeLeftYearsMonthsDays,
   parseDateOnlyLocal,
@@ -154,7 +154,6 @@ export default function CalendarClient({
   const [currentCoreValue, setCurrentCoreValue] = React.useState<string | null>(coreValue);
   const skipNextCoreValuePropSyncRef = React.useRef(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
-  const [isSigningOut, setIsSigningOut] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [infoMsg, setInfoMsg] = React.useState<string | null>(null);
 
@@ -363,21 +362,7 @@ export default function CalendarClient({
     <div className="min-h-screen bg-gradient-to-b from-[#FDF8F3] via-[#FAF6EF] to-[#F3EBE2] px-5 py-10 md:px-10">
       <div className="mx-auto max-w-5xl">
         <div className="rounded-[2rem] border border-amber-200/50 bg-[#FFFCF8] p-8 shadow-[0_8px_40px_-12px_rgba(160,110,70,0.12)] md:p-10">
-        <div className="flex items-start justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            className="min-h-12 gap-2 rounded-2xl border-rose-200/80 bg-white/80 px-6 py-3 text-base text-rose-800 shadow-sm transition-all hover:border-rose-300 hover:bg-rose-50/90 hover:shadow"
-            disabled={isSigningOut}
-            onClick={() => handleSignOut()}
-          >
-            <LogOut className="h-5 w-5 text-rose-500" aria-hidden />
-            {isSigningOut ? "ログアウト中..." : "ログアウト"}
-          </Button>
-        </div>
-
-        <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mt-2 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100/90 text-sky-600 shadow-sm ring-1 ring-sky-200/40">
@@ -734,36 +719,5 @@ export default function CalendarClient({
     }
   }
 
-  async function handleSignOut() {
-    setIsSigningOut(true);
-    setErrorMsg(null);
-    setInfoMsg(null);
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      try {
-        const draftKeys = Object.keys(localStorage).filter((k) => k.startsWith("entry_draft_"));
-        for (const key of draftKeys) localStorage.removeItem(key);
-        localStorage.removeItem("onboarding_diagnosis");
-        localStorage.removeItem("onboarding_future");
-        clearCachedCoreValue();
-      } catch {
-        // ignore
-      }
-      try {
-        sessionStorage.clear();
-      } catch {
-        // ignore
-      }
-
-      router.replace("/login");
-      router.refresh();
-    } catch (e: any) {
-      setErrorMsg(e?.message ?? "ログアウトに失敗しました。");
-    } finally {
-      setIsSigningOut(false);
-    }
-  }
 }
 

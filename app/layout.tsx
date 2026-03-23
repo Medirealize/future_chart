@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Noto_Sans_JP } from "next/font/google";
+import { GlobalLogoutButton } from "@/components/GlobalLogoutButton";
 import ThemeGuard from "./ThemeGuard";
 
 const notoSansJp = Noto_Sans_JP({
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         ].join(" ")}
       >
         <ThemeGuard />
+        <GlobalLogoutButton />
         {children}
       </body>
     </html>

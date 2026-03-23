@@ -5,10 +5,7 @@ import { format, parseISO, startOfDay } from "date-fns";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { enrichFourCharIdioms } from "@/lib/dashboard/enrich-idioms";
-import { BookOpen, ChevronDown, ChevronUp, LogOut, Sparkles } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
-import { clearCachedCoreValue } from "@/utils/core-value-sync";
-
+import { BookOpen, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 type EntryRow = {
   created_at: string;
   content: string | null;
@@ -19,9 +16,6 @@ type EntryRow = {
 
 export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
   const router = useRouter();
-  const supabase = React.useMemo(() => createSupabaseBrowserClient(), []);
-  const [isSigningOut, setIsSigningOut] = React.useState(false);
-
   const [entriesState] = React.useState<EntryRow[]>(entries);
 
   const timelineDayBlocks = React.useMemo(() => {
@@ -83,34 +77,6 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
     }));
   }
 
-  async function handleSignOut() {
-    setIsSigningOut(true);
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      try {
-        const draftKeys = Object.keys(localStorage).filter((k) => k.startsWith("entry_draft_"));
-        for (const key of draftKeys) localStorage.removeItem(key);
-        localStorage.removeItem("onboarding_diagnosis");
-        localStorage.removeItem("onboarding_future");
-        clearCachedCoreValue();
-      } catch {
-        // ignore
-      }
-      try {
-        sessionStorage.clear();
-      } catch {
-        // ignore
-      }
-      router.replace("/login");
-      router.refresh();
-    } catch {
-      // ignore
-    } finally {
-      setIsSigningOut(false);
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FDF8F3] via-[#FAF6EF] to-[#F3EBE2] px-5 py-10 md:px-10">
       <div className="mx-auto max-w-5xl">
@@ -119,20 +85,11 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
             <Button
               type="button"
               variant="outline"
-              className="rounded-2xl border-amber-200/80 bg-white/80 px-5 py-2.5 text-stone-700 shadow-sm hover:bg-amber-50/80"
+              size="lg"
+              className="min-h-12 rounded-2xl border-amber-200/80 bg-white/80 px-6 py-3 text-base text-stone-700 shadow-sm hover:bg-amber-50/80"
               onClick={() => router.push("/dashboard")}
             >
               ← カレンダーへ戻る
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="gap-2 rounded-2xl border-rose-200/80 bg-white/80 px-5 py-2.5 text-rose-800 shadow-sm transition-all hover:border-rose-300 hover:bg-rose-50/90"
-              disabled={isSigningOut}
-              onClick={() => handleSignOut()}
-            >
-              <LogOut className="h-4 w-4 text-rose-500" aria-hidden />
-              {isSigningOut ? "ログアウト中..." : "ログアウト"}
             </Button>
           </div>
 
