@@ -8,14 +8,25 @@ import {
   startOfDay,
 } from "date-fns";
 
-/** YYYY-MM-DD をローカル日付の 0:00 として解釈（タイムゾーンずれ防止） */
+/** DBの date / timestamptz など先頭10文字が YYYY-MM-DD ならローカル日の0:00として解釈 */
 export function parseDateOnlyLocal(iso: string): Date {
-  const parts = iso.split("-").map((x) => Number(x));
+  const datePart = String(iso).trim().slice(0, 10);
+  const parts = datePart.split("-").map((x) => Number(x));
   const y = parts[0];
   const m = parts[1];
   const d = parts[2];
-  if (!y || !m || !d) throw new Error("Invalid date string");
+  if (!y || !m || !d || parts.some((n) => !Number.isFinite(n))) {
+    throw new Error("Invalid date string");
+  }
   return startOfDay(new Date(y, m - 1, d));
+}
+
+/** 表示・計算用に生年月日を YYYY-MM-DD に正規化（未設定は null） */
+export function normalizeBirthDateString(raw: string | null | undefined): string | null {
+  if (raw == null) return null;
+  const s = String(raw).trim();
+  const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+  return m?.[1] ?? null;
 }
 
 /**

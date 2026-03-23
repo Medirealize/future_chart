@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { DayPicker } from "react-day-picker";
+import { ja } from "react-day-picker/locale";
 import { cn } from "@/lib/utils";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
@@ -14,6 +15,7 @@ export function Calendar({ className, ...props }: CalendarProps) {
   return (
     <div className={cn("w-full", className)}>
       <DayPicker
+        locale={ja}
         className={cn("w-full p-3", className)}
         classNames={{
           months: "flex w-full flex-col gap-4 sm:flex-row",
@@ -29,7 +31,7 @@ export function Calendar({ className, ...props }: CalendarProps) {
           month_grid: "w-full border-collapse",
           weekdays: "grid grid-cols-7",
           weekday:
-            "py-2 text-center text-xs font-medium uppercase tracking-wide text-stone-500",
+            "py-2 text-center text-xs font-medium tracking-wide text-stone-500",
           weeks: "mt-2 space-y-2",
           week: "grid grid-cols-7",
           day: "relative p-1 text-center",

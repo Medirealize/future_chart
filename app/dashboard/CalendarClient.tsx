@@ -20,6 +20,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarDays, Heart, Sparkles, Timer } from "lucide-react";
 import {
   computeTimeLeftYearsMonthsDays,
+  normalizeBirthDateString,
   parseDateOnlyLocal,
 } from "@/lib/dashboard/countdown";
 import { CORE_VALUE_MEANINGS, enrichFourCharIdioms } from "@/lib/dashboard/enrich-idioms";
@@ -53,7 +54,44 @@ export default function CalendarClient({
   const isDiaryMode = (value: string): value is DiaryMode =>
     value === "禅" || value === "ライバル" || value === "秘書";
 
-  const supabase = React.useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = React.useMemo(() => {
+    try {
+      return createSupabaseBrowserClient();
+    } catch {
+      return null;
+    }
+  }, []);
+
+  /** DBに birth_date が無い・旧データ向け: 端末の onboarding_future を参照 */
+  const [storedFuture, setStoredFuture] = React.useState<{
+    birth: string | null;
+    age: number | null;
+  }>({ birth: null, age: null });
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem("onboarding_future");
+      if (!raw) return;
+      const p = JSON.parse(raw) as { birthDate?: string; targetYears?: number };
+      const b = normalizeBirthDateString(p?.birthDate);
+      const a = Number(p?.targetYears);
+      setStoredFuture({
+        birth: b,
+        age: Number.isFinite(a) && a >= 1 ? Math.trunc(a) : null,
+      });
+    } catch {
+      setStoredFuture({ birth: null, age: null });
+    }
+  }, []);
+
+  const effectiveBirthDate =
+    normalizeBirthDateString(birthDate) ?? storedFuture.birth;
+
+  const serverTargetAge = Math.trunc(Number(targetAge));
+  const effectiveTargetAgeNum =
+    Number.isFinite(serverTargetAge) && serverTargetAge >= 1
+      ? serverTargetAge
+      : storedFuture.age;
 
   const [entriesState, setEntriesState] = React.useState<EntryRow[]>(entries);
   React.useEffect(() => {
@@ -119,20 +157,33 @@ export default function CalendarClient({
    */
   const milestoneBirthday = React.useMemo(() => {
     try {
-      if (!birthDate) return null;
-      const b = parseDateOnlyLocal(birthDate);
-      if (!Number.isFinite(targetAge) || targetAge < 1) return null;
-      return startOfDay(addYears(b, targetAge));
+      if (!effectiveBirthDate || effectiveTargetAgeNum == null || effectiveTargetAgeNum < 1) {
+        return null;
+      }
+      const b = parseDateOnlyLocal(effectiveBirthDate);
+      return startOfDay(addYears(b, effectiveTargetAgeNum));
     } catch {
       return null;
     }
-  }, [birthDate, targetAge]);
+  }, [effectiveBirthDate, effectiveTargetAgeNum]);
 
   /** 今日（カレンダー日）から、目標の誕生日までの残り年・月・日 */
   const timeLeft = React.useMemo(() => {
     if (!milestoneBirthday || !calendarNow) return null;
     return computeTimeLeftYearsMonthsDays(calendarNow, milestoneBirthday);
   }, [milestoneBirthday, calendarNow]);
+
+  const countdownLabel = React.useMemo(() => {
+    if (!calendarNow) return "読み込み中…";
+    if (!milestoneBirthday || effectiveTargetAgeNum == null || effectiveTargetAgeNum < 1) {
+      return "未来設定で生年月日と目標年齢を確認してください";
+    }
+    if (isBefore(milestoneBirthday, calendarNow)) {
+      return "その日はすでに到来しています";
+    }
+    if (!timeLeft) return "計算できません";
+    return `${timeLeft.years}年${timeLeft.months}ヶ月${timeLeft.days}日`;
+  }, [calendarNow, milestoneBirthday, effectiveTargetAgeNum, timeLeft]);
 
   const selectedIsPast = React.useMemo(() => {
     if (!calendarNow || !selectedDateISO) return false;
@@ -174,13 +225,17 @@ export default function CalendarClient({
   }, [coreValue]);
 
   React.useEffect(() => {
+    const client = supabase;
+    if (!client) return;
     let cancelled = false;
 
     async function refreshCoreValue() {
+      const c = client;
+      if (!c) return;
       try {
-        const { data: authData, error: authError } = await supabase.auth.getUser();
+        const { data: authData, error: authError } = await c.auth.getUser();
         if (authError || !authData.user || cancelled) return;
-        const { data: profile } = await supabase
+        const { data: profile } = await c
           .from("profiles")
           .select("core_value")
           .eq("id", authData.user.id)
@@ -262,44 +317,46 @@ export default function CalendarClient({
 
       // 下書きがなければ、DBの既存日記をロード
     if (!loadedFromDraft) {
-        try {
-          const { data: authData, error: authError } = await supabase.auth.getUser();
-          if (!authError && authData.user) {
-            const { data: row } = await supabase
-              .from("entries")
-              .select("created_at, content, mode, ai_response")
-              .eq("user_id", authData.user.id)
-              .eq("created_at", targetDateISO)
-              .maybeSingle();
+        if (supabase) {
+          try {
+            const { data: authData, error: authError } = await supabase.auth.getUser();
+            if (!authError && authData.user) {
+              const { data: row } = await supabase
+                .from("entries")
+                .select("created_at, content, mode, ai_response")
+                .eq("user_id", authData.user.id)
+                .eq("created_at", targetDateISO)
+                .maybeSingle();
 
-            if (cancelled) return;
-            if (row) {
-              const dbEntry: EntryRow = {
-                created_at: row.created_at,
-                content: row.content,
-                mode: row.mode,
-                ai_response: row.ai_response,
-              };
-              setEntriesState((prev) => {
-                const next = [...prev];
-                const idx = next.findIndex((e) => e.created_at === targetDateISO);
-                if (idx >= 0) next[idx] = { ...next[idx], ...dbEntry };
-                else next.push(dbEntry);
-                return next;
-              });
-              setContent(row.content ?? "");
-              if (row.mode && isDiaryMode(row.mode)) setDiaryMode(row.mode);
-              else setDiaryMode("禅");
-            } else {
-              setContent("");
-              setDiaryMode("禅");
+              if (cancelled) return;
+              if (row) {
+                const dbEntry: EntryRow = {
+                  created_at: row.created_at,
+                  content: row.content,
+                  mode: row.mode,
+                  ai_response: row.ai_response,
+                };
+                setEntriesState((prev) => {
+                  const next = [...prev];
+                  const idx = next.findIndex((e) => e.created_at === targetDateISO);
+                  if (idx >= 0) next[idx] = { ...next[idx], ...dbEntry };
+                  else next.push(dbEntry);
+                  return next;
+                });
+                setContent(row.content ?? "");
+                if (row.mode && isDiaryMode(row.mode)) setDiaryMode(row.mode);
+                else setDiaryMode("禅");
+              } else {
+                setContent("");
+                setDiaryMode("禅");
+              }
+              setErrorMsg(null);
+              setInfoMsg(null);
+              return;
             }
-            setErrorMsg(null);
-            setInfoMsg(null);
-            return;
+          } catch {
+            // fallback to local state
           }
-        } catch {
-          // fallback to local state
         }
 
         if (cancelled) return;
@@ -371,17 +428,17 @@ export default function CalendarClient({
                 <h1 className="text-3xl font-bold tracking-tight text-stone-800 md:text-4xl">カレンダー</h1>
               </div>
             </div>
-            <p className="flex flex-wrap items-center gap-2 text-base leading-relaxed text-stone-600">
-              <Timer className="h-4 w-4 shrink-0 text-sky-500" aria-hidden />
-              <span>
-                <span className="font-semibold text-sky-700">（{futureTitle}）</span>
-                <span className="text-stone-600">としての、</span>
-                <span className="font-semibold text-stone-800">{targetAge}歳の誕生日</span>
-                まで、あと
-                <span className="mx-1 font-semibold tabular-nums text-stone-800">
-                  {timeLeft ? `${timeLeft.years}年${timeLeft.months}ヶ月${timeLeft.days}日` : "準備中..."}
-                </span>
+            <p className="flex flex-wrap items-center gap-x-1 gap-y-1 text-base leading-relaxed text-stone-600 md:text-lg">
+              <Timer className="h-5 w-5 shrink-0 text-sky-500" aria-hidden />
+              <span className="font-semibold text-sky-700">{futureTitle}</span>
+              <span className="text-stone-600">としての、</span>
+              <span className="font-semibold text-stone-800">
+                {effectiveTargetAgeNum != null && effectiveTargetAgeNum >= 1
+                  ? `${effectiveTargetAgeNum}歳`
+                  : "—"}
               </span>
+              <span className="text-stone-600">の誕生日まで、あと</span>
+              <span className="font-semibold tabular-nums text-stone-800">{countdownLabel}</span>
             </p>
             {selectedCoreValue ? (
               <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-amber-200/60 bg-amber-50/40 px-5 py-4 shadow-sm">
@@ -445,7 +502,7 @@ export default function CalendarClient({
             type="button"
             variant="outline"
             size="lg"
-            className="min-h-14 rounded-2xl border-violet-200/90 bg-violet-50/40 px-10 py-4 text-lg font-semibold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50"
+            className="min-h-16 w-full rounded-2xl border-violet-200/90 bg-violet-50/40 px-10 py-5 text-xl font-semibold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50 sm:w-auto sm:min-w-[min(100%,22rem)]"
             onClick={() => router.push("/dashboard/timeline")}
           >
             年表（タイムライン）を見る
@@ -487,8 +544,10 @@ export default function CalendarClient({
           </div>
 
           <div className="mt-8">
-            <div className="text-sm font-semibold text-stone-700">モード（禅 / ライバル / 秘書）</div>
-            <p className="mt-1 text-xs text-stone-500">今日の気分に合わせて、未来の自分との対話のトーンを選べます</p>
+            <div className="text-lg font-semibold text-stone-800 md:text-xl">モード（禅 / ライバル / 秘書）</div>
+            <p className="mt-2 text-base text-stone-600 md:text-lg">
+              今日の気分に合わせて、未来の自分との対話のトーンを選べます
+            </p>
             <div className="mt-4">
               <ToggleGroup
                 type="single"
@@ -497,12 +556,13 @@ export default function CalendarClient({
                   if (isDiaryMode(v)) setDiaryMode(v);
                 }}
                 options={diaryModeOptions}
+                size="xlarge"
                 className="grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-4"
               />
-              <div className="mt-3 text-sm font-medium text-sky-800/90">
+              <div className="mt-4 text-base font-medium text-sky-800/90 md:text-lg">
                 現在のモード: <span className="font-bold">{diaryMode}</span>
               </div>
-              <div className="mt-2 text-sm leading-relaxed text-stone-600">
+              <div className="mt-2 text-base leading-relaxed text-stone-600 md:text-lg">
                 {diaryMode === "禅"
                   ? "静かに自分と向き合い、未来を俯瞰するスタイル"
                   : diaryMode === "ライバル"
@@ -561,7 +621,7 @@ export default function CalendarClient({
                 type="button"
                 size="lg"
                 disabled={isGenerating || selectedIsFuture}
-                className="min-h-12 w-full rounded-2xl border border-amber-200/80 bg-white px-6 font-medium text-stone-700 shadow-sm hover:bg-amber-50/80 sm:w-auto"
+                className="min-h-16 w-full rounded-2xl border border-amber-200/80 bg-white px-8 py-5 text-lg font-semibold text-stone-800 shadow-sm hover:bg-amber-50/80 sm:w-auto"
                 onClick={() => {
                   try {
                     localStorage.setItem(
@@ -586,7 +646,7 @@ export default function CalendarClient({
                 size="lg"
                 onClick={async () => handleGenerate()}
                 disabled={isGenerating || !content.trim() || selectedIsFuture}
-                className="min-h-12 w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto"
+                className="min-h-16 w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-8 py-5 text-lg font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto"
               >
                 {isGenerating ? "生成中..." : `${selectedDateLabel}を保存して処方箋を生成`}
               </Button>
@@ -631,6 +691,14 @@ export default function CalendarClient({
       setErrorMsg("未来の日付には日記を保存できません。今日以前の日付を選択してください。");
       return;
     }
+    if (!supabase) {
+      setErrorMsg("接続設定を確認してください（Supabase）。");
+      return;
+    }
+    if (effectiveTargetAgeNum == null || effectiveTargetAgeNum < 1) {
+      setErrorMsg("目標年齢が取得できません。未来設定で目標年齢を登録してください。");
+      return;
+    }
     if (!currentCoreValue) {
       setErrorMsg("合言葉（core_value）が未設定です。オンボーディングを完了してください。");
       return;
@@ -648,7 +716,7 @@ export default function CalendarClient({
           diaryContent: diary,
           userType,
           selectedMode: diaryMode,
-          targetAge,
+          targetAge: effectiveTargetAgeNum,
           futureTitle,
           coreValue: currentCoreValue,
           context: isReflectionContext ? "reflection" : "edit",

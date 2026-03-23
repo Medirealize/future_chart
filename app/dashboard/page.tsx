@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import CalendarClient from "./CalendarClient";
 import { fetchProfileWithSchemaFallback } from "@/lib/profiles/fetchProfileWithSchemaFallback";
+import { normalizeBirthDateString } from "@/lib/dashboard/countdown";
 
 export const dynamic = "force-dynamic";
 
@@ -36,8 +37,8 @@ export default async function DashboardPage() {
     <CalendarClient
       userType={profile.user_type}
       futureTitle={profile.future_title}
-      birthDate={profile.birth_date}
-      targetAge={profile.target_years}
+      birthDate={normalizeBirthDateString(profile.birth_date as string | null | undefined)}
+      targetAge={Math.trunc(Number(profile.target_years))}
       coreValue={profile.core_value}
       entries={(entries ?? []).map((e: any) => ({
         created_at: e.created_at,
