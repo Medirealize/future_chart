@@ -24,11 +24,12 @@ export function GlobalLogoutButton() {
   const [isSigningOut, setIsSigningOut] = React.useState(false);
 
   async function handleSignOut() {
-    if (!supabase) return;
     setIsSigningOut(true);
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (supabase) {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+      }
       clearClientAppStores();
       router.replace("/login");
       router.refresh();
@@ -41,7 +42,7 @@ export function GlobalLogoutButton() {
     }
   }
 
-  if (!supabase || pathname === "/login") return null;
+  if (pathname === "/login") return null;
 
   return (
     <div
