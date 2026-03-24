@@ -448,7 +448,7 @@ export default function CalendarClient({
                   type="button"
                   variant="outline"
                   size="lg"
-                  className="min-h-12 rounded-xl border-amber-300 bg-amber-50/70 px-5 text-base font-semibold text-amber-900 hover:bg-amber-100 md:text-lg"
+                  className="min-h-12 rounded-xl border-amber-300 bg-amber-50/70 px-5 !text-2xl font-semibold text-amber-900 hover:bg-amber-100"
                   onClick={() => router.push("/onboarding/future/edit")}
                 >
                   未来設定ページに戻る
@@ -466,7 +466,7 @@ export default function CalendarClient({
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="ml-auto min-h-[3.25rem] shrink-0 rounded-2xl px-6 text-lg font-semibold text-sky-700 hover:bg-sky-100/60 md:min-h-14 md:px-8 md:text-xl"
+                  className="ml-auto min-h-[3.25rem] shrink-0 rounded-2xl px-6 !text-2xl font-semibold text-sky-700 hover:bg-sky-100/60 md:min-h-14 md:px-8"
                   onClick={() => router.push("/onboarding/core?edit=1")}
                 >
                   合言葉を変更
@@ -521,7 +521,7 @@ export default function CalendarClient({
             type="button"
             variant="outline"
             size="lg"
-            className="min-h-[4.75rem] w-full rounded-2xl border-violet-200/90 bg-violet-50/40 px-10 py-6 !text-2xl font-bold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50 sm:w-auto sm:min-w-[min(100%,22rem)] md:min-h-[5.25rem] md:!text-3xl"
+            className="min-h-[4.75rem] w-full rounded-2xl border-violet-200/90 bg-violet-50/40 px-10 py-6 !text-2xl font-bold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50 sm:w-auto sm:min-w-[min(100%,22rem)] md:min-h-[5.25rem]"
             onClick={() => router.push("/dashboard/timeline")}
           >
             年表（タイムライン）を見る
@@ -616,7 +616,7 @@ export default function CalendarClient({
               <Button
                 variant="ghost"
                 size="lg"
-                className="ml-auto min-h-[3.25rem] shrink-0 rounded-2xl px-6 text-lg font-semibold text-sky-700 hover:bg-sky-100/70 md:min-h-14 md:px-8 md:text-xl"
+                className="ml-auto min-h-[3.25rem] shrink-0 rounded-2xl px-6 !text-2xl font-semibold text-sky-700 hover:bg-sky-100/70 md:min-h-14 md:px-8"
                 onClick={() => router.push("/onboarding/core?edit=1")}
               >
                 合言葉を変更
@@ -640,7 +640,7 @@ export default function CalendarClient({
                 type="button"
                 size="lg"
                 disabled={isGenerating || selectedIsFuture}
-                className="min-h-[4.25rem] w-full rounded-2xl border border-amber-200/80 bg-white px-8 py-5 text-xl font-semibold text-stone-800 shadow-sm hover:bg-amber-50/80 sm:w-auto md:min-h-[4.5rem] md:text-2xl"
+                className="min-h-[4.25rem] w-full rounded-2xl border border-amber-200/80 bg-white px-8 py-5 !text-2xl font-semibold text-stone-800 shadow-sm hover:bg-amber-50/80 sm:w-auto md:min-h-[4.5rem]"
                 onClick={() => {
                   try {
                     localStorage.setItem(
@@ -665,7 +665,7 @@ export default function CalendarClient({
                 size="lg"
                 onClick={async () => handleGenerate()}
                 disabled={isGenerating || !content.trim() || selectedIsFuture}
-                className="h-auto min-h-[5.75rem] w-full whitespace-normal rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-6 text-center !text-2xl !leading-snug font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto sm:px-8 md:min-h-[6.75rem] md:py-7 md:!text-3xl"
+                className="h-auto min-h-[5.75rem] w-full whitespace-normal rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-6 text-center !text-2xl !leading-snug font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto sm:px-8 md:min-h-[6.75rem] md:py-7"
               >
                 {isGenerating ? "生成中..." : `${selectedDateLabel}を保存して処方箋を生成`}
               </Button>

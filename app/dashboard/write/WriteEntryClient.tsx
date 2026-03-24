@@ -215,7 +215,7 @@ export default function WriteEntryClient({
             <Button
               variant="ghost"
               size="lg"
-              className="min-h-12 text-lg md:text-xl"
+              className="min-h-12 !text-2xl"
               onClick={() => router.push("/dashboard")}
               disabled={isSaving}
             >
@@ -225,7 +225,7 @@ export default function WriteEntryClient({
               variant="secondary"
               type="button"
               size="lg"
-              className="min-h-[4.25rem] px-6 text-xl font-semibold md:min-h-[4.5rem] md:px-8 md:text-2xl"
+              className="min-h-[4.25rem] px-6 !text-2xl font-semibold md:min-h-[4.5rem] md:px-8"
               disabled={isSaving}
               onClick={() => {
                 try {
@@ -247,7 +247,7 @@ export default function WriteEntryClient({
             </Button>
             <Button
               size="lg"
-              className="min-h-[4.25rem] px-6 text-xl font-semibold md:min-h-[4.5rem] md:px-8 md:text-2xl"
+              className="min-h-[4.25rem] px-6 !text-2xl font-semibold md:min-h-[4.5rem] md:px-8"
               onClick={handleSave}
               disabled={isSaving}
             >
