@@ -502,7 +502,7 @@ export default function CalendarClient({
             type="button"
             variant="outline"
             size="lg"
-            className="min-h-16 w-full rounded-2xl border-violet-200/90 bg-violet-50/40 px-10 py-5 text-xl font-semibold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50 sm:w-auto sm:min-w-[min(100%,22rem)]"
+            className="min-h-[4.75rem] w-full rounded-2xl border-violet-200/90 bg-violet-50/40 px-10 py-6 text-2xl font-bold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50 sm:w-auto sm:min-w-[min(100%,22rem)] md:min-h-[5.25rem] md:text-3xl"
             onClick={() => router.push("/dashboard/timeline")}
           >
             年表（タイムライン）を見る
@@ -515,13 +515,13 @@ export default function CalendarClient({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-sky-500" aria-hidden />
-                <h2 className="text-xl font-bold tracking-tight text-stone-800 md:text-2xl">
+                <h2 className="text-2xl font-bold tracking-tight text-stone-800 md:text-3xl">
                   {selectedDateLabel}の日記を{selectedEntry?.content ? "編集" : "記入"}
                 </h2>
               </div>
-              <p className="text-sm leading-relaxed text-stone-600 md:text-base">
+              <p className="text-base leading-relaxed text-stone-600 md:text-lg">
                 対象日:{" "}
-                <span className="rounded-lg bg-white/80 px-2 py-0.5 font-semibold text-stone-800 shadow-sm ring-1 ring-amber-100/80">
+                <span className="rounded-lg bg-white/80 px-2 py-0.5 text-lg font-semibold text-stone-800 shadow-sm ring-1 ring-amber-100/80 md:text-xl">
                   {selectedDateISO}
                 </span>
                 {" "}
