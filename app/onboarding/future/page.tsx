@@ -5,7 +5,13 @@ import { fetchProfileWithSchemaFallback } from "@/lib/profiles/fetchProfileWithS
 
 export const dynamic = "force-dynamic";
 
-export default async function FutureSetupPage() {
+export default async function FutureSetupPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ edit?: string }>;
+}) {
+  const params = (await searchParams) ?? {};
+  const forceEdit = params.edit === "1";
   const supabase = createSupabaseServerClient();
   const {
     data: { user },
@@ -22,7 +28,7 @@ export default async function FutureSetupPage() {
     profile?.core_value != null &&
     (!hasBirthDateColumn || profile?.birth_date != null);
 
-  if (onboardingComplete) redirect("/dashboard");
+  if (onboardingComplete && !forceEdit) redirect("/dashboard");
 
   return (
     <FutureSetupClient
