@@ -39,7 +39,7 @@ export function Calendar({ className, ...props }: CalendarProps) {
           disabled: "opacity-30",
           hidden: "invisible",
           day_button: cn(
-            "mx-auto flex h-12 w-12 items-center justify-center rounded-full p-0 text-base font-semibold text-stone-700 transition-colors md:h-14 md:w-14 md:text-lg",
+            "mx-auto flex h-16 w-16 items-center justify-center rounded-full p-0 !text-xl font-bold text-stone-700 transition-colors md:h-[4.5rem] md:w-[4.5rem] md:!text-2xl",
             "hover:bg-amber-100/70 hover:text-stone-900"
           ),
           today:

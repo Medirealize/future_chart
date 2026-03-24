@@ -490,10 +490,14 @@ export default function CalendarClient({
                 const entry = entriesByDate.get(dateISO);
                 const hasEntry = Boolean(entry?.content);
                 const hasAiResponse = Boolean(entry?.ai_response);
+                const dayClassName = typeof buttonProps.className === "string" ? buttonProps.className : "";
 
                 return (
-                  <button {...buttonProps}>
-                    <div className="relative flex h-full w-full items-center justify-center">
+                  <button
+                    {...buttonProps}
+                    className={`${dayClassName} !h-16 !w-16 md:!h-[4.5rem] md:!w-[4.5rem] !text-xl md:!text-2xl !font-bold`}
+                  >
+                    <div className="relative flex h-full w-full items-center justify-center leading-none">
                       {children}
                       {hasEntry ? (
                         <span
@@ -517,7 +521,7 @@ export default function CalendarClient({
             type="button"
             variant="outline"
             size="lg"
-            className="min-h-[4.75rem] w-full rounded-2xl border-violet-200/90 bg-violet-50/40 px-10 py-6 text-2xl font-bold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50 sm:w-auto sm:min-w-[min(100%,22rem)] md:min-h-[5.25rem] md:text-3xl"
+            className="min-h-[4.75rem] w-full rounded-2xl border-violet-200/90 bg-violet-50/40 px-10 py-6 !text-2xl font-bold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50 sm:w-auto sm:min-w-[min(100%,22rem)] md:min-h-[5.25rem] md:!text-3xl"
             onClick={() => router.push("/dashboard/timeline")}
           >
             年表（タイムライン）を見る
