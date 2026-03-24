@@ -247,3 +247,10 @@ body {
     height: 32px;
   }
 }
+
+.btn {
+  font-size: 28px !important;
+  padding: 16px 0 !important;
+  height: auto !important;
+  font-weight: bold !important;
+}
