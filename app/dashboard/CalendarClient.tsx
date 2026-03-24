@@ -184,6 +184,8 @@ export default function CalendarClient({
     if (!timeLeft) return "計算できません";
     return `${timeLeft.years}年${timeLeft.months}ヶ月${timeLeft.days}日`;
   }, [calendarNow, milestoneBirthday, effectiveTargetAgeNum, timeLeft]);
+  const needsFutureSetup =
+    milestoneBirthday == null || effectiveTargetAgeNum == null || effectiveTargetAgeNum < 1;
 
   const selectedIsPast = React.useMemo(() => {
     if (!calendarNow || !selectedDateISO) return false;
@@ -440,6 +442,19 @@ export default function CalendarClient({
               <span className="text-stone-600">の誕生日まで、あと</span>
               <span className="font-semibold tabular-nums text-stone-800">{countdownLabel}</span>
             </p>
+            {needsFutureSetup ? (
+              <div className="mt-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className="min-h-12 rounded-xl border-amber-300 bg-amber-50/70 px-5 text-base font-semibold text-amber-900 hover:bg-amber-100 md:text-lg"
+                  onClick={() => router.push("/onboarding/future")}
+                >
+                  未来設定ページに戻る
+                </Button>
+              </div>
+            ) : null}
             {selectedCoreValue ? (
               <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-amber-200/60 bg-amber-50/40 px-5 py-4 shadow-sm">
                 <Heart className="h-5 w-5 shrink-0 fill-rose-200 text-rose-400 sm:h-6 sm:w-6" aria-hidden />
