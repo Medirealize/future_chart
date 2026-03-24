@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
@@ -12,6 +12,7 @@ import { clearClientAppStores } from "@/lib/auth/clear-client-stores";
  */
 export function GlobalLogoutButton() {
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = React.useMemo(() => {
     try {
       return createSupabaseBrowserClient();
@@ -20,28 +21,7 @@ export function GlobalLogoutButton() {
       return null;
     }
   }, []);
-  const [visible, setVisible] = React.useState(false);
   const [isSigningOut, setIsSigningOut] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!supabase) {
-      setVisible(false);
-      return;
-    }
-    let cancelled = false;
-    void supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!cancelled) setVisible(Boolean(session));
-    });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setVisible(Boolean(session));
-    });
-    return () => {
-      cancelled = true;
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
 
   async function handleSignOut() {
     if (!supabase) return;
@@ -61,7 +41,7 @@ export function GlobalLogoutButton() {
     }
   }
 
-  if (!visible) return null;
+  if (!supabase || pathname === "/login") return null;
 
   return (
     <div
