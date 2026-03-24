@@ -449,7 +449,7 @@ export default function CalendarClient({
                   variant="outline"
                   size="lg"
                   className="min-h-12 rounded-xl border-amber-300 bg-amber-50/70 px-5 text-base font-semibold text-amber-900 hover:bg-amber-100 md:text-lg"
-                  onClick={() => router.push("/onboarding/future?edit=1")}
+                  onClick={() => router.push("/onboarding/future/edit")}
                 >
                   未来設定ページに戻る
                 </Button>
