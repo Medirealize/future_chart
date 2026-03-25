@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import LoginClient from "./LoginClient";
 import { fetchProfileWithSchemaFallback } from "@/lib/profiles/fetchProfileWithSchemaFallback";
+
+export const metadata: Metadata = {
+  title: "ログイン | 未来からの処方箋",
+  description: "Prescription from the Future — 日記と未来の自分をつなぐアプリ",
+};
 
 export const dynamic = "force-dynamic";
 

@@ -133,27 +133,27 @@ export default function LoginClient() {
               />
             </div>
 
-            <h2 className="mb-0 mt-3 text-center text-[clamp(36px,8.2vw,62px)] font-extrabold leading-[0.94] tracking-[0.03em] text-[#111] [font-family:'Avenir_Next','Hiragino_Kaku_Gothic_ProN','Yu_Gothic_UI','Noto_Sans_JP',sans-serif]">
-              未来処方
+            <h2 className="mb-0 mt-3 text-center text-[clamp(26px,6.5vw,40px)] font-extrabold leading-tight tracking-[0.02em] text-[#111] [font-family:'Hiragino_Kaku_Gothic_ProN','Yu_Gothic_UI','Noto_Sans_JP',sans-serif]">
+              未来からの処方箋
             </h2>
-            <p className="-mt-4.5 text-center text-[clamp(14px,3.6vw,20px)] font-medium tracking-[0.06em] text-[#2b2b2b]">
-              Future Prescription
+            <p className="mt-1.5 text-center text-[clamp(13px,3.2vw,16px)] font-medium tracking-[0.04em] text-[#3d3d3d]">
+              Prescription from the Future
             </p>
-            <p className="text-center text-[clamp(16px,3.9vw,24px)] font-bold leading-[1.2] text-[#111]">
+            <p className="mt-4 text-center text-[clamp(15px,3.8vw,19px)] font-bold leading-snug text-[#111]">
               「未来の君」からのアドバイスが、
             </p>
-            <p className="text-center text-[clamp(16px,3.9vw,24px)] font-bold leading-[1.2] text-[#111]">
+            <p className="text-center text-[clamp(15px,3.8vw,19px)] font-bold leading-snug text-[#111]">
               今の君を変える
             </p>
-            <p className="mt-2 whitespace-nowrap text-center text-[clamp(14px,3.6vw,20px)] text-[#111]">
+            <p className="mx-auto mt-2 max-w-[20rem] text-center text-[clamp(14px,3.4vw,17px)] leading-snug text-[#333]">
               その記録が、明日を変える力になる
             </p>
 
-            <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="mt-4 grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={() => setMode("signin")}
-                className={`h-[52px] rounded-[10px] border border-[#eef1f5] text-[clamp(16px,4vw,28px)] font-medium text-[#1b1c1e] ${
+                className={`min-h-[3rem] rounded-[10px] border border-[#eef1f5] py-2.5 text-[clamp(15px,3.6vw,19px)] font-semibold text-[#1b1c1e] ${
                   mode === "signin" ? "bg-[#b8d7fa]" : "bg-[#e6e7eb]"
                 }`}
                 disabled={isLoading}
@@ -163,7 +163,7 @@ export default function LoginClient() {
               <button
                 type="button"
                 onClick={() => setMode("signup")}
-                className={`h-[52px] rounded-[10px] border border-[#eef1f5] text-[clamp(16px,4vw,28px)] font-medium text-[#1b1c1e] ${
+                className={`min-h-[3rem] rounded-[10px] border border-[#eef1f5] py-2.5 text-[clamp(15px,3.6vw,19px)] font-semibold text-[#1b1c1e] ${
                   mode === "signup" ? "bg-[#b8d7fa]" : "bg-[#e6e7eb]"
                 }`}
                 disabled={isLoading}
@@ -179,26 +179,27 @@ export default function LoginClient() {
                 void handleAuth();
               }}
             >
-              <label htmlFor="email" className="mt-1 block text-[clamp(14px,4vw,30px)] font-medium text-[#111]">
+              <label htmlFor="email" className="mt-2 block text-[clamp(14px,3.5vw,17px)] font-semibold text-[#111]">
                 メールアドレス
               </label>
-              <div className="ml-2 mt-0.5 text-[clamp(18px,4.5vw,32px)]">📜</div>
+              <div className="ml-2 mt-0.5 text-[clamp(16px,4vw,22px)]">📜</div>
               <input
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
                 autoComplete="email"
-                className="h-[clamp(30px,6.4vw,52px)] w-full rounded-full border-2 border-[#b4ccdf] bg-[rgba(248,251,255,0.9)] px-4 text-[clamp(15px,3.8vw,26px)] outline-none focus:border-[#8db4d2] focus:shadow-[0_0_0_3px_rgba(131,175,205,0.18)]"
+                className="min-h-[2.75rem] w-full rounded-full border-2 border-[#b4ccdf] bg-[rgba(248,251,255,0.9)] px-4 py-2.5 outline-none focus:border-[#8db4d2] focus:shadow-[0_0_0_3px_rgba(131,175,205,0.18)]"
+                style={{ fontSize: "clamp(16px, 3.6vw, 18px)" }}
               />
 
               <label
                 htmlFor="password"
-                className="mt-1 block text-[clamp(14px,4vw,30px)] font-medium text-[#111]"
+                className="mt-2 block text-[clamp(14px,3.5vw,17px)] font-semibold text-[#111]"
               >
                 パスワード
               </label>
-              <div className="mt-0.5 flex max-w-[52%] items-center justify-between text-[clamp(18px,4.5vw,32px)]">
+              <div className="mt-0.5 flex max-w-[52%] items-center justify-between text-[clamp(16px,4vw,22px)]">
                 <span>🖋️</span>
                 <span>🧠</span>
               </div>
@@ -208,10 +209,11 @@ export default function LoginClient() {
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
                 autoComplete="current-password"
-                className="h-[clamp(30px,6.4vw,52px)] w-full rounded-full border-2 border-[#b4ccdf] bg-[rgba(248,251,255,0.9)] px-4 text-[clamp(15px,3.8vw,26px)] outline-none focus:border-[#8db4d2] focus:shadow-[0_0_0_3px_rgba(131,175,205,0.18)]"
+                className="min-h-[2.75rem] w-full rounded-full border-2 border-[#b4ccdf] bg-[rgba(248,251,255,0.9)] px-4 py-2.5 outline-none focus:border-[#8db4d2] focus:shadow-[0_0_0_3px_rgba(131,175,205,0.18)]"
+                style={{ fontSize: "clamp(16px, 3.6vw, 18px)" }}
               />
 
-              <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-transparent px-1 py-1 text-[clamp(14px,3.6vw,20px)] leading-snug text-[#2b2b2b] transition hover:bg-white/40">
+              <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-transparent px-1 py-1 text-[clamp(14px,3.4vw,16px)] leading-snug text-[#2b2b2b] transition hover:bg-white/40">
                 <input
                   type="checkbox"
                   checked={rememberLogin}
@@ -225,7 +227,7 @@ export default function LoginClient() {
                 />
                 <span>
                   <span className="font-medium text-[#111]">ログイン条件を保持する</span>
-                  <span className="mt-0.5 block text-[clamp(12px,3.2vw,16px)] text-[#555]">
+                  <span className="mt-0.5 block text-[clamp(12px,3vw,14px)] leading-snug text-[#555]">
                     （メールアドレスのみこの端末に保存します。パスワードは保存しません）
                   </span>
                 </span>
@@ -234,9 +236,13 @@ export default function LoginClient() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="mb-[clamp(42px,8.5vw,56px)] mt-4 block min-h-[clamp(3.75rem,14vw,5.5rem)] w-full rounded-full border-2 border-[#7fb0d1] bg-[linear-gradient(180deg,rgba(226,241,252,0.95),rgba(208,229,245,0.95))] px-5 py-4 text-center !text-2xl font-semibold !leading-snug text-[#3e7fa8] shadow-[0_6px_14px_rgba(104,149,180,0.2)] transition hover:brightness-[1.02] disabled:opacity-50 sm:min-h-[5.25rem] sm:py-5 sm:!text-3xl"
+                className="mb-[clamp(42px,8.5vw,56px)] mt-5 block w-full rounded-full border-2 border-[#5a9fd4] bg-[linear-gradient(180deg,rgba(226,241,252,0.98),rgba(198,222,242,0.98))] px-5 py-4 text-center font-bold leading-snug text-[#2d6a8f] shadow-[0_8px_18px_rgba(80,130,170,0.22)] transition hover:brightness-[1.03] disabled:opacity-50 sm:py-5"
+                style={{
+                  fontSize: "clamp(1.25rem, 4.8vw, 1.625rem)",
+                  minHeight: "clamp(3.5rem, 12vw, 4.75rem)",
+                }}
               >
-                {isLoading ? "処理中..." : "未来の君に相談する"}
+                {isLoading ? "処理中…" : "未来の君に相談する"}
               </button>
             </form>
         </div>
