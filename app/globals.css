@@ -6,3 +6,18 @@
   color-scheme: light;
 }
 
+/* ログアウトを常に最前面・ビューポート基準で固定（親の transform / stacking に引きずられない） */
+[data-fc-global-logout="1"] {
+  position: fixed !important;
+  top: max(0.75rem, env(safe-area-inset-top, 0px)) !important;
+  right: max(0.75rem, env(safe-area-inset-right, 0px)) !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 2147483646 !important;
+  pointer-events: none !important;
+}
+
+[data-fc-global-logout="1"] > * {
+  pointer-events: auto !important;
+}
+

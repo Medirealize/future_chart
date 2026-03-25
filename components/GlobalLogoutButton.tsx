@@ -1,31 +1,45 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { clearClientAppStores } from "@/lib/auth/clear-client-stores";
 
+function isLoginPath(path: string | null) {
+  if (!path) return false;
+  return path === "/login" || path.startsWith("/login/");
+}
+
+function getBrowserSupabase() {
+  try {
+    return createSupabaseBrowserClient();
+  } catch {
+    return null;
+  }
+}
+
 /**
- * ログイン中のみ表示。全ページ共通の固定位置ログアウト。
+ * ログイン画面以外で常に右上に表示。body 直下へポータルし、親レイアウトの
+ * overflow / transform / z-index の影響を受けにくくする。
  */
 export function GlobalLogoutButton() {
   const router = useRouter();
   const pathname = usePathname();
-  const supabase = React.useMemo(() => {
-    try {
-      return createSupabaseBrowserClient();
-    } catch {
-      // 環境変数未設定のビルド環境ではボタンを非表示にする
-      return null;
-    }
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useLayoutEffect(() => {
+    setMounted(true);
   }, []);
+
   const [isSigningOut, setIsSigningOut] = React.useState(false);
 
   async function handleSignOut() {
     setIsSigningOut(true);
     try {
+      const supabase = getBrowserSupabase();
       if (supabase) {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
@@ -34,7 +48,6 @@ export function GlobalLogoutButton() {
       router.replace("/login");
       router.refresh();
     } catch {
-      // 失敗時もセッションが切れていればログインへ
       clearClientAppStores();
       router.replace("/login");
     } finally {
@@ -42,14 +55,10 @@ export function GlobalLogoutButton() {
     }
   }
 
-  if (pathname === "/login") return null;
+  if (isLoginPath(pathname)) return null;
 
-  return (
-    <div
-      className="pointer-events-none fixed right-3 top-3 z-[10000] sm:right-4 sm:top-4"
-      role="navigation"
-      aria-label="アカウント"
-    >
+  const bar = (
+    <div data-fc-global-logout="1" role="navigation" aria-label="アカウント">
       <div className="pointer-events-auto shrink-0">
         <Button
           type="button"
@@ -65,4 +74,10 @@ export function GlobalLogoutButton() {
       </div>
     </div>
   );
+
+  if (!mounted) {
+    return bar;
+  }
+
+  return createPortal(bar, document.body);
 }
