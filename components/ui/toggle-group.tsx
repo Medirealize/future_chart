@@ -43,16 +43,21 @@ export function ToggleGroup({
             type="button"
             aria-pressed={selected}
             onClick={() => onValueChange(opt.value)}
+            style={isXLarge ? { fontSize: "1.5rem", fontWeight: 700 } : undefined}
             className={cn(
-              "rounded-2xl border text-left font-medium transition-all shadow-sm",
+              "rounded-2xl border font-semibold transition-all shadow-sm",
               isXLarge
-                ? "min-h-[5.5rem] px-6 py-5 !text-3xl font-semibold leading-snug active:scale-[0.99] sm:min-h-[6rem] sm:px-7 sm:py-5 sm:!text-4xl"
+                ? "flex min-h-[5.25rem] w-full items-center justify-center px-5 py-4 text-center leading-tight active:scale-[0.98] sm:min-h-[5.75rem] sm:px-6 sm:py-5"
                 : isLarge
-                  ? "min-h-[56px] px-5 py-4 text-base leading-snug active:scale-[0.99]"
-                  : "min-h-[48px] px-5 py-3.5 text-base leading-snug active:scale-[0.99]",
-              selected
-                ? "border-sky-400/90 bg-gradient-to-br from-sky-100 to-sky-50 text-sky-900 shadow-md ring-2 ring-sky-200/60"
-                : "border-amber-200/70 bg-white/90 text-stone-700 hover:border-amber-300 hover:bg-amber-50/60 hover:shadow"
+                  ? "min-h-[56px] px-5 py-4 text-left text-base leading-snug active:scale-[0.99]"
+                  : "min-h-[48px] px-5 py-3.5 text-left text-base leading-snug active:scale-[0.99]",
+              isXLarge && selected
+                ? "border-sky-900 bg-sky-800 text-white shadow-lg ring-2 ring-sky-950/40 hover:bg-sky-900 hover:text-white"
+                : isXLarge
+                  ? "border-amber-300/90 bg-white text-stone-800 hover:border-amber-400 hover:bg-amber-50/90 hover:shadow-md"
+                  : selected
+                    ? "border-sky-400/90 bg-gradient-to-br from-sky-100 to-sky-50 text-sky-900 shadow-md ring-2 ring-sky-200/60"
+                    : "border-amber-200/70 bg-white/90 text-stone-700 hover:border-amber-300 hover:bg-amber-50/60 hover:shadow"
             )}
           >
             {opt.label}

@@ -495,7 +495,8 @@ export default function CalendarClient({
                 return (
                   <button
                     {...buttonProps}
-                    className={`${dayClassName} !h-16 !w-16 md:!h-[4.5rem] md:!w-[4.5rem] !text-xl md:!text-2xl !font-bold`}
+                    className={`${dayClassName} flex !h-12 !w-12 items-center justify-center md:!h-14 md:!w-14`}
+                    style={{ fontSize: "1.25rem", fontWeight: 700 }}
                   >
                     <div className="relative flex h-full w-full items-center justify-center leading-none">
                       {children}
@@ -517,15 +518,14 @@ export default function CalendarClient({
         </div>
 
         <div className="mt-6 flex justify-center sm:justify-start">
-          <Button
+          <button
             type="button"
-            variant="outline"
-            size="lg"
-            className="min-h-[4.75rem] w-full rounded-2xl border-violet-200/90 bg-violet-50/40 px-10 py-6 !text-2xl font-bold text-violet-900 shadow-sm transition-all hover:border-violet-300 hover:bg-violet-100/50 sm:w-auto sm:min-w-[min(100%,22rem)] md:min-h-[5.25rem]"
+            className="w-full min-h-[3rem] rounded-2xl border-2 border-violet-300 bg-gradient-to-b from-violet-100 to-violet-50 px-6 py-3.5 font-semibold text-violet-900 shadow-md transition-all hover:border-violet-400 hover:from-violet-200 hover:to-violet-100 hover:shadow-lg active:scale-[0.99] sm:w-auto sm:min-w-[min(100%,20rem)]"
+            style={{ fontSize: "1.125rem" }}
             onClick={() => router.push("/dashboard/timeline")}
           >
             年表（タイムライン）を見る
-          </Button>
+          </button>
         </div>
 
         {/* 日記入力フォーム（要件: /dashboard に配置） */}
@@ -533,8 +533,8 @@ export default function CalendarClient({
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-sky-500" aria-hidden />
-                <h2 className="text-2xl font-bold tracking-tight text-stone-800 md:text-3xl">
+                <Sparkles className="h-6 w-6 shrink-0 text-sky-500 md:h-7 md:w-7" aria-hidden />
+                <h2 className="text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold leading-tight tracking-tight text-stone-900 md:text-[clamp(1.75rem,4.2vw,2.5rem)]">
                   {selectedDateLabel}の日記を{selectedEntry?.content ? "編集" : "記入"}
                 </h2>
               </div>
@@ -601,7 +601,7 @@ export default function CalendarClient({
                   : "ここに日記を書いてください。"
               }
               disabled={isGenerating || selectedIsFuture}
-              className="min-h-[220px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-2xl leading-[1.7] text-stone-800 shadow-inner placeholder:text-stone-400 placeholder:text-lg md:min-h-[240px] md:px-5 md:py-5 md:text-2xl md:leading-[1.72] md:placeholder:text-xl focus-visible:border-sky-300 focus-visible:ring-sky-200/60"
+              className="min-h-[220px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-[28px] leading-[1.7] text-stone-800 shadow-inner placeholder:text-stone-400 placeholder:text-lg md:min-h-[240px] md:px-5 md:py-5 md:text-[28px] md:leading-[1.72] md:placeholder:text-xl focus-visible:border-sky-300 focus-visible:ring-sky-200/60"
             />
           </div>
 
