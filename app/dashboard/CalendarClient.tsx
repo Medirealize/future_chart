@@ -458,15 +458,16 @@ export default function CalendarClient({
             {selectedCoreValue ? (
               <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-amber-200/60 bg-amber-50/40 px-5 py-4 shadow-sm">
                 <Heart className="h-5 w-5 shrink-0 fill-rose-200 text-rose-400 sm:h-6 sm:w-6" aria-hidden />
-                <p className="text-base leading-snug text-stone-600 md:text-lg">
+                <p className="leading-snug text-stone-700" style={{ fontSize: "1.25rem", lineHeight: 1.45 }}>
                   <span className="font-semibold text-stone-600">合言葉</span>
                   <span className="mx-1.5 text-stone-400">·</span>
-                  <span className="font-semibold text-stone-800">{selectedCoreValueEnriched}</span>
+                  <span className="font-semibold text-stone-900">{selectedCoreValueEnriched}</span>
                 </p>
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="ml-auto min-h-[3.25rem] shrink-0 rounded-2xl px-6 !text-2xl font-semibold text-sky-700 hover:bg-sky-100/60 md:min-h-14 md:px-8"
+                  className="!h-auto ml-auto min-h-[4rem] shrink-0 rounded-2xl px-6 py-3.5 font-semibold text-sky-700 hover:bg-sky-100/60 md:min-h-[4.25rem] md:px-8 md:py-4"
+                  style={{ fontSize: "1.5rem", lineHeight: 1.35 }}
                   onClick={() => router.push("/onboarding/core?edit=1")}
                 >
                   合言葉を変更
@@ -555,8 +556,11 @@ export default function CalendarClient({
                 </span>
               </p>
             </div>
-            <div className="rounded-2xl border border-sky-100/90 bg-sky-50/50 px-4 py-3 text-right shadow-sm">
-              <p className="text-sm font-medium text-stone-500">
+            <div className="rounded-2xl border border-sky-100/90 bg-sky-50/50 px-4 py-3.5 text-right shadow-sm md:px-5">
+              <p
+                className="font-semibold text-stone-600 md:text-xl"
+                style={{ fontSize: "1.125rem", lineHeight: 1.4 }}
+              >
                 {selectedEntry?.ai_response ? "処方箋生成済み" : "未生成"}
               </p>
             </div>
@@ -606,9 +610,12 @@ export default function CalendarClient({
           </div>
 
           <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-            <div className="flex flex-1 flex-wrap items-center gap-4 rounded-2xl border border-amber-200/50 bg-amber-50/30 px-5 py-5 text-lg text-stone-600 shadow-sm md:px-6 md:text-xl">
-              <Heart className="h-5 w-5 shrink-0 text-rose-400 sm:h-6 sm:w-6" aria-hidden />
-              <span className="min-w-0 flex-1 font-medium leading-snug">
+            <div className="flex flex-1 flex-wrap items-center gap-4 rounded-2xl border border-amber-200/50 bg-amber-50/30 px-5 py-5 text-stone-700 shadow-sm md:px-6">
+              <Heart className="h-6 w-6 shrink-0 text-rose-400 sm:h-7 sm:w-7" aria-hidden />
+              <span
+                className="min-w-0 flex-1 font-medium leading-snug"
+                style={{ fontSize: "1.25rem", lineHeight: 1.45 }}
+              >
                 {selectedCoreValue
                   ? `合言葉: ${selectedCoreValueEnriched}`
                   : "合言葉: 未来の自分を待機中..."}
@@ -616,7 +623,8 @@ export default function CalendarClient({
               <Button
                 variant="ghost"
                 size="lg"
-                className="ml-auto min-h-[3.25rem] shrink-0 rounded-2xl px-6 !text-2xl font-semibold text-sky-700 hover:bg-sky-100/70 md:min-h-14 md:px-8"
+                className="!h-auto ml-auto min-h-[4rem] shrink-0 rounded-2xl px-6 py-3.5 font-semibold text-sky-700 hover:bg-sky-100/70 md:min-h-[4.25rem] md:px-8 md:py-4"
+                style={{ fontSize: "1.5rem", lineHeight: 1.35 }}
                 onClick={() => router.push("/onboarding/core?edit=1")}
               >
                 合言葉を変更
@@ -640,7 +648,8 @@ export default function CalendarClient({
                 type="button"
                 size="lg"
                 disabled={isGenerating || selectedIsFuture}
-                className="min-h-[4.25rem] w-full rounded-2xl border border-amber-200/80 bg-white px-8 py-5 !text-2xl font-semibold text-stone-800 shadow-sm hover:bg-amber-50/80 sm:w-auto md:min-h-[4.5rem]"
+                className="!h-auto min-h-[4.75rem] w-full rounded-2xl border-2 border-amber-300/90 bg-white px-8 py-5 font-semibold text-stone-800 shadow-sm hover:bg-amber-50/90 sm:w-auto md:min-h-[5rem] md:px-10"
+                style={{ fontSize: "1.5rem", lineHeight: 1.35 }}
                 onClick={() => {
                   try {
                     localStorage.setItem(
@@ -665,7 +674,12 @@ export default function CalendarClient({
                 size="lg"
                 onClick={async () => handleGenerate()}
                 disabled={isGenerating || !content.trim() || selectedIsFuture}
-                className="h-auto min-h-[5.75rem] w-full whitespace-normal rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-6 text-center !text-2xl !leading-snug font-semibold text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto sm:px-8 md:min-h-[6.75rem] md:py-7"
+                className="!h-auto min-h-[5.75rem] w-full whitespace-normal rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-6 text-center font-semibold leading-snug text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto sm:px-8 md:min-h-[6.5rem] md:py-7"
+                style={{
+                  fontSize: "clamp(1.375rem, 4vw, 1.625rem)",
+                  lineHeight: 1.35,
+                  fontWeight: 600,
+                }}
               >
                 {isGenerating ? "生成中..." : `${selectedDateLabel}を保存して処方箋を生成`}
               </Button>
@@ -678,12 +692,18 @@ export default function CalendarClient({
           ) : null}
 
           {selectedEntry?.ai_response ? (
-            <div className="mt-6 rounded-2xl border border-sky-100/90 bg-white/90 p-5 text-sm shadow-[0_4px_20px_-8px_rgba(60,120,160,0.12)] ring-1 ring-sky-50">
-              <div className="flex items-center gap-2 text-sm font-bold text-sky-800">
-                <Sparkles className="h-4 w-4 text-amber-500" aria-hidden />
+            <div className="mt-6 rounded-2xl border border-sky-100/90 bg-white/90 p-5 shadow-[0_4px_20px_-8px_rgba(60,120,160,0.12)] ring-1 ring-sky-50 md:p-6">
+              <div
+                className="flex items-center gap-2 font-bold text-sky-800 md:text-xl"
+                style={{ fontSize: "1.125rem", lineHeight: 1.4 }}
+              >
+                <Sparkles className="h-5 w-5 shrink-0 text-amber-500 md:h-6 md:w-6" aria-hidden />
                 未来の君からの処方箋
               </div>
-              <pre className="mt-3 whitespace-pre-wrap text-[0.9375rem] leading-relaxed text-stone-800">
+              <pre
+                className="mt-4 whitespace-pre-wrap leading-relaxed text-stone-800 md:text-lg"
+                style={{ fontSize: "1.0625rem", lineHeight: 1.65 }}
+              >
                 {selectedEntry.ai_response}
               </pre>
             </div>

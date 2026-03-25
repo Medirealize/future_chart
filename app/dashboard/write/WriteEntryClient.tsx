@@ -244,17 +244,37 @@ export default function WriteEntryClient({
           <div className="space-y-8 px-6 py-8 md:px-8 md:py-9">
             {coreValue ? (
               <section
-                className="rounded-2xl border border-amber-200/60 bg-amber-50/50 px-5 py-4 shadow-sm"
+                className="rounded-2xl border border-amber-200/60 bg-amber-50/50 px-5 py-5 shadow-sm md:px-6 md:py-5"
                 aria-label="合言葉"
               >
-                <div className="flex gap-3">
-                  <Heart className="mt-0.5 h-5 w-5 shrink-0 fill-rose-100 text-rose-400" aria-hidden />
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-amber-800/80">合言葉</p>
-                    <p className="mt-1 text-base font-medium leading-snug text-stone-800 md:text-lg">
-                      {coreValueEnriched}
-                    </p>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+                  <div className="flex min-w-0 flex-1 gap-3">
+                    <Heart className="mt-1 h-6 w-6 shrink-0 fill-rose-100 text-rose-400" aria-hidden />
+                    <div className="min-w-0">
+                      <p
+                        className="font-semibold uppercase tracking-wider text-amber-900/90"
+                        style={{ fontSize: "0.8125rem", letterSpacing: "0.06em" }}
+                      >
+                        合言葉
+                      </p>
+                      <p
+                        className="mt-1.5 font-medium leading-snug text-stone-800"
+                        style={{ fontSize: "1.25rem", lineHeight: 1.45 }}
+                      >
+                        {coreValueEnriched}
+                      </p>
+                    </div>
                   </div>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    type="button"
+                    className="!h-auto w-full shrink-0 rounded-2xl border-sky-300/80 bg-white px-6 py-3.5 font-semibold text-sky-800 shadow-sm hover:bg-sky-50 sm:w-auto md:min-h-[4rem] md:px-8 md:py-4"
+                    style={{ fontSize: "1.5rem", lineHeight: 1.35 }}
+                    onClick={() => router.push("/onboarding/core?edit=1")}
+                  >
+                    合言葉を変更
+                  </Button>
                 </div>
               </section>
             ) : null}
@@ -333,8 +353,11 @@ export default function WriteEntryClient({
               </div>
             ) : null}
 
-            <footer className="flex flex-col gap-3 border-t border-rose-100/60 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
-              <p className="order-last text-xs text-stone-500 sm:order-first sm:max-w-xs">
+            <footer className="flex flex-col gap-4 border-t border-rose-100/60 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
+              <p
+                className="order-last max-w-xl text-stone-600 sm:order-first"
+                style={{ fontSize: "1rem", lineHeight: 1.55 }}
+              >
                 一時保存はこの端末に下書きとして残ります。確定は「保存」でカレンダーに反映されます。
               </p>
               <div className="flex w-full flex-col gap-3 sm:ml-auto sm:w-auto sm:flex-row sm:justify-end">
@@ -342,7 +365,8 @@ export default function WriteEntryClient({
                   variant="secondary"
                   type="button"
                   size="lg"
-                  className="min-h-[3.25rem] w-full !text-2xl font-semibold sm:w-auto sm:min-w-[10rem]"
+                  className="!h-auto min-h-[4.5rem] w-full rounded-2xl border-2 border-amber-200/90 px-8 py-4 font-semibold sm:w-auto sm:min-w-[11rem]"
+                  style={{ fontSize: "1.5rem", lineHeight: 1.35 }}
                   disabled={isSaving}
                   onClick={() => {
                     try {
@@ -366,7 +390,8 @@ export default function WriteEntryClient({
                 </Button>
                 <Button
                   size="lg"
-                  className="min-h-[3.25rem] w-full bg-gradient-to-r from-sky-500 to-sky-600 !text-2xl font-semibold text-white shadow-md transition hover:from-sky-600 hover:to-sky-700 hover:shadow-lg sm:w-auto sm:min-w-[10rem]"
+                  className="!h-auto min-h-[4.5rem] w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-8 py-4 font-semibold text-white shadow-md transition hover:from-sky-600 hover:to-sky-700 hover:shadow-lg sm:w-auto sm:min-w-[11rem]"
+                  style={{ fontSize: "1.5625rem", lineHeight: 1.35, fontWeight: 600 }}
                   onClick={() => void handleSave()}
                   disabled={isSaving}
                 >
