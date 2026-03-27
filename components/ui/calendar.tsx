@@ -22,16 +22,16 @@ export function Calendar({ className, ...props }: CalendarProps) {
           month: "w-full space-y-4",
           month_caption: "relative flex items-center justify-center pt-1",
           caption_label:
-            "text-xl font-bold tracking-tight text-stone-800 md:text-2xl",
+            "text-lg font-semibold tracking-tight text-[#1C1E21] md:text-xl",
           nav: "flex items-center gap-2",
           button_previous:
-            "absolute left-0 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-amber-200/60 bg-white/80 text-base text-stone-600 shadow-sm transition-all hover:bg-amber-50/80 hover:text-sky-700 hover:shadow",
+            "absolute left-0 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#DADDE1] bg-white text-base text-[#4B4F56] shadow-sm transition-all hover:bg-[#F2F3F5] hover:text-[#1877F2] hover:shadow",
           button_next:
-            "absolute right-0 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-amber-200/60 bg-white/80 text-base text-stone-600 shadow-sm transition-all hover:bg-amber-50/80 hover:text-sky-700 hover:shadow",
+            "absolute right-0 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#DADDE1] bg-white text-base text-[#4B4F56] shadow-sm transition-all hover:bg-[#F2F3F5] hover:text-[#1877F2] hover:shadow",
           month_grid: "w-full border-collapse",
           weekdays: "grid grid-cols-7",
           weekday:
-            "py-2.5 text-center text-base font-bold tracking-wide text-stone-700 md:text-lg",
+            "py-2.5 text-center text-sm font-semibold tracking-wide text-[#65676B] md:text-base",
           weeks: "mt-2 space-y-2",
           week: "grid grid-cols-7",
           day: "relative p-1 text-center",
@@ -39,17 +39,17 @@ export function Calendar({ className, ...props }: CalendarProps) {
           disabled: "opacity-30",
           hidden: "invisible",
           day_button: cn(
-            "mx-auto flex h-12 w-12 items-center justify-center rounded-full p-0 text-[1.25rem] !font-bold leading-none text-stone-800 transition-colors md:h-14 md:w-14",
-            "hover:bg-amber-100/70 hover:text-stone-900"
+            "mx-auto flex h-12 w-12 items-center justify-center rounded-full p-0 text-[1rem] font-semibold leading-none text-[#1C1E21] transition-colors md:h-12 md:w-12",
+            "hover:bg-[#E7F3FF] hover:text-[#1877F2]"
           ),
           today:
-            "bg-sky-100/90 text-sky-800 ring-2 ring-sky-200/60 ring-offset-2 ring-offset-[#FFFBF7]",
+            "bg-[#E7F3FF] text-[#1877F2] ring-2 ring-[#BCDDFD]",
           selected:
-            "bg-sky-500 text-white shadow-md hover:bg-sky-500 focus:bg-sky-500 hover:text-white",
+            "bg-[#1877F2] text-white shadow-md hover:bg-[#166FE5] focus:bg-[#166FE5] hover:text-white",
           day_today:
-            "bg-sky-100/90 text-sky-800 ring-2 ring-sky-200/60 ring-offset-2 ring-offset-[#FFFBF7]",
+            "bg-[#E7F3FF] text-[#1877F2] ring-2 ring-[#BCDDFD]",
           day_selected:
-            "bg-sky-500 text-white shadow-md hover:bg-sky-500 focus:bg-sky-500 hover:text-white",
+            "bg-[#1877F2] text-white shadow-md hover:bg-[#166FE5] focus:bg-[#166FE5] hover:text-white",
         }}
         {...props}
       />

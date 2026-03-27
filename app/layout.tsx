@@ -22,9 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         className={[
           notoSansJp.className,
-          "min-h-screen text-slate-900 antialiased",
-          "bg-gradient-to-b from-blue-50 via-white to-white",
-          "dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 dark:text-slate-50",
+          "min-h-screen bg-[#F0F2F5] text-[#1C1E21] antialiased",
         ].join(" ")}
       >
         <ThemeGuard />

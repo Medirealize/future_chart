@@ -122,10 +122,10 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_85%_95%,rgba(255,230,206,0.55),transparent_36%),linear-gradient(165deg,#c7e1f8_0%,#e4f1fd_48%,#ffffff_100%)] px-3 py-2">
+    <div className="min-h-screen bg-[#F0F2F5] px-3 py-6">
       <div className="mx-auto w-full max-w-[430px]">
-        <div className="mx-auto w-full max-w-[390px] rounded-[32px] border-2 border-[#3a3a3a] bg-[linear-gradient(165deg,rgba(252,253,255,0.58),rgba(245,247,251,0.68))] px-2.5 pb-9 pt-5 shadow-[inset_0_10px_22px_rgba(187,206,225,0.3),0_12px_26px_rgba(133,155,176,0.2)]">
-            <div className="mx-auto my-3 w-full max-w-[314px] overflow-hidden rounded-xl bg-[linear-gradient(140deg,rgba(229,236,246,0.4),rgba(216,226,238,0.32))]">
+        <div className="mx-auto w-full max-w-[390px] rounded-[22px] border border-[#DADDE1] bg-white px-4 pb-8 pt-5 shadow-[0_8px_20px_rgba(0,0,0,0.08)]">
+            <div className="mx-auto my-3 w-full max-w-[314px] overflow-hidden rounded-xl bg-[#F7F8FA]">
               <img
                 src="/login-hero-icon.svg"
                 alt="光るラインとカルテの代替アイコン"
@@ -154,7 +154,7 @@ export default function LoginClient() {
                 type="button"
                 onClick={() => setMode("signin")}
                 className={`min-h-[3rem] rounded-[10px] border border-[#eef1f5] py-2.5 text-[clamp(15px,3.6vw,19px)] font-semibold text-[#1b1c1e] ${
-                  mode === "signin" ? "bg-[#b8d7fa]" : "bg-[#e6e7eb]"
+                  mode === "signin" ? "bg-[#1877F2] text-white border-[#1877F2]" : "bg-[#E4E6EB] text-[#1C1E21] border-[#DADDE1]"
                 }`}
                 disabled={isLoading}
               >
@@ -164,7 +164,7 @@ export default function LoginClient() {
                 type="button"
                 onClick={() => setMode("signup")}
                 className={`min-h-[3rem] rounded-[10px] border border-[#eef1f5] py-2.5 text-[clamp(15px,3.6vw,19px)] font-semibold text-[#1b1c1e] ${
-                  mode === "signup" ? "bg-[#b8d7fa]" : "bg-[#e6e7eb]"
+                  mode === "signup" ? "bg-[#1877F2] text-white border-[#1877F2]" : "bg-[#E4E6EB] text-[#1C1E21] border-[#DADDE1]"
                 }`}
                 disabled={isLoading}
               >
@@ -189,7 +189,7 @@ export default function LoginClient() {
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
                 autoComplete="email"
-                className="min-h-[2.75rem] w-full rounded-full border-2 border-[#b4ccdf] bg-[rgba(248,251,255,0.9)] px-4 py-2.5 outline-none focus:border-[#8db4d2] focus:shadow-[0_0_0_3px_rgba(131,175,205,0.18)]"
+                className="min-h-[2.75rem] w-full rounded-full border border-[#CCD0D5] bg-white px-4 py-2.5 outline-none focus:border-[#1877F2] focus:shadow-[0_0_0_3px_rgba(24,119,242,0.2)]"
                 style={{ fontSize: "clamp(16px, 3.6vw, 18px)" }}
               />
 
@@ -209,7 +209,7 @@ export default function LoginClient() {
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
                 autoComplete="current-password"
-                className="min-h-[2.75rem] w-full rounded-full border-2 border-[#b4ccdf] bg-[rgba(248,251,255,0.9)] px-4 py-2.5 outline-none focus:border-[#8db4d2] focus:shadow-[0_0_0_3px_rgba(131,175,205,0.18)]"
+                className="min-h-[2.75rem] w-full rounded-full border border-[#CCD0D5] bg-white px-4 py-2.5 outline-none focus:border-[#1877F2] focus:shadow-[0_0_0_3px_rgba(24,119,242,0.2)]"
                 style={{ fontSize: "clamp(16px, 3.6vw, 18px)" }}
               />
 
@@ -222,7 +222,7 @@ export default function LoginClient() {
                     setRememberLogin(next);
                     if (!next) persistLoginPrefs(false, "");
                   }}
-                  className="mt-0.5 h-[clamp(18px,4.5vw,22px)] w-[clamp(18px,4.5vw,22px)] shrink-0 rounded border-[#7fb0d1] text-[#3e7fa8] accent-[#5a9fd4]"
+                  className="mt-0.5 h-[clamp(18px,4.5vw,22px)] w-[clamp(18px,4.5vw,22px)] shrink-0 rounded border-[#1877F2] text-[#1877F2] accent-[#1877F2]"
                   disabled={isLoading}
                 />
                 <span>
@@ -236,7 +236,7 @@ export default function LoginClient() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="mb-[clamp(42px,8.5vw,56px)] mt-5 block w-full rounded-full border-2 border-[#5a9fd4] bg-[linear-gradient(180deg,rgba(226,241,252,0.98),rgba(198,222,242,0.98))] px-5 py-4 text-center font-bold leading-snug text-[#2d6a8f] shadow-[0_8px_18px_rgba(80,130,170,0.22)] transition hover:brightness-[1.03] disabled:opacity-50 sm:py-5"
+                className="mb-[clamp(42px,8.5vw,56px)] mt-5 block w-full rounded-full border border-[#1877F2] bg-[#1877F2] px-5 py-4 text-center font-bold leading-snug text-white shadow-[0_4px_12px_rgba(24,119,242,0.35)] transition hover:bg-[#166FE5] disabled:opacity-50 sm:py-5"
                 style={{
                   fontSize: "clamp(1.25rem, 4.8vw, 1.625rem)",
                   minHeight: "clamp(3.5rem, 12vw, 4.75rem)",
