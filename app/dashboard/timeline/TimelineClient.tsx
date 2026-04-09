@@ -77,37 +77,32 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FDF8F3] via-[#FAF6EF] to-[#F3EBE2] px-5 py-10 md:px-10">
-      <div className="mx-auto max-w-5xl">
-        <div className="rounded-[2rem] border border-amber-200/50 bg-[#FFFCF8] p-8 shadow-[0_8px_40px_-12px_rgba(160,110,70,0.12)] md:p-10">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              className="min-h-12 rounded-2xl border-amber-200/80 bg-white/80 px-6 py-3 text-base text-stone-700 shadow-sm hover:bg-amber-50/80"
-              onClick={() => router.push("/dashboard")}
-            >
-              ← カレンダーへ戻る
-            </Button>
+    <div className="space-y-5 lg:space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#DADDE1] bg-white text-[#1877F2] shadow-sm">
+            <BookOpen className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1C1E21] md:text-3xl">年表（タイムライン）</h1>
+            <p className="mt-0.5 text-sm text-[#65676B]">大切な日々を、手帳のように残していきましょう</p>
           </div>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="rounded-xl border-[#DADDE1] bg-white font-semibold text-[#1C1E21] shadow-sm hover:bg-[#F2F3F5]"
+          onClick={() => router.push("/dashboard")}
+        >
+          ← カレンダー
+        </Button>
+      </div>
 
-          <div className="mt-8 rounded-[2rem] border border-amber-100/90 bg-gradient-to-br from-white/95 via-[#FFFAF5] to-amber-50/30 p-8 shadow-[0_4px_28px_-10px_rgba(130,90,50,0.12)] ring-1 ring-amber-100/40 md:p-9">
+      <section className="rounded-2xl border border-[#DADDE1] bg-white p-5 shadow-sm md:p-8">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-100/90 text-violet-600 shadow-sm ring-1 ring-violet-200/40">
-                  <BookOpen className="h-5 w-5" strokeWidth={1.75} aria-hidden />
-                </span>
-                <div>
-                  <h1 className="text-xl font-bold tracking-tight text-stone-800 md:text-2xl">
-                    年表（タイムライン）
-                  </h1>
-                  <p className="mt-0.5 text-sm text-stone-500">
-                    大切な日々を、手帳のように残していきましょう
-                  </p>
-                </div>
-              </div>
-              <span className="inline-flex items-center rounded-full border border-amber-200/70 bg-white/80 px-3 py-1 text-xs font-medium text-amber-800/90 shadow-sm">
+              <div className="hidden sm:block" aria-hidden />
+              <span className="inline-flex w-fit items-center rounded-full border border-[#E4E6EB] bg-[#F0F2F5] px-3 py-1 text-xs font-semibold text-[#65676B]">
                 2026年〜の記録
               </span>
             </div>
@@ -196,9 +191,7 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

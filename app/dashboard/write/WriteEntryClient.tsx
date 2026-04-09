@@ -182,18 +182,17 @@ export default function WriteEntryClient({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FDF8F3] via-[#FAF6EF] to-[#F3EBE2] px-4 py-8 pb-16 md:px-8 md:py-10">
-      <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-3xl space-y-5">
         <button
           type="button"
           onClick={() => router.push("/dashboard")}
-          className="mb-6 inline-flex items-center gap-2 rounded-full border border-stone-200/80 bg-white/80 px-4 py-2.5 text-sm font-medium text-stone-700 shadow-sm backdrop-blur-sm transition hover:border-amber-200 hover:bg-white hover:text-stone-900"
+          className="inline-flex items-center gap-2 rounded-xl border border-[#DADDE1] bg-white px-4 py-2.5 text-sm font-semibold text-[#1C1E21] shadow-sm transition hover:bg-[#F2F3F5]"
         >
           <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden />
           カレンダーに戻る
         </button>
 
-        <article className="overflow-hidden rounded-[2rem] border border-rose-100/80 bg-gradient-to-br from-white via-[#FFFBF8] to-sky-50/20 shadow-[0_8px_40px_-12px_rgba(150,100,90,0.15)] ring-1 ring-rose-100/40">
+        <article className="overflow-hidden rounded-2xl border border-[#DADDE1] bg-white shadow-sm">
           <header className="border-b border-rose-100/70 bg-white/50 px-6 py-6 backdrop-blur-sm md:px-8 md:py-7">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-3">
@@ -401,7 +400,6 @@ export default function WriteEntryClient({
             </footer>
           </div>
         </article>
-      </div>
     </div>
   );
 }

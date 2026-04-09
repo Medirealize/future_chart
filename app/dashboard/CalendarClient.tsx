@@ -406,49 +406,48 @@ export default function CalendarClient({
 
   if (!isMounted || !calendarNow || !selectedDateISO) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#FDF8F3] via-[#FAF6EF] to-[#F3EBE2] px-5 py-10 md:px-10">
-        <div className="mx-auto max-w-5xl">
-          <div className="rounded-3xl border border-amber-200/50 bg-[#FFFCF8] p-8 shadow-[0_8px_40px_-12px_rgba(160,110,70,0.12)]">
-            <p className="text-sm font-medium text-stone-500">準備中...</p>
-          </div>
-        </div>
+      <div className="rounded-2xl border border-[#DADDE1] bg-white p-8 shadow-sm">
+        <p className="text-sm font-medium text-[#65676B]">準備中...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FDF8F3] via-[#FAF6EF] to-[#F3EBE2] px-5 py-10 md:px-10">
-      <div className="mx-auto max-w-5xl">
-        <div className="rounded-[2rem] border border-amber-200/50 bg-[#FFFCF8] p-8 shadow-[0_8px_40px_-12px_rgba(160,110,70,0.12)] md:p-10">
-        <div className="mt-2 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100/90 text-sky-600 shadow-sm ring-1 ring-sky-200/40">
-                <CalendarDays className="h-6 w-6" strokeWidth={1.75} aria-hidden />
-              </span>
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight text-stone-800 md:text-4xl">カレンダー</h1>
-              </div>
-            </div>
-            <p className="flex flex-wrap items-center gap-x-1 gap-y-1 text-base leading-relaxed text-stone-600 md:text-lg">
-              <Timer className="h-5 w-5 shrink-0 text-sky-500" aria-hidden />
-              <span className="font-semibold text-sky-700">{futureTitle}</span>
-              <span className="text-stone-600">としての、</span>
-              <span className="font-semibold text-stone-800">
+    <div className="space-y-5 lg:space-y-6">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#DADDE1] bg-white text-[#1877F2] shadow-sm">
+            <CalendarDays className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1C1E21] md:text-3xl">カレンダー</h1>
+            <p className="mt-0.5 text-sm text-[#65676B]">日付を選び、日記と処方箋を記録します</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_min(100%,440px)] xl:items-start xl:gap-6">
+        <div className="space-y-5">
+          <section className="rounded-2xl border border-[#DADDE1] bg-white p-5 shadow-sm md:p-6">
+            <p className="flex flex-wrap items-center gap-x-1 gap-y-1 text-sm leading-relaxed text-[#65676B] md:text-base">
+              <Timer className="h-4 w-4 shrink-0 text-[#1877F2]" aria-hidden />
+              <span className="font-semibold text-[#1877F2]">{futureTitle}</span>
+              <span>としての、</span>
+              <span className="font-semibold text-[#1C1E21]">
                 {effectiveTargetAgeNum != null && effectiveTargetAgeNum >= 1
                   ? `${effectiveTargetAgeNum}歳`
                   : "—"}
               </span>
-              <span className="text-stone-600">の誕生日まで、あと</span>
-              <span className="font-semibold tabular-nums text-stone-800">{countdownLabel}</span>
+              <span>の誕生日まで、あと</span>
+              <span className="font-semibold tabular-nums text-[#1C1E21]">{countdownLabel}</span>
             </p>
             {needsFutureSetup ? (
-              <div className="mt-3">
+              <div className="mt-4">
                 <Button
                   type="button"
                   variant="outline"
                   size="lg"
-                  className="min-h-12 rounded-xl border-amber-300 bg-amber-50/70 px-5 !text-2xl font-semibold text-amber-900 hover:bg-amber-100"
+                  className="min-h-11 rounded-xl border-[#DADDE1] bg-[#F0F2F5] px-4 text-base font-semibold text-[#1C1E21] hover:bg-[#E4E6EB]"
                   onClick={() => router.push("/onboarding/future/edit")}
                 >
                   未来設定ページに戻る
@@ -456,81 +455,79 @@ export default function CalendarClient({
               </div>
             ) : null}
             {selectedCoreValue ? (
-              <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-amber-200/60 bg-amber-50/40 px-5 py-4 shadow-sm">
-                <Heart className="h-5 w-5 shrink-0 fill-rose-200 text-rose-400 sm:h-6 sm:w-6" aria-hidden />
-                <p className="leading-snug text-stone-700" style={{ fontSize: "1.25rem", lineHeight: 1.45 }}>
-                  <span className="font-semibold text-stone-600">合言葉</span>
-                  <span className="mx-1.5 text-stone-400">·</span>
-                  <span className="font-semibold text-stone-900">{selectedCoreValueEnriched}</span>
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#E4E6EB] bg-[#F0F2F5]/80 px-4 py-3">
+                <Heart className="h-5 w-5 shrink-0 fill-[#FCE8EE] text-[#F3425F]" aria-hidden />
+                <p className="min-w-0 flex-1 text-sm leading-snug text-[#1C1E21] md:text-base">
+                  <span className="font-semibold text-[#65676B]">合言葉</span>
+                  <span className="mx-1.5 text-[#BEC3C9]">·</span>
+                  <span className="font-semibold">{selectedCoreValueEnriched}</span>
                 </p>
                 <Button
                   variant="ghost"
-                  size="lg"
-                  className="!h-auto ml-auto min-h-[4rem] shrink-0 rounded-2xl px-6 py-3.5 font-semibold text-sky-700 hover:bg-sky-100/60 md:min-h-[4.25rem] md:px-8 md:py-4"
-                  style={{ fontSize: "1.5rem", lineHeight: 1.35 }}
+                  size="sm"
+                  className="shrink-0 rounded-lg font-semibold text-[#1877F2] hover:bg-[#E7F3FF]"
                   onClick={() => router.push("/onboarding/core?edit=1")}
                 >
-                  合言葉を変更
+                  変更
                 </Button>
               </div>
             ) : null}
-          </div>
+          </section>
+
+          <section className="rounded-2xl border border-[#DADDE1] bg-white p-4 shadow-sm sm:p-6 md:p-8">
+            <Calendar
+              mode="single"
+              onDayClick={(day) => {
+                if (!day) return;
+                const dateISO = format(day, "yyyy-MM-dd");
+                setSelectedDateISO(dateISO);
+              }}
+              components={{
+                DayButton: ({ day, children, ...buttonProps }: any) => {
+                  const dateISO: string = day.isoDate;
+                  const entry = entriesByDate.get(dateISO);
+                  const hasEntry = Boolean(entry?.content);
+                  const hasAiResponse = Boolean(entry?.ai_response);
+                  const dayClassName = typeof buttonProps.className === "string" ? buttonProps.className : "";
+
+                  return (
+                    <button
+                      {...buttonProps}
+                      className={`${dayClassName} flex !h-12 !w-12 items-center justify-center md:!h-14 md:!w-14`}
+                      style={{ fontSize: "1.25rem", fontWeight: 700 }}
+                    >
+                      <div className="relative flex h-full w-full items-center justify-center leading-none">
+                        {children}
+                        {hasEntry ? (
+                          <span
+                            className={
+                              hasAiResponse
+                                ? "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-[#1877F2] shadow-[0_0_0_2px_rgba(255,255,255,0.95)]"
+                                : "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-[#F7B928]"
+                            }
+                          />
+                        ) : null}
+                      </div>
+                    </button>
+                  );
+                },
+              }}
+            />
+          </section>
+
+          <p className="text-center text-sm text-[#65676B] lg:hidden">
+            <button
+              type="button"
+              className="font-semibold text-[#1877F2] hover:underline"
+              onClick={() => router.push("/dashboard/timeline")}
+            >
+              年表（タイムライン）を見る
+            </button>
+          </p>
         </div>
 
-        <div className="mt-10 rounded-3xl border border-amber-100/90 bg-gradient-to-b from-white/90 to-[#FFF9F3]/90 p-4 shadow-[0_4px_24px_-8px_rgba(140,100,60,0.1)] ring-1 ring-amber-100/50 sm:p-6 md:p-8">
-          <Calendar
-            mode="single"
-            onDayClick={(day) => {
-              if (!day) return;
-              const dateISO = format(day, "yyyy-MM-dd");
-              setSelectedDateISO(dateISO);
-            }}
-            components={{
-              DayButton: ({ day, children, ...buttonProps }: any) => {
-                const dateISO: string = day.isoDate;
-                const entry = entriesByDate.get(dateISO);
-                const hasEntry = Boolean(entry?.content);
-                const hasAiResponse = Boolean(entry?.ai_response);
-                const dayClassName = typeof buttonProps.className === "string" ? buttonProps.className : "";
-
-                return (
-                  <button
-                    {...buttonProps}
-                    className={`${dayClassName} flex !h-12 !w-12 items-center justify-center md:!h-14 md:!w-14`}
-                    style={{ fontSize: "1.25rem", fontWeight: 700 }}
-                  >
-                    <div className="relative flex h-full w-full items-center justify-center leading-none">
-                      {children}
-                      {hasEntry ? (
-                        <span
-                          className={
-                            hasAiResponse
-                              ? "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-sky-500 shadow-[0_0_0_2px_rgba(255,251,247,0.9)]"
-                              : "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-amber-300/90"
-                          }
-                        />
-                      ) : null}
-                    </div>
-                  </button>
-                );
-              },
-            }}
-          />
-        </div>
-
-        <div className="mt-6 flex justify-center sm:justify-start">
-          <button
-            type="button"
-            className="w-full min-h-[3rem] rounded-2xl border-2 border-violet-300 bg-gradient-to-b from-violet-100 to-violet-50 px-6 py-3.5 font-semibold text-violet-900 shadow-md transition-all hover:border-violet-400 hover:from-violet-200 hover:to-violet-100 hover:shadow-lg active:scale-[0.99] sm:w-auto sm:min-w-[min(100%,20rem)]"
-            style={{ fontSize: "1.125rem" }}
-            onClick={() => router.push("/dashboard/timeline")}
-          >
-            年表（タイムライン）を見る
-          </button>
-        </div>
-
-        {/* 日記入力フォーム（要件: /dashboard に配置） */}
-        <div className="mt-10 rounded-[2rem] border border-rose-100/80 bg-gradient-to-br from-white via-[#FFFBF8] to-sky-50/25 p-8 shadow-[0_6px_32px_-12px_rgba(150,100,90,0.14)] ring-1 ring-rose-100/30 md:p-9">
+        <div className="xl:sticky xl:top-6 xl:max-h-[calc(100dvh-4rem)] xl:overflow-y-auto xl:overscroll-contain">
+          <section className="rounded-2xl border border-[#DADDE1] bg-white p-5 shadow-sm md:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -719,7 +716,7 @@ export default function CalendarClient({
               {infoMsg}
             </div>
           ) : null}
-        </div>
+          </section>
         </div>
       </div>
     </div>
