@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpen, CalendarDays, Menu, Sparkles, X } from "lucide-react";
+import { LogoutButton } from "@/components/LogoutButton";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -32,18 +33,23 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   }, [mobileOpen]);
 
   return (
-    <div className="min-h-svh w-full bg-slate-50 text-slate-900 antialiased">
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background px-4 lg:hidden">
-        <span className="text-base font-semibold tracking-tight text-foreground">FutureChart</span>
-        <button
-          type="button"
-          aria-expanded={mobileOpen}
-          aria-label={mobileOpen ? "メニューを閉じる" : "メニューを開く"}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-          onClick={() => setMobileOpen((o) => !o)}
-        >
-          {mobileOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
-        </button>
+    <div className="flex min-h-svh w-full flex-col bg-slate-50 text-slate-900 antialiased">
+      <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border bg-background px-3 sm:px-4 lg:hidden">
+        <span className="min-w-0 truncate text-base font-semibold tracking-tight text-foreground">
+          FutureChart
+        </span>
+        <div className="flex shrink-0 items-center gap-0.5">
+          <LogoutButton tone="subtle" />
+          <button
+            type="button"
+            aria-expanded={mobileOpen}
+            aria-label={mobileOpen ? "メニューを閉じる" : "メニューを開く"}
+            className="relative z-50 inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+            onClick={() => setMobileOpen((o) => !o)}
+          >
+            {mobileOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
+          </button>
+        </div>
       </header>
 
       {mobileOpen ? (
@@ -97,12 +103,18 @@ export default function DashboardShell({ children }: { children: React.ReactNode
             );
           })}
         </nav>
+        <div className="hidden border-t border-sidebar-border p-2 lg:block">
+          <LogoutButton
+            tone="subtle"
+            className="w-full justify-center text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          />
+        </div>
         <div className="border-t border-sidebar-border p-3 text-[11px] leading-snug text-muted-foreground">
           スマホではメニューから画面を切り替えられます。
         </div>
       </aside>
 
-      <main className="min-h-[calc(100svh-3.5rem)] pb-10 pt-4 lg:min-h-svh lg:pl-64 lg:pb-12 lg:pr-8 lg:pt-8">
+      <main className="flex-1 pb-10 pt-4 lg:pl-64 lg:pb-12 lg:pr-8 lg:pt-8">
         <div className="mx-auto w-full max-w-6xl px-4 lg:px-0">
           <div className="flex flex-col gap-6">{children}</div>
         </div>

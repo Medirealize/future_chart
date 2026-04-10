@@ -137,13 +137,6 @@
   pointer-events: auto !important;
 }
 
-/* ダッシュボードのモバイルヘッダー（h-14）と重ならないよう、その下に固定 */
-@media (max-width: 1023px) {
-  [data-fc-global-logout="1"][data-fc-logout-offset-dashboard="1"] {
-    top: calc(env(safe-area-inset-top, 0px) + 3.5rem + 0.5rem) !important;
-  }
-}
-
 #__next,
 main {
   min-height: 100%;
