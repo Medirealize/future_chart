@@ -57,8 +57,18 @@ export function GlobalLogoutButton() {
 
   if (isLoginPath(pathname)) return null;
 
+  const dashboardMobileHeader =
+    pathname != null &&
+    (pathname === "/dashboard" ||
+      pathname.startsWith("/dashboard/"));
+
   const bar = (
-    <div data-fc-global-logout="1" role="navigation" aria-label="アカウント">
+    <div
+      data-fc-global-logout="1"
+      data-fc-logout-offset-dashboard={dashboardMobileHeader ? "1" : undefined}
+      role="navigation"
+      aria-label="アカウント"
+    >
       <div className="pointer-events-auto shrink-0">
         <Button
           type="button"

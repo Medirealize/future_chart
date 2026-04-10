@@ -612,14 +612,16 @@ export default function CalendarClient({
         </section>
 
         <section className="flex-1">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-sky-500" aria-hidden />
-                  <h2 className="text-lg font-bold text-slate-900 md:text-xl">{selectedDateLabel}の日記</h2>
+                  <Sparkles className="h-4 w-4 shrink-0 text-sky-500 md:h-5 md:w-5" aria-hidden />
+                  <h2 className="text-base font-bold leading-snug text-slate-900 md:text-lg lg:text-xl">
+                    {selectedDateLabel}の日記
+                  </h2>
                 </div>
-                <p className="text-sm text-slate-500">
+                <p className="text-xs text-slate-500 md:text-sm">
                   {selectedIsFuture
                     ? "未来日は入力できません"
                     : isReflectionContext
@@ -631,7 +633,7 @@ export default function CalendarClient({
               </div>
               <div
                 className={cn(
-                  "rounded-lg px-3 py-1.5 text-sm font-medium",
+                  "shrink-0 rounded-md px-2.5 py-1 text-xs font-medium md:rounded-lg md:px-3 md:py-1.5 md:text-sm",
                   hasAiResponse
                     ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
                     : "bg-slate-100 text-slate-500"
@@ -641,9 +643,9 @@ export default function CalendarClient({
               </div>
             </div>
 
-            <div className="mt-6">
-              <label className="text-sm font-semibold text-slate-700">モード選択</label>
-              <div className="mt-2 grid grid-cols-3 gap-2">
+            <div className="mt-4 md:mt-6">
+              <label className="text-xs font-semibold text-slate-700 md:text-sm">モード選択</label>
+              <div className="mt-2 grid grid-cols-3 gap-1.5 md:gap-2">
                 {MODE_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
@@ -651,7 +653,7 @@ export default function CalendarClient({
                     onClick={() => setDiaryMode(opt.value)}
                     disabled={selectedIsFuture}
                     className={cn(
-                      "rounded-xl px-3 py-2.5 text-sm font-semibold transition-all",
+                      "rounded-lg px-2 py-2 text-xs font-semibold transition-all md:rounded-xl md:px-3 md:py-2.5 md:text-sm",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40",
                       diaryMode === opt.value
                         ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
@@ -663,12 +665,12 @@ export default function CalendarClient({
                   </button>
                 ))}
               </div>
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-1.5 text-[11px] leading-snug text-slate-500 md:mt-2 md:text-xs">
                 {MODE_OPTIONS.find((o) => o.value === diaryMode)?.description}
               </p>
             </div>
 
-            <div className="mt-5">
+            <div className="mt-4 md:mt-5">
               <Textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -679,18 +681,18 @@ export default function CalendarClient({
                 }
                 disabled={isGenerating || selectedIsFuture}
                 className={cn(
-                  "min-h-[160px] resize-none rounded-xl border-slate-200 bg-slate-50",
-                  "px-4 py-3 text-base leading-relaxed text-slate-900",
-                  "placeholder:text-slate-400",
+                  "min-h-[132px] resize-none rounded-lg border-slate-200 bg-slate-50 md:min-h-[160px] md:rounded-xl",
+                  "px-3 py-2.5 text-sm leading-relaxed text-slate-900 md:px-4 md:py-3 md:text-[15px]",
+                  "placeholder:text-sm placeholder:text-slate-400 md:placeholder:text-[15px]",
                   "focus-visible:border-sky-500 focus-visible:ring-sky-500/20",
                   "disabled:opacity-50"
                 )}
               />
             </div>
 
-            <div className="mt-4 flex items-center gap-3 rounded-xl bg-rose-50 px-4 py-3 ring-1 ring-rose-100">
-              <Heart className="h-4 w-4 shrink-0 fill-rose-400 text-rose-400" aria-hidden />
-              <span className="flex-1 text-sm font-medium text-slate-700">
+            <div className="mt-3 flex items-center gap-2 rounded-lg bg-rose-50 px-3 py-2.5 ring-1 ring-rose-100 md:mt-4 md:gap-3 md:rounded-xl md:px-4 md:py-3">
+              <Heart className="h-3.5 w-3.5 shrink-0 fill-rose-400 text-rose-400 md:h-4 md:w-4" aria-hidden />
+              <span className="min-w-0 flex-1 text-xs font-medium text-slate-700 md:text-sm">
                 合言葉:{" "}
                 <span className="font-semibold text-rose-600">
                   {selectedCoreValueEnriched || currentCoreValue || "未来の自分を待機中…"}
@@ -699,17 +701,17 @@ export default function CalendarClient({
               <button
                 type="button"
                 onClick={() => router.push("/onboarding/core?edit=1")}
-                className="text-sm font-medium text-sky-600 hover:text-sky-700 hover:underline"
+                className="shrink-0 text-xs font-medium text-sky-600 hover:text-sky-700 hover:underline md:text-sm"
               >
                 変更
               </button>
             </div>
 
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <div className="mt-4 flex flex-col gap-2.5 sm:flex-row sm:justify-end md:mt-5 md:gap-3">
               <Button
                 variant="outline"
                 disabled={isGenerating || selectedIsFuture}
-                className="w-full rounded-xl border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:w-auto"
+                className="h-10 w-full rounded-lg border-slate-200 px-4 text-xs font-semibold text-slate-700 hover:bg-slate-50 sm:w-auto md:h-auto md:rounded-xl md:px-5 md:py-2.5 md:text-sm"
                 onClick={() => {
                   try {
                     localStorage.setItem(
@@ -732,12 +734,12 @@ export default function CalendarClient({
               </Button>
               <Button
                 disabled={isGenerating || !content.trim() || selectedIsFuture}
-                className="w-full rounded-xl bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-sky-500/20 hover:bg-sky-600 sm:w-auto"
+                className="h-10 w-full rounded-lg bg-sky-500 px-4 text-xs font-semibold text-white shadow-md shadow-sky-500/20 hover:bg-sky-600 sm:w-auto md:h-auto md:rounded-xl md:px-5 md:py-2.5 md:text-sm"
                 onClick={() => void handleGenerate()}
               >
                 {isGenerating ? (
                   <span className="flex items-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white md:h-4 md:w-4" />
                     生成中...
                   </span>
                 ) : (
@@ -747,35 +749,37 @@ export default function CalendarClient({
             </div>
 
             {selectedIsFuture ? (
-              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-snug text-amber-800 md:mt-4 md:rounded-xl md:px-4 md:py-3 md:text-sm">
                 未来の日付には日記を保存できません。今日以前の日付を選択してください。
               </div>
             ) : null}
 
             {selectedEntry?.ai_response ? (
-              <div className="mt-5 rounded-xl border border-sky-100 bg-sky-50 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-sky-600">
-                  <Sparkles className="h-4 w-4" aria-hidden />
+              <div className="mt-4 rounded-lg border border-sky-100 bg-sky-50 p-3 md:mt-5 md:rounded-xl md:p-4">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-sky-600 md:gap-2 md:text-sm">
+                  <Sparkles className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
                   未来の君からの処方箋
                 </div>
-                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+                <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-slate-700 md:text-sm">
                   {selectedEntry.ai_response}
                 </p>
               </div>
             ) : null}
 
             {!selectedEntry && !content && !selectedIsFuture ? (
-              <div className="mt-5 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center">
-                <CalendarDays className="mx-auto h-8 w-8 text-slate-300" aria-hidden />
-                <p className="mt-2 text-sm text-slate-400">この日の日記はまだありません</p>
+              <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-slate-50/50 p-4 text-center md:mt-5 md:rounded-xl md:p-6">
+                <CalendarDays className="mx-auto h-7 w-7 text-slate-300 md:h-8 md:w-8" aria-hidden />
+                <p className="mt-2 text-xs text-slate-400 md:text-sm">この日の日記はまだありません</p>
               </div>
             ) : null}
 
             {errorMsg ? (
-              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{errorMsg}</div>
+              <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs leading-snug text-red-800 md:mt-4 md:rounded-xl md:px-4 md:py-3 md:text-sm">
+                {errorMsg}
+              </div>
             ) : null}
             {infoMsg ? (
-              <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+              <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs leading-snug text-emerald-900 md:mt-3 md:rounded-xl md:px-4 md:py-3 md:text-sm">
                 {infoMsg}
               </div>
             ) : null}
