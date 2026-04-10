@@ -52,12 +52,12 @@ export function ToggleGroup({
                   ? "min-h-[56px] px-5 py-4 text-left text-base leading-snug active:scale-[0.99]"
                   : "min-h-[48px] px-5 py-3.5 text-left text-base leading-snug active:scale-[0.99]",
               isXLarge && selected
-                ? "border-[#1877F2] bg-[#1877F2] text-white shadow-md ring-2 ring-[#B7D7FB] hover:bg-[#166FE5] hover:text-white"
+                ? "border-primary bg-primary text-primary-foreground shadow-md ring-2 ring-ring hover:bg-primary/90 hover:text-primary-foreground"
                 : isXLarge
-                  ? "border-[#DADDE1] bg-white text-[#1C1E21] hover:border-[#C8CCD1] hover:bg-[#F2F3F5] hover:shadow-sm"
+                  ? "border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
                   : selected
-                    ? "border-[#1877F2] bg-[#E7F3FF] text-[#0F5FCF] shadow-sm ring-2 ring-[#CDE5FF]"
-                    : "border-[#DADDE1] bg-white text-[#1C1E21] hover:border-[#C8CCD1] hover:bg-[#F2F3F5] hover:shadow-sm"
+                    ? "border-primary bg-accent text-accent-foreground shadow-sm ring-2 ring-ring"
+                    : "border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
             )}
           >
             {opt.label}

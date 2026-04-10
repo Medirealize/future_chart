@@ -12,8 +12,8 @@ const notoSansJp = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "FutureChart",
-  description: "日記アプリのオンボーディング",
+  title: "FutureChart - カレンダー",
+  description: "日記アプリのカレンダー",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         className={[
           notoSansJp.className,
-          "min-h-screen bg-[#F0F2F5] text-[#1C1E21] antialiased",
+          "antialiased bg-slate-50 text-slate-900",
         ].join(" ")}
       >
         <ThemeGuard />

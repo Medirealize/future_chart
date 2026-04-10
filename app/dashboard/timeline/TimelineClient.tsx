@@ -77,43 +77,37 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
   }
 
   return (
-    <div className="space-y-5 lg:space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#DADDE1] bg-white text-[#1877F2] shadow-sm">
-            <BookOpen className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+          <span className="flex size-10 items-center justify-center rounded-lg border border-border bg-background text-primary shadow-sm">
+            <BookOpen className="size-5" strokeWidth={1.75} aria-hidden />
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#1C1E21] md:text-3xl">年表（タイムライン）</h1>
-            <p className="mt-0.5 text-sm text-[#65676B]">大切な日々を、手帳のように残していきましょう</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">年表（タイムライン）</h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">大切な日々を、手帳のように残していきましょう</p>
           </div>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="rounded-xl border-[#DADDE1] bg-white font-semibold text-[#1C1E21] shadow-sm hover:bg-[#F2F3F5]"
-          onClick={() => router.push("/dashboard")}
-        >
+        <Button type="button" variant="outline" size="sm" onClick={() => router.push("/dashboard")}>
           ← カレンダー
         </Button>
       </div>
 
-      <section className="rounded-2xl border border-[#DADDE1] bg-white p-5 shadow-sm md:p-8">
+      <section className="rounded-xl border border-border bg-card p-6 text-card-foreground shadow-sm md:p-8">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div className="hidden sm:block" aria-hidden />
-              <span className="inline-flex w-fit items-center rounded-full border border-[#E4E6EB] bg-[#F0F2F5] px-3 py-1 text-xs font-semibold text-[#65676B]">
+              <span className="inline-flex w-fit items-center rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
                 2026年〜の記録
               </span>
             </div>
 
             {timelineDayBlocks.length === 0 ? (
-              <p className="mt-6 text-base leading-relaxed text-stone-600">
+              <p className="mt-6 text-sm leading-relaxed text-muted-foreground md:text-base">
                 まだ年表がありません。日々の気持ちを、そっと書き留めていきましょう。
               </p>
             ) : (
               <div className="relative mt-8">
-                <div className="absolute left-2 top-3 bottom-3 w-px bg-gradient-to-b from-sky-200/80 via-amber-200/60 to-rose-200/50" />
+                <div className="absolute bottom-3 left-2 top-3 w-px bg-gradient-to-b from-chart-2 via-chart-4 to-chart-5 opacity-60" />
 
                 <div className="space-y-3 pl-8">
                   {timelineDayBlocks.map(({ dateISO, entry: e }) => {
@@ -121,8 +115,8 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
                     const mode = e.mode ?? "禅";
                     const isZen = mode === "禅";
                     const pillClass = isZen
-                      ? "border border-sky-200/80 bg-sky-50 text-sky-800"
-                      : "border border-orange-200/80 bg-orange-50/90 text-orange-900";
+                      ? "border border-border bg-muted text-foreground"
+                      : "border border-border bg-accent text-accent-foreground";
                     const diaryText = (e.content ?? "").trim();
                     const preview =
                       diaryText.length > 160 ? `${diaryText.slice(0, 160)}...` : diaryText;
@@ -131,26 +125,26 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
                     return (
                       <div
                         key={dateISO}
-                        className="relative overflow-hidden rounded-2xl border border-amber-100/90 bg-white/95 shadow-[0_2px_16px_-4px_rgba(120,80,40,0.08)] ring-1 ring-white/80 transition-shadow hover:shadow-[0_6px_24px_-6px_rgba(120,80,40,0.12)]"
+                        className="relative overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md"
                       >
-                        <div className="absolute -left-[1.35rem] top-[1.35rem] h-3 w-3 rounded-full border-[3px] border-[#FFFCF8] bg-gradient-to-br from-sky-400 to-sky-500 shadow-sm" />
+                        <div className="absolute -left-[1.35rem] top-[1.35rem] size-3 rounded-full border-[3px] border-slate-50 bg-primary shadow-sm" />
                         <button
                           type="button"
                           onClick={() => toggleTimelineDay(dateISO)}
                           aria-expanded={open}
-                          className="flex w-full items-center gap-4 rounded-2xl px-5 py-4 text-left transition-colors hover:bg-amber-50/40"
+                          className="flex w-full items-center gap-4 rounded-lg px-5 py-4 text-left transition-colors hover:bg-muted/50"
                         >
-                          <span className="min-w-0 flex-1 text-base font-semibold text-stone-800">
+                          <span className="min-w-0 flex-1 text-sm font-medium text-foreground md:text-base">
                             {open ? `${labelDate}の記録` : `${labelDate}の記録を表示`}
                           </span>
                           {open ? (
                             <ChevronUp
-                              className="h-5 w-5 shrink-0 text-sky-500 transition-opacity duration-200"
+                              className="size-5 shrink-0 text-primary transition-opacity duration-200"
                               aria-hidden
                             />
                           ) : (
                             <ChevronDown
-                              className="h-5 w-5 shrink-0 text-amber-500 transition-opacity duration-200"
+                              className="size-5 shrink-0 text-muted-foreground transition-opacity duration-200"
                               aria-hidden
                             />
                           )}
@@ -161,24 +155,24 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
                           style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
                         >
                           <div className="min-h-0">
-                            <div className="border-t border-amber-100/70 bg-[#FFFCF9]/80 px-5 pb-5 pt-4">
+                            <div className="border-t border-border bg-muted/20 px-5 pb-5 pt-4">
                               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                <span className="text-xs font-semibold uppercase tracking-wide text-stone-400">
+                                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                                   {e.created_at}
                                 </span>
                                 <span
-                                  className={`w-fit rounded-full px-3.5 py-1 text-xs font-bold shadow-sm ${pillClass}`}
+                                  className={`w-fit rounded-full px-3.5 py-1 text-xs font-semibold shadow-sm ${pillClass}`}
                                 >
                                   {mode}
                                 </span>
                               </div>
 
-                              <div className="mt-3 text-[0.9375rem] leading-relaxed text-stone-800">
+                              <div className="mt-3 text-sm leading-relaxed text-foreground md:text-[0.9375rem]">
                                 {enrichFourCharIdioms(preview)}
                               </div>
 
                               {e.ai_response ? (
-                                <div className="mt-4 text-sm font-medium text-stone-500">
+                                <div className="mt-4 text-sm font-medium text-muted-foreground">
                                   未来の君からの処方箋生成済み
                                 </div>
                               ) : null}

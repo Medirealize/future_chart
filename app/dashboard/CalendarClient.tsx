@@ -1,23 +1,31 @@
 "use client";
 
 import * as React from "react";
-import { format, isBefore, addYears, startOfDay, parseISO } from "date-fns";
+import {
+  format,
+  isBefore,
+  addYears,
+  startOfDay,
+  parseISO,
+  isSameDay,
+  isToday,
+} from "date-fns";
+import { ja } from "date-fns/locale";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/style.css";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import {
   CORE_VALUE_STORAGE_KEY,
   CORE_VALUE_UPDATED_EVENT,
-  clearCachedCoreValue,
   readCachedCoreValue,
   writeCachedCoreValue,
   type CoreValueUpdatedDetail,
 } from "@/utils/core-value-sync";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ToggleGroup } from "@/components/ui/toggle-group";
-import type { ToggleGroupOption } from "@/components/ui/toggle-group";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarDays, Heart, Sparkles, Timer } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Heart, Sparkles, Timer } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   computeTimeLeftYearsMonthsDays,
   normalizeBirthDateString,
@@ -31,6 +39,14 @@ type EntryRow = {
   mode: string | null;
   ai_response: string | null;
 };
+
+type DiaryMode = "禅" | "ライバル" | "秘書";
+
+const MODE_OPTIONS: { value: DiaryMode; label: string; description: string }[] = [
+  { value: "禅", label: "禅", description: "静かに自分と向き合い、未来を俯瞰するスタイル" },
+  { value: "ライバル", label: "ライバル", description: "切磋琢磨し、互いを高め合う熱いスタイル" },
+  { value: "秘書", label: "秘書", description: "緻密な計画とサポートで、着実に未来を支えるスタイル" },
+];
 
 export default function CalendarClient({
   userType,
@@ -50,7 +66,6 @@ export default function CalendarClient({
   entries: EntryRow[];
 }) {
   const router = useRouter();
-  type DiaryMode = "禅" | "ライバル" | "秘書";
   const isDiaryMode = (value: string): value is DiaryMode =>
     value === "禅" || value === "ライバル" || value === "秘書";
 
@@ -131,12 +146,6 @@ export default function CalendarClient({
     };
   }, []);
 
-  const diaryModeOptions: ToggleGroupOption[] = [
-    { value: "禅", label: "禅" },
-    { value: "ライバル", label: "ライバル" },
-    { value: "秘書", label: "秘書" },
-  ];
-
   const [selectedDateISO, setSelectedDateISO] = React.useState<string>("");
   React.useEffect(() => {
     if (!calendarNow) return;
@@ -150,7 +159,7 @@ export default function CalendarClient({
   }, [selectedDateISO]);
   const selectedDateLabel = React.useMemo(() => {
     if (!selectedDate) return "";
-    return format(selectedDate, "yyyy年M月d日");
+    return format(selectedDate, "yyyy年M月d日", { locale: ja });
   }, [selectedDate]);
   /**
    * 「○歳の自分」の誕生日（生年月日 + 目標年齢）。カレンダー選択とは無関係に固定。
@@ -404,249 +413,303 @@ export default function CalendarClient({
     return () => window.clearTimeout(timer);
   }, [content, diaryMode, selectedDateISO]);
 
-  if (!isMounted || !calendarNow || !selectedDateISO) {
+  const entriesUiMap = React.useMemo(() => {
+    const m = new Map<string, { content: string; aiResponse?: string }>();
+    for (const e of entriesState) {
+      m.set(e.created_at, {
+        content: (e.content ?? "").trim(),
+        aiResponse: e.ai_response ?? undefined,
+      });
+    }
+    return m;
+  }, [entriesState]);
+
+  const hasAiResponse = Boolean(selectedEntry?.ai_response);
+
+  if (!isMounted || !calendarNow || !selectedDateISO || !selectedDate) {
     return (
-      <div className="rounded-2xl border border-[#DADDE1] bg-white p-8 shadow-sm">
-        <p className="text-sm font-medium text-[#65676B]">準備中...</p>
+      <div className="mx-auto w-full max-w-5xl px-4 py-8">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-sky-500" />
+            <p className="text-sm font-medium text-slate-500">読み込み中...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5 lg:space-y-6">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#DADDE1] bg-white text-[#1877F2] shadow-sm">
-            <CalendarDays className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+    <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 md:py-8">
+      <header className="mb-6 flex items-center gap-3">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-600 shadow-sm ring-1 ring-sky-100">
+          <CalendarDays className="h-5 w-5" strokeWidth={2} aria-hidden />
+        </span>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">カレンダー</h1>
+      </header>
+
+      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
+        <p className="flex flex-wrap items-center gap-x-1 gap-y-1 text-sm leading-relaxed text-slate-600 md:text-base">
+          <Timer className="h-4 w-4 shrink-0 text-sky-500" aria-hidden />
+          <span className="font-semibold text-sky-600">{futureTitle}</span>
+          <span>としての、</span>
+          <span className="font-semibold text-slate-900">
+            {effectiveTargetAgeNum != null && effectiveTargetAgeNum >= 1 ? `${effectiveTargetAgeNum}歳` : "—"}
           </span>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#1C1E21] md:text-3xl">カレンダー</h1>
-            <p className="mt-0.5 text-sm text-[#65676B]">日付を選び、日記と処方箋を記録します</p>
+          <span>の誕生日まで、あと</span>
+          <span className="font-semibold tabular-nums text-slate-900">{countdownLabel}</span>
+        </p>
+        {needsFutureSetup ? (
+          <div className="mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-xl border-slate-200"
+              onClick={() => router.push("/onboarding/future/edit")}
+            >
+              未来設定ページに戻る
+            </Button>
           </div>
-        </div>
+        ) : null}
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_min(100%,440px)] xl:items-start xl:gap-6">
-        <div className="space-y-5">
-          <section className="rounded-2xl border border-[#DADDE1] bg-white p-5 shadow-sm md:p-6">
-            <p className="flex flex-wrap items-center gap-x-1 gap-y-1 text-sm leading-relaxed text-[#65676B] md:text-base">
-              <Timer className="h-4 w-4 shrink-0 text-[#1877F2]" aria-hidden />
-              <span className="font-semibold text-[#1877F2]">{futureTitle}</span>
-              <span>としての、</span>
-              <span className="font-semibold text-[#1C1E21]">
-                {effectiveTargetAgeNum != null && effectiveTargetAgeNum >= 1
-                  ? `${effectiveTargetAgeNum}歳`
-                  : "—"}
-              </span>
-              <span>の誕生日まで、あと</span>
-              <span className="font-semibold tabular-nums text-[#1C1E21]">{countdownLabel}</span>
-            </p>
-            {needsFutureSetup ? (
-              <div className="mt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  className="min-h-11 rounded-xl border-[#DADDE1] bg-[#F0F2F5] px-4 text-base font-semibold text-[#1C1E21] hover:bg-[#E4E6EB]"
-                  onClick={() => router.push("/onboarding/future/edit")}
-                >
-                  未来設定ページに戻る
-                </Button>
-              </div>
-            ) : null}
-            {selectedCoreValue ? (
-              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#E4E6EB] bg-[#F0F2F5]/80 px-4 py-3">
-                <Heart className="h-5 w-5 shrink-0 fill-[#FCE8EE] text-[#F3425F]" aria-hidden />
-                <p className="min-w-0 flex-1 text-sm leading-snug text-[#1C1E21] md:text-base">
-                  <span className="font-semibold text-[#65676B]">合言葉</span>
-                  <span className="mx-1.5 text-[#BEC3C9]">·</span>
-                  <span className="font-semibold">{selectedCoreValueEnriched}</span>
-                </p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="shrink-0 rounded-lg font-semibold text-[#1877F2] hover:bg-[#E7F3FF]"
-                  onClick={() => router.push("/onboarding/core?edit=1")}
-                >
-                  変更
-                </Button>
-              </div>
-            ) : null}
-          </section>
-
-          <section className="rounded-2xl border border-[#DADDE1] bg-white p-4 shadow-sm sm:p-6 md:p-8">
-            <Calendar
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+        <section className="w-full shrink-0 lg:w-[380px]">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
+            <DayPicker
               mode="single"
-              onDayClick={(day) => {
-                if (!day) return;
-                const dateISO = format(day, "yyyy-MM-dd");
-                setSelectedDateISO(dateISO);
+              selected={selectedDate}
+              onSelect={(d) => {
+                if (!d) return;
+                setSelectedDateISO(format(startOfDay(d), "yyyy-MM-dd"));
+              }}
+              locale={ja}
+              showOutsideDays
+              className="mx-auto w-full"
+              classNames={{
+                root: "w-full",
+                months: "flex w-full flex-col",
+                month: "w-full",
+                month_caption: "relative mb-2 flex h-10 items-center justify-center",
+                caption_label: "text-base font-semibold text-slate-900",
+                nav: "absolute inset-x-0 flex items-center justify-between",
+                button_previous: cn(
+                  "inline-flex h-9 w-9 items-center justify-center rounded-lg",
+                  "text-slate-500 transition-colors",
+                  "hover:bg-slate-100 hover:text-sky-600",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40"
+                ),
+                button_next: cn(
+                  "inline-flex h-9 w-9 items-center justify-center rounded-lg",
+                  "text-slate-500 transition-colors",
+                  "hover:bg-slate-100 hover:text-sky-600",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40"
+                ),
+                month_grid: "w-full border-collapse",
+                weekdays: "mb-1 grid grid-cols-7",
+                weekday: "py-2 text-center text-xs font-semibold uppercase tracking-wide text-slate-500",
+                weeks: "space-y-1",
+                week: "grid grid-cols-7",
+                day: "relative p-0.5 text-center",
+                day_button: cn(
+                  "mx-auto flex h-10 w-10 items-center justify-center rounded-full",
+                  "text-sm font-medium text-slate-900 transition-all",
+                  "hover:bg-sky-50 hover:text-sky-600",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 focus-visible:ring-offset-1"
+                ),
+                outside: "text-slate-300 hover:bg-transparent hover:text-slate-300",
+                disabled: "text-slate-300 opacity-50",
+                hidden: "invisible",
+                today: "",
+                selected: "",
+              }}
+              modifiers={{
+                hasEntry: (date) => {
+                  const iso = format(date, "yyyy-MM-dd");
+                  const e = entriesUiMap.get(iso);
+                  return Boolean(e?.content);
+                },
+                hasPrescription: (date) => {
+                  const iso = format(date, "yyyy-MM-dd");
+                  const e = entriesUiMap.get(iso);
+                  return Boolean(e?.aiResponse);
+                },
               }}
               components={{
-                DayButton: ({ day, children, ...buttonProps }: any) => {
-                  const dateISO: string = day.isoDate;
-                  const entry = entriesByDate.get(dateISO);
+                Chevron: ({ orientation }) =>
+                  orientation === "left" ? (
+                    <ChevronLeft className="h-5 w-5" aria-hidden />
+                  ) : (
+                    <ChevronRight className="h-5 w-5" aria-hidden />
+                  ),
+                DayButton: ({ day, modifiers, className, children, ...props }) => {
+                  const dateISO = day.isoDate;
+                  const entry = entriesUiMap.get(dateISO);
                   const hasEntry = Boolean(entry?.content);
-                  const hasAiResponse = Boolean(entry?.ai_response);
-                  const dayClassName = typeof buttonProps.className === "string" ? buttonProps.className : "";
+                  const hasPrescription = Boolean(entry?.aiResponse);
+                  const isTodayDate = calendarNow ? isSameDay(day.date, calendarNow) : isToday(day.date);
+                  const isSelected = isSameDay(day.date, selectedDate);
 
                   return (
                     <button
-                      {...buttonProps}
-                      className={`${dayClassName} flex !h-12 !w-12 items-center justify-center md:!h-14 md:!w-14`}
-                      style={{ fontSize: "1.25rem", fontWeight: 700 }}
+                      type="button"
+                      {...props}
+                      className={cn(
+                        "mx-auto flex h-10 w-10 items-center justify-center rounded-full",
+                        "text-sm font-medium transition-all",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 focus-visible:ring-offset-1",
+                        !isTodayDate && !isSelected && "text-slate-900 hover:bg-sky-50 hover:text-sky-600",
+                        isTodayDate &&
+                          !isSelected && [
+                            "font-semibold text-sky-600 ring-2 ring-sky-500 ring-offset-2",
+                            "hover:bg-sky-50",
+                          ],
+                        isSelected && [
+                          "bg-sky-500 font-semibold text-white shadow-md shadow-sky-500/25",
+                          "hover:bg-sky-600",
+                        ],
+                        modifiers.outside && "text-slate-300 hover:bg-transparent hover:text-slate-300",
+                        className
+                      )}
                     >
-                      <div className="relative flex h-full w-full items-center justify-center leading-none">
+                      <span className="relative flex h-full w-full items-center justify-center">
                         {children}
                         {hasEntry ? (
                           <span
-                            className={
-                              hasAiResponse
-                                ? "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-[#1877F2] shadow-[0_0_0_2px_rgba(255,255,255,0.95)]"
-                                : "absolute -bottom-0.5 h-1.5 w-1.5 rounded-full bg-[#F7B928]"
-                            }
+                            className={cn(
+                              "absolute -bottom-0.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full",
+                              hasPrescription ? "bg-sky-500" : "bg-amber-400",
+                              isSelected && "bg-white"
+                            )}
                           />
                         ) : null}
-                      </div>
+                      </span>
                     </button>
                   );
                 },
               }}
             />
-          </section>
 
-          <p className="text-center text-sm text-[#65676B] lg:hidden">
-            <button
-              type="button"
-              className="font-semibold text-[#1877F2] hover:underline"
-              onClick={() => router.push("/dashboard/timeline")}
-            >
-              年表（タイムライン）を見る
-            </button>
-          </p>
-        </div>
-
-        <div className="xl:sticky xl:top-6 xl:max-h-[calc(100dvh-4rem)] xl:overflow-y-auto xl:overscroll-contain">
-          <section className="rounded-2xl border border-[#DADDE1] bg-white p-5 shadow-sm md:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-6 w-6 shrink-0 text-sky-500 md:h-7 md:w-7" aria-hidden />
-                <h2 className="text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold leading-tight tracking-tight text-stone-900 md:text-[clamp(1.75rem,4.2vw,2.5rem)]">
-                  {selectedDateLabel}の日記を{selectedEntry?.content ? "編集" : "記入"}
-                </h2>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-4 border-t border-slate-100 pt-4 text-xs text-slate-500">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full ring-2 ring-sky-500 ring-offset-1" />
+                <span>今日</span>
               </div>
-              <p className="text-base leading-relaxed text-stone-600 md:text-lg">
-                対象日:{" "}
-                <span className="rounded-lg bg-white/80 px-2 py-0.5 text-lg font-semibold text-stone-800 shadow-sm ring-1 ring-amber-100/80 md:text-xl">
-                  {selectedDateISO}
-                </span>
-                {" "}
-                <span className="text-stone-500">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-sky-500 shadow-sm" />
+                <span>選択中</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                <span>日記あり</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
+                <span>処方箋済</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="flex-1">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-sky-500" aria-hidden />
+                  <h2 className="text-lg font-bold text-slate-900 md:text-xl">{selectedDateLabel}の日記</h2>
+                </div>
+                <p className="text-sm text-slate-500">
                   {selectedIsFuture
-                    ? "（未来日は入力できません）"
+                    ? "未来日は入力できません"
                     : isReflectionContext
-                      ? "（過去の自分を振り返る）"
+                      ? "過去の自分を振り返る"
                       : selectedEntry?.content
-                        ? "（編集）"
-                        : ""}
-                </span>
-              </p>
-            </div>
-            <div className="rounded-2xl border border-sky-100/90 bg-sky-50/50 px-4 py-3.5 text-right shadow-sm md:px-5">
-              <p
-                className="font-semibold text-stone-600 md:text-xl"
-                style={{ fontSize: "1.125rem", lineHeight: 1.4 }}
-              >
-                {selectedEntry?.ai_response ? "処方箋生成済み" : "未生成"}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <div className="text-xl font-semibold text-stone-800 md:text-2xl">モード（禅 / ライバル / 秘書）</div>
-            <p className="mt-2 text-lg text-stone-600 md:text-xl">
-              今日の気分に合わせて、未来の自分との対話のトーンを選べます
-            </p>
-            <div className="mt-4">
-              <ToggleGroup
-                type="single"
-                value={diaryMode}
-                onValueChange={(v) => {
-                  if (isDiaryMode(v)) setDiaryMode(v);
-                }}
-                options={diaryModeOptions}
-                size="xlarge"
-                className="grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-4"
-              />
-              <div className="mt-4 text-lg font-semibold text-sky-800/90 md:text-xl">
-                現在のモード: <span className="font-bold">{diaryMode}</span>
+                        ? "編集モード"
+                        : "新規作成"}
+                </p>
               </div>
-              <div className="mt-2 text-lg leading-relaxed text-stone-600 md:text-xl">
-                {diaryMode === "禅"
-                  ? "静かに自分と向き合い、未来を俯瞰するスタイル"
-                  : diaryMode === "ライバル"
-                    ? "切磋琢磨し、互いを高め合う熱いスタイル"
-                    : "緻密な計画とサポートで、着実に未来を支えるスタイル"}
+              <div
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-sm font-medium",
+                  hasAiResponse
+                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                    : "bg-slate-100 text-slate-500"
+                )}
+              >
+                {hasAiResponse ? "処方箋生成済み" : "未生成"}
               </div>
             </div>
-          </div>
 
-          <div className="mt-8">
-            <Textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder={
-                isReflectionContext
-                  ? "当時の自分は、何を感じ、何を選びましたか？ 今の自分はそれをどう解釈しますか？"
-                  : "ここに日記を書いてください。"
-              }
-              disabled={isGenerating || selectedIsFuture}
-              className="min-h-[220px] rounded-2xl border-amber-200/70 bg-[#FFFDF9] px-4 py-4 text-[28px] leading-[1.7] text-stone-800 shadow-inner placeholder:text-stone-400 placeholder:text-lg md:min-h-[240px] md:px-5 md:py-5 md:text-[28px] md:leading-[1.72] md:placeholder:text-xl focus-visible:border-sky-300 focus-visible:ring-sky-200/60"
-            />
-          </div>
-
-          <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-            <div className="flex flex-1 flex-wrap items-center gap-4 rounded-2xl border border-amber-200/50 bg-amber-50/30 px-5 py-5 text-stone-700 shadow-sm md:px-6">
-              <Heart className="h-6 w-6 shrink-0 text-rose-400 sm:h-7 sm:w-7" aria-hidden />
-              <span
-                className="min-w-0 flex-1 font-medium leading-snug"
-                style={{ fontSize: "1.25rem", lineHeight: 1.45 }}
-              >
-                {selectedCoreValue
-                  ? `合言葉: ${selectedCoreValueEnriched}`
-                  : "合言葉: 未来の自分を待機中..."}
-              </span>
-              <Button
-                variant="ghost"
-                size="lg"
-                className="!h-auto ml-auto min-h-[4rem] shrink-0 rounded-2xl px-6 py-3.5 font-semibold text-sky-700 hover:bg-sky-100/70 md:min-h-[4.25rem] md:px-8 md:py-4"
-                style={{ fontSize: "1.5rem", lineHeight: 1.35 }}
-                onClick={() => router.push("/onboarding/core?edit=1")}
-              >
-                合言葉を変更
-              </Button>
+            <div className="mt-6">
+              <label className="text-sm font-semibold text-slate-700">モード選択</label>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {MODE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setDiaryMode(opt.value)}
+                    disabled={selectedIsFuture}
+                    className={cn(
+                      "rounded-xl px-3 py-2.5 text-sm font-semibold transition-all",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40",
+                      diaryMode === opt.value
+                        ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200",
+                      selectedIsFuture && "cursor-not-allowed opacity-50"
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                {MODE_OPTIONS.find((o) => o.value === diaryMode)?.description}
+              </p>
             </div>
-            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-4">
-              {selectedEntry?.ai_response ? (
-                <Button
-                  variant="secondary"
-                  type="button"
-                  size="lg"
-                  disabled
-                  className="hidden min-h-12 rounded-2xl border border-stone-200/80 bg-white/90 text-base sm:inline-flex"
-                  title="AI回答は下に表示します"
-                >
-                  生成済み
-                </Button>
-              ) : null}
-              <Button
-                variant="secondary"
-                type="button"
-                size="lg"
+
+            <div className="mt-5">
+              <Textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder={
+                  isReflectionContext
+                    ? "当時の自分は、何を感じ、何を選びましたか？ 今の自分はそれをどう解釈しますか？"
+                    : "今日のことを書いてみましょう..."
+                }
                 disabled={isGenerating || selectedIsFuture}
-                className="!h-auto min-h-[4.75rem] w-full rounded-2xl border-2 border-amber-300/90 bg-white px-8 py-5 font-semibold text-stone-800 shadow-sm hover:bg-amber-50/90 sm:w-auto md:min-h-[5rem] md:px-10"
-                style={{ fontSize: "1.5rem", lineHeight: 1.35 }}
+                className={cn(
+                  "min-h-[160px] resize-none rounded-xl border-slate-200 bg-slate-50",
+                  "px-4 py-3 text-base leading-relaxed text-slate-900",
+                  "placeholder:text-slate-400",
+                  "focus-visible:border-sky-500 focus-visible:ring-sky-500/20",
+                  "disabled:opacity-50"
+                )}
+              />
+            </div>
+
+            <div className="mt-4 flex items-center gap-3 rounded-xl bg-rose-50 px-4 py-3 ring-1 ring-rose-100">
+              <Heart className="h-4 w-4 shrink-0 fill-rose-400 text-rose-400" aria-hidden />
+              <span className="flex-1 text-sm font-medium text-slate-700">
+                合言葉:{" "}
+                <span className="font-semibold text-rose-600">
+                  {selectedCoreValueEnriched || currentCoreValue || "未来の自分を待機中…"}
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={() => router.push("/onboarding/core?edit=1")}
+                className="text-sm font-medium text-sky-600 hover:text-sky-700 hover:underline"
+              >
+                変更
+              </button>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button
+                variant="outline"
+                disabled={isGenerating || selectedIsFuture}
+                className="w-full rounded-xl border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:w-auto"
                 onClick={() => {
                   try {
                     localStorage.setItem(
@@ -668,56 +731,56 @@ export default function CalendarClient({
                 一時保存
               </Button>
               <Button
-                size="lg"
-                onClick={async () => handleGenerate()}
                 disabled={isGenerating || !content.trim() || selectedIsFuture}
-                className="!h-auto min-h-[5.75rem] w-full whitespace-normal rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-6 text-center font-semibold leading-snug text-white shadow-md transition-all hover:from-sky-600 hover:to-sky-700 hover:shadow-lg disabled:opacity-50 sm:w-auto sm:px-8 md:min-h-[6.5rem] md:py-7"
-                style={{
-                  fontSize: "clamp(1.375rem, 4vw, 1.625rem)",
-                  lineHeight: 1.35,
-                  fontWeight: 600,
-                }}
+                className="w-full rounded-xl bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-sky-500/20 hover:bg-sky-600 sm:w-auto"
+                onClick={() => void handleGenerate()}
               >
-                {isGenerating ? "生成中..." : `${selectedDateLabel}を保存して処方箋を生成`}
+                {isGenerating ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    生成中...
+                  </span>
+                ) : (
+                  "保存して処方箋を生成"
+                )}
               </Button>
             </div>
-          </div>
-          {selectedIsFuture ? (
-            <div className="mt-4 rounded-2xl border border-amber-200/80 bg-amber-50/50 px-4 py-3 text-sm font-medium text-amber-900">
-              今日以降の未来日には日記を保存できません。今日以前の日付を選択してください。
-            </div>
-          ) : null}
 
-          {selectedEntry?.ai_response ? (
-            <div className="mt-6 rounded-2xl border border-sky-100/90 bg-white/90 p-5 shadow-[0_4px_20px_-8px_rgba(60,120,160,0.12)] ring-1 ring-sky-50 md:p-6">
-              <div
-                className="flex items-center gap-2 font-bold text-sky-800 md:text-xl"
-                style={{ fontSize: "1.125rem", lineHeight: 1.4 }}
-              >
-                <Sparkles className="h-5 w-5 shrink-0 text-amber-500 md:h-6 md:w-6" aria-hidden />
-                未来の君からの処方箋
+            {selectedIsFuture ? (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                未来の日付には日記を保存できません。今日以前の日付を選択してください。
               </div>
-              <pre
-                className="mt-4 whitespace-pre-wrap leading-relaxed text-stone-800 md:text-lg"
-                style={{ fontSize: "1.0625rem", lineHeight: 1.65 }}
-              >
-                {selectedEntry.ai_response}
-              </pre>
-            </div>
-          ) : null}
+            ) : null}
 
-          {errorMsg ? (
-            <div className="mt-4 rounded-2xl border border-red-200/80 bg-red-50/80 px-4 py-3 text-sm font-medium text-red-800">
-              {errorMsg}
-            </div>
-          ) : null}
-          {infoMsg ? (
-            <div className="mt-3 rounded-2xl border border-emerald-200/80 bg-emerald-50/70 px-4 py-3 text-sm font-medium text-emerald-900">
-              {infoMsg}
-            </div>
-          ) : null}
-          </section>
-        </div>
+            {selectedEntry?.ai_response ? (
+              <div className="mt-5 rounded-xl border border-sky-100 bg-sky-50 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-sky-600">
+                  <Sparkles className="h-4 w-4" aria-hidden />
+                  未来の君からの処方箋
+                </div>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+                  {selectedEntry.ai_response}
+                </p>
+              </div>
+            ) : null}
+
+            {!selectedEntry && !content && !selectedIsFuture ? (
+              <div className="mt-5 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center">
+                <CalendarDays className="mx-auto h-8 w-8 text-slate-300" aria-hidden />
+                <p className="mt-2 text-sm text-slate-400">この日の日記はまだありません</p>
+              </div>
+            ) : null}
+
+            {errorMsg ? (
+              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{errorMsg}</div>
+            ) : null}
+            {infoMsg ? (
+              <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                {infoMsg}
+              </div>
+            ) : null}
+          </div>
+        </section>
       </div>
     </div>
   );
