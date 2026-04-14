@@ -24,7 +24,18 @@ export function createSupabaseServerClient() {
     cookies: {
       getAll: async () => {
         const store = await cookies();
-        return store.getAll().map((c) => ({ name: c.name, value: c.value }));
+        return store.getAll();
+      },
+      setAll: async (cookiesToSet) => {
+        try {
+          const store = await cookies();
+          for (const { name, value, options } of cookiesToSet) {
+            store.set(name, value, options);
+          }
+        } catch {
+          // Server Component など、レスポンスへ Cookie を書けない場合は無視する。
+          // トークン更新は middleware 側で行う。
+        }
       },
     },
   });
