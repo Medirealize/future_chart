@@ -133,19 +133,19 @@ export default function LoginClient() {
               />
             </div>
 
-            <h2 className="mb-0 mt-3 text-center text-[clamp(26px,6.5vw,40px)] font-extrabold leading-tight tracking-[0.02em] text-slate-900 [font-family:'Hiragino_Kaku_Gothic_ProN','Yu_Gothic_UI','Noto_Sans_JP',sans-serif]">
+            <h2 className="fc-page-title mt-3 text-center">
               未来からの処方箋
             </h2>
-            <p className="mt-1.5 text-center text-[clamp(13px,3.2vw,16px)] font-medium tracking-[0.04em] text-slate-500">
+            <p className="fc-muted mt-1.5 text-center font-medium tracking-wide">
               Prescription from the Future
             </p>
-            <p className="mt-4 text-center text-[clamp(15px,3.8vw,19px)] font-bold leading-snug text-slate-900">
+            <p className="fc-card-title mt-4 text-center">
               「未来の君」からのアドバイスが、
             </p>
-            <p className="text-center text-[clamp(15px,3.8vw,19px)] font-bold leading-snug text-slate-900">
+            <p className="fc-card-title text-center">
               今の君を変える
             </p>
-            <p className="mx-auto mt-2 max-w-[20rem] text-center text-[clamp(14px,3.4vw,17px)] leading-snug text-slate-600">
+            <p className="fc-lead mx-auto mt-2 max-w-[20rem] text-center font-medium">
               その記録が、明日を変える力になる
             </p>
 
@@ -153,7 +153,7 @@ export default function LoginClient() {
               <button
                 type="button"
                 onClick={() => setMode("signin")}
-                className={`min-h-[3rem] rounded-xl border py-2.5 text-[clamp(15px,3.6vw,19px)] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 ${
+                className={`min-h-12 rounded-xl border py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 md:text-[15px] ${
                   mode === "signin"
                     ? "border-sky-500 bg-sky-500 text-white shadow-sm shadow-sky-500/25"
                     : "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -165,7 +165,7 @@ export default function LoginClient() {
               <button
                 type="button"
                 onClick={() => setMode("signup")}
-                className={`min-h-[3rem] rounded-xl border py-2.5 text-[clamp(15px,3.6vw,19px)] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 ${
+                className={`min-h-12 rounded-xl border py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 md:text-[15px] ${
                   mode === "signup"
                     ? "border-sky-500 bg-sky-500 text-white shadow-sm shadow-sky-500/25"
                     : "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -183,30 +183,29 @@ export default function LoginClient() {
                 void handleAuth();
               }}
             >
-              <label htmlFor="email" className="mt-2 block text-[clamp(14px,3.5vw,17px)] font-semibold text-slate-700">
+              <label htmlFor="email" className="fc-label mt-2 block">
                 メールアドレス
               </label>
               <div className="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-                <div className="ml-0.5 text-[clamp(16px,4vw,22px)]">📜</div>
+                <div className="ml-0.5 text-base md:text-lg">📜</div>
                 <input
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   autoComplete="email"
-                  className="mt-1 min-h-[2.6rem] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
-                  style={{ fontSize: "clamp(16px, 3.6vw, 18px)" }}
+                  className="mt-1 min-h-11 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-base outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 md:text-[15px]"
                 />
               </div>
 
               <label
                 htmlFor="password"
-                className="mt-3 block text-[clamp(14px,3.5vw,17px)] font-semibold text-slate-700"
+                className="fc-label mt-3 block"
               >
                 パスワード
               </label>
               <div className="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-                <div className="flex max-w-[52%] items-center justify-between text-[clamp(16px,4vw,22px)]">
+                <div className="flex max-w-[52%] items-center justify-between text-base md:text-lg">
                   <span>🖋️</span>
                   <span>🧠</span>
                 </div>
@@ -216,12 +215,11 @@ export default function LoginClient() {
                   onChange={(e) => setPassword(e.target.value)}
                   type="password"
                   autoComplete="current-password"
-                  className="mt-1 min-h-[2.6rem] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
-                  style={{ fontSize: "clamp(16px, 3.6vw, 18px)" }}
+                  className="mt-1 min-h-11 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-base outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 md:text-[15px]"
                 />
               </div>
 
-              <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 px-2 py-2 text-[clamp(14px,3.4vw,16px)] leading-snug text-slate-700 transition hover:bg-slate-100">
+              <label className="fc-body mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 px-2 py-2 transition hover:bg-slate-100">
                 <input
                   type="checkbox"
                   checked={rememberLogin}
@@ -230,12 +228,12 @@ export default function LoginClient() {
                     setRememberLogin(next);
                     if (!next) persistLoginPrefs(false, "");
                   }}
-                  className="mt-0.5 h-[clamp(18px,4.5vw,22px)] w-[clamp(18px,4.5vw,22px)] shrink-0 rounded border-sky-500 text-sky-500 accent-sky-500"
+                  className="mt-0.5 h-5 w-5 shrink-0 rounded border-sky-500 text-sky-500 accent-sky-500 md:h-[22px] md:w-[22px]"
                   disabled={isLoading}
                 />
                 <span>
                   <span className="font-medium text-slate-900">ログイン条件を保持する</span>
-                  <span className="mt-0.5 block text-[clamp(12px,3vw,14px)] leading-snug text-slate-500">
+                  <span className="fc-muted mt-0.5 block">
                     （メールアドレスのみこの端末に保存します。パスワードは保存しません）
                   </span>
                 </span>
@@ -244,11 +242,7 @@ export default function LoginClient() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="mb-[clamp(42px,8.5vw,56px)] mt-5 block w-full rounded-xl border border-sky-500 bg-sky-500 px-5 py-4 text-center font-bold leading-snug text-white shadow-md shadow-sky-500/25 transition hover:bg-sky-600 disabled:opacity-50 sm:py-5"
-                style={{
-                  fontSize: "clamp(1.25rem, 4.8vw, 1.625rem)",
-                  minHeight: "clamp(3.5rem, 12vw, 4.75rem)",
-                }}
+                className="mb-10 mt-5 block min-h-14 w-full rounded-xl border border-sky-500 bg-sky-500 px-5 py-4 text-center text-base font-bold leading-snug text-white shadow-md shadow-sky-500/25 transition hover:bg-sky-600 disabled:opacity-50 md:mb-14 md:min-h-16 md:text-lg sm:py-5"
               >
                 {isLoading ? "処理中…" : "未来の君に相談する"}
               </button>

@@ -445,11 +445,11 @@ export default function CalendarClient({
         <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-600 shadow-sm ring-1 ring-sky-100">
           <CalendarDays className="h-5 w-5" strokeWidth={2} aria-hidden />
         </span>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">カレンダー</h1>
+        <h1 className="fc-page-title">カレンダー</h1>
       </header>
 
       <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
-        <p className="flex flex-wrap items-center gap-x-1 gap-y-1 text-sm leading-relaxed text-slate-600 md:text-base">
+        <p className="fc-lead flex flex-wrap items-center gap-x-1 gap-y-1">
           <Timer className="h-4 w-4 shrink-0 text-sky-500" aria-hidden />
           <span className="font-semibold text-sky-600">{futureTitle}</span>
           <span>としての、</span>
@@ -617,7 +617,7 @@ export default function CalendarClient({
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 shrink-0 text-sky-500 md:h-5 md:w-5" aria-hidden />
-                  <h2 className="text-base font-bold leading-snug text-slate-900 md:text-lg lg:text-xl">
+                  <h2 className="fc-section-title leading-snug">
                     {selectedDateLabel}の日記
                   </h2>
                 </div>

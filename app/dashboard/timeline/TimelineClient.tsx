@@ -84,8 +84,8 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
             <BookOpen className="size-5" strokeWidth={1.75} aria-hidden />
           </span>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">年表（タイムライン）</h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">大切な日々を、手帳のように残していきましょう</p>
+            <h1 className="fc-page-title text-slate-900">年表（タイムライン）</h1>
+            <p className="fc-muted mt-0.5">大切な日々を、手帳のように残していきましょう</p>
           </div>
         </div>
         <Button type="button" variant="outline" size="sm" onClick={() => router.push("/dashboard")}>
@@ -93,7 +93,7 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
         </Button>
       </div>
 
-      <section className="rounded-xl border border-border bg-card p-6 text-card-foreground shadow-sm md:p-8">
+      <section className="fc-card text-card-foreground">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div className="hidden sm:block" aria-hidden />
               <span className="inline-flex w-fit items-center rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
@@ -102,7 +102,7 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
             </div>
 
             {timelineDayBlocks.length === 0 ? (
-              <p className="mt-6 text-sm leading-relaxed text-muted-foreground md:text-base">
+              <p className="fc-body mt-6 text-muted-foreground">
                 まだ年表がありません。日々の気持ちを、そっと書き留めていきましょう。
               </p>
             ) : (
@@ -134,7 +134,7 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
                           aria-expanded={open}
                           className="flex w-full items-center gap-4 rounded-lg px-5 py-4 text-left transition-colors hover:bg-muted/50"
                         >
-                          <span className="min-w-0 flex-1 text-sm font-medium text-foreground md:text-base">
+                          <span className="min-w-0 flex-1 text-sm font-medium text-foreground md:text-[15px]">
                             {open ? `${labelDate}の記録` : `${labelDate}の記録を表示`}
                           </span>
                           {open ? (
@@ -167,7 +167,7 @@ export default function TimelineClient({ entries }: { entries: EntryRow[] }) {
                                 </span>
                               </div>
 
-                              <div className="mt-3 text-sm leading-relaxed text-foreground md:text-[0.9375rem]">
+                              <div className="fc-body mt-3 text-foreground">
                                 {enrichFourCharIdioms(preview)}
                               </div>
 

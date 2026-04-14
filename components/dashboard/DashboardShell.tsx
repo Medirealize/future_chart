@@ -35,7 +35,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   return (
     <div className="flex min-h-svh w-full flex-col bg-slate-50 text-slate-900 antialiased">
       <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border bg-background px-3 sm:px-4 lg:hidden">
-        <span className="min-w-0 truncate text-base font-semibold tracking-tight text-foreground">
+        <span className="min-w-0 truncate text-sm font-semibold tracking-tight text-foreground md:text-[15px]">
           FutureChart
         </span>
         <div className="flex shrink-0 items-center gap-0.5">
@@ -70,8 +70,8 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         )}
       >
         <div className="hidden h-14 shrink-0 flex-col justify-center border-b border-sidebar-border px-4 lg:flex">
-          <p className="text-sm font-semibold tracking-tight text-sidebar-foreground">FutureChart</p>
-          <p className="text-xs text-muted-foreground">未来の自分との対話</p>
+          <p className="text-sm font-semibold tracking-tight text-sidebar-foreground md:text-[15px]">FutureChart</p>
+          <p className="text-xs text-sidebar-foreground/80 md:text-sm">未来の自分との対話</p>
         </div>
         <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2 pt-3 lg:pt-2" aria-label="メインナビゲーション">
           {nav.map(({ href, label, icon: Icon }) => {
@@ -84,7 +84,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
                 key={href}
                 href={href}
                 className={cn(
-                  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors md:text-[15px]",
                   active
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
                     : "text-sidebar-foreground/80 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground"
@@ -109,7 +109,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
             className="w-full justify-center text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
           />
         </div>
-        <div className="border-t border-sidebar-border p-3 text-[11px] leading-snug text-muted-foreground">
+        <div className="border-t border-sidebar-border p-3 text-xs leading-snug text-sidebar-foreground/70 md:text-sm">
           スマホではメニューから画面を切り替えられます。
         </div>
       </aside>

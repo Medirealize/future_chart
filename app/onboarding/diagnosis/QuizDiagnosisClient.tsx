@@ -127,18 +127,18 @@ export default function QuizDiagnosisClient() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-slate-600 dark:text-slate-300">
+    <div className="fc-page-narrow">
+      <div className="fc-card">
+        <div className="flex items-center justify-between gap-3">
+          <div className="fc-eyebrow">
             診断 {step + 1}/{QUESTIONS.length}
           </div>
-          <div className="text-right text-xs text-slate-500 dark:text-slate-400">
+          <div className="fc-muted text-right">
             性格統計学ベースの簡易タイプ診断（A/B/C・全3問）
           </div>
         </div>
 
-        <h1 className="mt-6 text-xl font-semibold">{q.prompt}</h1>
+        <h1 className="fc-card-title mt-6">{q.prompt}</h1>
 
         <div className="mt-6">
           <ToggleGroup
@@ -171,14 +171,14 @@ export default function QuizDiagnosisClient() {
             <Button
               type="button"
               size="lg"
-              className="min-h-12 px-8 text-base font-semibold"
+              className="min-h-11 px-6 text-sm font-semibold md:min-h-12 md:px-8 md:text-[15px]"
               disabled={isSaving || !canProceedLast}
               onClick={() => void handleProceedComplete()}
             >
               {isSaving ? "保存中..." : "次へ進む"}
             </Button>
           ) : (
-            <div className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="fc-muted">
               選択すると次に進みます
             </div>
           )}

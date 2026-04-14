@@ -160,10 +160,10 @@ export default function CoreValueClient({
   }));
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <div className="text-sm text-slate-600 dark:text-slate-300">合言葉選択</div>
-        <h1 className="mt-2 text-xl font-semibold">未来のあなたの「合言葉」を選んでください</h1>
+    <div className="fc-page-medium">
+      <div className="fc-card">
+        <div className="fc-eyebrow">合言葉選択</div>
+        <h1 className="fc-card-title mt-2">未来のあなたの「合言葉」を選んでください</h1>
 
         <div className="mt-6">
           <ToggleGroup
@@ -180,7 +180,7 @@ export default function CoreValueClient({
           <Button
             variant="ghost"
             size="lg"
-            className="min-h-12 w-full justify-center text-base sm:w-auto"
+            className="min-h-11 w-full justify-center text-sm font-semibold sm:w-auto md:min-h-12 md:text-[15px]"
             onClick={() => router.push("/onboarding/future")}
             disabled={isSaving}
           >
@@ -188,7 +188,7 @@ export default function CoreValueClient({
           </Button>
           <Button
             size="lg"
-            className="min-h-12 w-full justify-center text-base sm:w-auto"
+            className="min-h-11 w-full justify-center text-sm font-semibold sm:w-auto md:min-h-12 md:text-[15px]"
             onClick={handleSave}
             disabled={!selected || isSaving}
           >

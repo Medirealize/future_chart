@@ -175,19 +175,19 @@ export default function FutureSetupClient({
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <div className="text-sm text-slate-600 dark:text-slate-300">未来設定</div>
-        <h1 className="mt-2 text-xl font-semibold">
+    <div className="fc-page-narrow">
+      <div className="fc-card">
+        <div className="fc-eyebrow">未来設定</div>
+        <h1 className="fc-card-title mt-2">
           何歳の自分から、メッセージを受け取りますか？
         </h1>
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+        <p className="fc-lead mt-2">
           生年月日と目標の年齢から、「その誕生日」までの残り日数をカウントダウンします。
         </p>
 
         <div className="mt-6 space-y-5">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label className="fc-label">
               生年月日
             </label>
             <Input
@@ -196,13 +196,13 @@ export default function FutureSetupClient({
               onChange={(e) => setBirthDate(e.target.value)}
               className="rounded-xl"
             />
-            <div className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="fc-muted">
               カレンダーから選ぶか、YYYY-MM-DD で入力してください。
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label className="fc-label">
               目標とする年齢（○歳の自分）
             </label>
             <Input
@@ -215,13 +215,13 @@ export default function FutureSetupClient({
               onChange={(e) => setTargetAge(e.target.value)}
               placeholder="例: 60"
             />
-            <div className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="fc-muted">
               その年齢の誕生日まで、あと何年何ヶ月何日と表示します。
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label className="fc-label">
               そのときの肩書き・姿
             </label>
             <Input
@@ -229,7 +229,7 @@ export default function FutureSetupClient({
               onChange={(e) => setFutureTitle(e.target.value)}
               placeholder="会社の会長 / ベストセラー作家 / 孫に慕われる隠居生活"
             />
-            <div className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="fc-muted">
               未来のあなたの肩書きや状態を短く入力してください。
             </div>
           </div>

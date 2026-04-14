@@ -182,18 +182,18 @@ export default function WriteEntryClient({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
+    <div className="fc-page-medium space-y-5">
         <button
           type="button"
           onClick={() => router.push("/dashboard")}
-          className="inline-flex items-center gap-2 rounded-xl border border-[#DADDE1] bg-white px-4 py-2.5 text-sm font-semibold text-[#1C1E21] shadow-sm transition hover:bg-[#F2F3F5]"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 md:text-[15px]"
         >
           <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden />
           カレンダーに戻る
         </button>
 
-        <article className="overflow-hidden rounded-2xl border border-[#DADDE1] bg-white shadow-sm">
-          <header className="border-b border-rose-100/70 bg-white/50 px-6 py-6 backdrop-blur-sm md:px-8 md:py-7">
+        <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <header className="border-b border-slate-100 bg-white/80 px-4 py-5 backdrop-blur-sm md:px-5 md:py-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
@@ -206,41 +206,41 @@ export default function WriteEntryClient({
                   >
                     {mode === "reflection" ? "リフレクション" : "編集"}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-stone-500">
+                  <span className="fc-muted inline-flex items-center gap-1.5 font-medium">
                     <PenLine className="h-3.5 w-3.5" aria-hidden />
                     日記を書く
                   </span>
                 </div>
-                <h1 className="text-2xl font-extrabold tracking-tight text-stone-900 md:text-3xl">
+                <h1 className="fc-page-title">
                   {pageHeadline()}
                 </h1>
-                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-stone-600 md:text-base">
-                  <span className="inline-flex items-center gap-1.5 font-medium text-stone-800">
+                <p className="fc-lead flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="inline-flex items-center gap-1.5 font-medium text-slate-800">
                     <CalendarDays className="h-4 w-4 text-sky-500" aria-hidden />
                     {dateLabel}
                   </span>
-                  <span className="text-stone-400" aria-hidden>
+                  <span className="text-slate-400" aria-hidden>
                     ·
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <Sparkles className="h-4 w-4 shrink-0 text-amber-500" aria-hidden />
-                    <span className="font-medium text-stone-700">未来の自分</span>
-                    <span className="max-w-[min(100%,18rem)] truncate text-stone-600" title={futureTitle}>
+                    <span className="font-medium text-slate-700">未来の自分</span>
+                    <span className="max-w-[min(100%,18rem)] truncate text-slate-600" title={futureTitle}>
                       「{futureTitle}」
                     </span>
                   </span>
                 </p>
               </div>
-              <div className="rounded-2xl border border-stone-200/80 bg-white/90 px-4 py-3 text-right shadow-sm">
-                <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-stone-400">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-right shadow-sm md:px-4 md:py-3">
+                <p className="fc-muted font-semibold uppercase tracking-wider">
                   対象日（ISO）
                 </p>
-                <p className="mt-0.5 font-mono text-sm font-semibold tabular-nums text-stone-800">{dateISO}</p>
+                <p className="mt-0.5 font-mono text-sm font-semibold tabular-nums text-slate-800 md:text-[15px]">{dateISO}</p>
               </div>
             </div>
           </header>
 
-          <div className="space-y-8 px-6 py-8 md:px-8 md:py-9">
+          <div className="space-y-6 px-4 py-6 md:px-5 md:py-7">
             {coreValue ? (
               <section
                 className="rounded-2xl border border-amber-200/60 bg-amber-50/50 px-5 py-5 shadow-sm md:px-6 md:py-5"
@@ -250,16 +250,10 @@ export default function WriteEntryClient({
                   <div className="flex min-w-0 flex-1 gap-3">
                     <Heart className="mt-1 h-6 w-6 shrink-0 fill-rose-100 text-rose-400" aria-hidden />
                     <div className="min-w-0">
-                      <p
-                        className="font-semibold uppercase tracking-wider text-amber-900/90"
-                        style={{ fontSize: "0.8125rem", letterSpacing: "0.06em" }}
-                      >
+                      <p className="fc-muted font-semibold uppercase tracking-wider text-amber-900/90">
                         合言葉
                       </p>
-                      <p
-                        className="mt-1.5 font-medium leading-snug text-stone-800"
-                        style={{ fontSize: "1.25rem", lineHeight: 1.45 }}
-                      >
+                      <p className="fc-card-title mt-1.5 leading-snug text-slate-800">
                         {coreValueEnriched}
                       </p>
                     </div>
@@ -268,8 +262,7 @@ export default function WriteEntryClient({
                     variant="outline"
                     size="lg"
                     type="button"
-                    className="!h-auto w-full shrink-0 rounded-2xl border-sky-300/80 bg-white px-6 py-3.5 font-semibold text-sky-800 shadow-sm hover:bg-sky-50 sm:w-auto md:min-h-[4rem] md:px-8 md:py-4"
-                    style={{ fontSize: "1.5rem", lineHeight: 1.35 }}
+                    className="h-11 w-full shrink-0 rounded-xl border-sky-200 bg-white px-4 text-sm font-semibold text-sky-800 shadow-sm hover:bg-sky-50 sm:w-auto md:h-12 md:px-6 md:text-[15px]"
                     onClick={() => router.push("/onboarding/core?edit=1")}
                   >
                     合言葉を変更
@@ -279,10 +272,10 @@ export default function WriteEntryClient({
             ) : null}
 
             <section aria-labelledby="mode-heading">
-              <h2 id="mode-heading" className="text-lg font-bold text-stone-900 md:text-xl">
+              <h2 id="mode-heading" className="fc-section-title">
                 対話モード
               </h2>
-              <p className="mt-1.5 text-sm leading-relaxed text-stone-600 md:text-base">
+              <p className="fc-lead mt-1.5">
                 今日の気分に合わせて、未来の自分とのトーンを選びます。
               </p>
               <div className="mt-4">
@@ -297,9 +290,9 @@ export default function WriteEntryClient({
                   className="grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4"
                 />
               </div>
-              <p className="mt-4 rounded-xl bg-stone-100/60 px-4 py-3 text-sm text-stone-700 md:text-base">
-                <span className="font-semibold text-sky-800">「{diaryMode}」</span>
-                <span className="mx-1.5 text-stone-400">—</span>
+              <p className="fc-body mt-4 rounded-xl bg-slate-100 px-4 py-3">
+                <span className="font-semibold text-sky-700">「{diaryMode}」</span>
+                <span className="mx-1.5 text-slate-400">—</span>
                 {modeDescription}
               </p>
             </section>
@@ -307,16 +300,16 @@ export default function WriteEntryClient({
             <section aria-labelledby="entry-heading">
               <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
                 <div>
-                  <h2 id="entry-heading" className="text-lg font-bold text-stone-900 md:text-xl">
+                  <h2 id="entry-heading" className="fc-section-title">
                     本文
                   </h2>
-                  <p className="mt-1 text-sm text-stone-600">
+                  <p className="fc-muted mt-1">
                     {mode === "reflection"
                       ? "当時の気持ちと、今の解釈を自由に綴ってください。"
                       : "今日の出来事や気づきを、未来の自分へ残してください。"}
                   </p>
                 </div>
-                <span className="text-xs font-medium tabular-nums text-stone-400 md:text-sm">
+                <span className="fc-muted font-medium tabular-nums">
                   {content.length.toLocaleString()} 文字
                 </span>
               </div>
@@ -331,13 +324,13 @@ export default function WriteEntryClient({
                     ? "当時の自分は、何を感じ、何を選びましたか？ 今の自分はそれをどう解釈しますか？"
                     : "ここに日記を書いてください。"
                 }
-                className="min-h-[min(50vh,22rem)] rounded-2xl border-amber-200/80 bg-[#FFFDF9] px-5 py-5 text-[28px] leading-[1.65] text-stone-800 shadow-inner placeholder:text-stone-400 placeholder:text-xl focus-visible:border-sky-400 focus-visible:ring-2 focus-visible:ring-sky-200/50 md:min-h-[26rem] md:leading-[1.7] md:placeholder:text-2xl"
+                className="min-h-[min(50vh,14rem)] rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-relaxed text-slate-900 shadow-inner placeholder:text-slate-400 focus-visible:border-sky-500 focus-visible:ring-2 focus-visible:ring-sky-500/20 md:min-h-[20rem] md:px-4 md:py-3 md:text-[15px]"
               />
             </section>
 
             {errorMsg ? (
               <div
-                className="flex items-start gap-3 rounded-2xl border border-red-200/90 bg-red-50/90 px-4 py-3 text-sm font-medium text-red-900 md:text-base"
+                className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-900 md:text-[15px]"
                 role="alert"
               >
                 <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" aria-hidden />
@@ -346,17 +339,14 @@ export default function WriteEntryClient({
             ) : null}
 
             {infoMsg ? (
-              <div className="flex items-start gap-3 rounded-2xl border border-emerald-200/90 bg-emerald-50/90 px-4 py-3 text-sm font-medium text-emerald-900 md:text-base">
+              <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900 md:text-[15px]">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" aria-hidden />
                 <span>{infoMsg}</span>
               </div>
             ) : null}
 
-            <footer className="flex flex-col gap-4 border-t border-rose-100/60 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
-              <p
-                className="order-last max-w-xl text-stone-600 sm:order-first"
-                style={{ fontSize: "1rem", lineHeight: 1.55 }}
-              >
+            <footer className="flex flex-col gap-4 border-t border-slate-100 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
+              <p className="fc-body order-last max-w-xl sm:order-first">
                 一時保存はこの端末に下書きとして残ります。確定は「保存」でカレンダーに反映されます。
               </p>
               <div className="flex w-full flex-col gap-3 sm:ml-auto sm:w-auto sm:flex-row sm:justify-end">
@@ -364,8 +354,7 @@ export default function WriteEntryClient({
                   variant="secondary"
                   type="button"
                   size="lg"
-                  className="!h-auto min-h-[4.5rem] w-full rounded-2xl border-2 border-amber-200/90 px-8 py-4 font-semibold sm:w-auto sm:min-w-[11rem]"
-                  style={{ fontSize: "1.5rem", lineHeight: 1.35 }}
+                  className="h-11 w-full rounded-xl border border-slate-200 px-5 text-sm font-semibold sm:w-auto sm:min-w-[10rem] md:h-12 md:text-[15px]"
                   disabled={isSaving}
                   onClick={() => {
                     try {
@@ -389,8 +378,7 @@ export default function WriteEntryClient({
                 </Button>
                 <Button
                   size="lg"
-                  className="!h-auto min-h-[4.5rem] w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-8 py-4 font-semibold text-white shadow-md transition hover:from-sky-600 hover:to-sky-700 hover:shadow-lg sm:w-auto sm:min-w-[11rem]"
-                  style={{ fontSize: "1.5625rem", lineHeight: 1.35, fontWeight: 600 }}
+                  className="h-11 w-full rounded-xl bg-sky-500 px-5 text-sm font-semibold text-white shadow-md shadow-sky-500/25 transition hover:bg-sky-600 sm:w-auto sm:min-w-[10rem] md:h-12 md:text-[15px]"
                   onClick={() => void handleSave()}
                   disabled={isSaving}
                 >

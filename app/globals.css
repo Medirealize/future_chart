@@ -122,6 +122,49 @@
   }
 }
 
+/* Shared page typography (aligned with dashboard / calendar) */
+@layer components {
+  .fc-page {
+    @apply mx-auto w-full max-w-5xl px-4 py-6 md:px-6 md:py-8;
+  }
+  .fc-page-narrow {
+    @apply mx-auto w-full max-w-2xl px-4 py-6 md:px-6 md:py-8;
+  }
+  .fc-page-medium {
+    @apply mx-auto w-full max-w-3xl px-4 py-6 md:px-6 md:py-8;
+  }
+  .fc-card {
+    @apply rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5;
+  }
+  /** Primary screen title */
+  .fc-page-title {
+    @apply text-2xl font-bold tracking-tight text-slate-900 md:text-3xl;
+  }
+  /** Onboarding / in-card main heading */
+  .fc-card-title {
+    @apply text-xl font-bold tracking-tight text-slate-900 md:text-2xl;
+  }
+  /** Section heading */
+  .fc-section-title {
+    @apply text-base font-bold text-slate-900 md:text-lg;
+  }
+  .fc-eyebrow {
+    @apply text-sm font-medium text-slate-600;
+  }
+  .fc-body {
+    @apply text-sm leading-relaxed text-slate-700 md:text-[15px];
+  }
+  .fc-lead {
+    @apply text-sm leading-relaxed text-slate-600 md:text-[15px];
+  }
+  .fc-muted {
+    @apply text-xs leading-snug text-slate-500 md:text-sm;
+  }
+  .fc-label {
+    @apply text-sm font-semibold text-slate-700;
+  }
+}
+
 /* ログアウトを常に最前面・ビューポート基準で固定（親の transform / stacking に引きずられない） */
 [data-fc-global-logout="1"] {
   position: fixed !important;
