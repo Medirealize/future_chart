@@ -33,6 +33,13 @@ npm run dev
 
 ブラウザで `http://localhost:3000` を開いてください。
 
+## Web 公開（例: Vercel）
+
+1. GitHub リポジトリを Vercel に取り込み、**Framework Preset** は Next.js のままにします。
+2. **Environment Variables** に、`.env.example` と同じキーを本番用の値で登録します（`NEXT_PUBLIC_*` はビルドに埋め込まれるため、本番 URL用の Supabase プロジェクトを指すようにしてください）。
+3. デプロイ後、Supabase ダッシュボードの **Authentication → URL Configuration** で、**Site URL** と **Redirect URLs** に `https://<あなたのドメイン>`（およびプレビュー用 URL があればそれも）を追加します。
+4. ビルドログで `npm run lint` が走る設定の場合、Next.js 16 以降は `eslint .` を使います（本リポジトリの `lint` スクリプトはそれに対応済みです）。
+
 ## 主な画面
 
 - `/login`: ログイン / サインアップ
